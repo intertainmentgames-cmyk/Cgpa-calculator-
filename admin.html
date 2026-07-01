@@ -5,98 +5,290 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Panel - Control Center</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome icons for delete/menu -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
         :root {
             --primary: #6366f1;
             --success: #10b981;
-            --glass-bg: rgba(255, 255, 255, 0.06);
-            --glass-border: rgba(255, 255, 255, 0.1);
+            --danger: #ef4444;
+            --glass-bg: rgba(255, 255, 255, 0.04);
+            --glass-border: rgba(255, 255, 255, 0.08);
             --text-main: #f8fafc;
             --text-muted: #94a3b8;
+            --index-bg: #0b0f19; /* Standardized index layout theme match */
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
 
         body {
-            background: radial-gradient(circle at top right, #1e1b4b 0%, #0f0728 60%, #03000a 100%);
+            background: radial-gradient(circle at top right, #111827 0%, #0b0f19 70%, #030712 100%);
             min-height: 100vh;
             color: var(--text-main);
-            padding-bottom: 50px;
+            overflow-x: hidden;
         }
 
+        /* Navbar Layout */
         .navbar {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 20px 40px;
-            background: rgba(3, 0, 10, 0.4);
+            padding: 15px 30px;
+            background: rgba(11, 15, 25, 0.7);
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
             border-bottom: 1px solid var(--glass-border);
+            position: sticky;
+            top: 0;
+            z-index: 100;
         }
 
-        .logo { font-size: 1.4rem; font-weight: 700; color: white; }
-        .highlight { color: #facc15; }
+        /* Three Dot / Menu Button Styles */
+        .menu-dots-btn {
+            background: none;
+            border: none;
+            color: var(--text-main);
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 5px 10px;
+            border-radius: 8px;
+            transition: 0.3s;
+        }
+        .menu-dots-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
 
-        .container { max-width: 1200px; margin: 40px auto; padding: 0 20px; }
+        .logo-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+        .highlight { color: #fbbf24; }
 
-        .admin-grid { display: grid; grid-template-columns: 1.2fr 1fr; gap: 30px; }
+        /* Left Side Drawer Sidebar Panel */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: -320px;
+            width: 320px;
+            height: 100%;
+            background: #0f172a;
+            border-right: 1px solid var(--glass-border);
+            z-index: 999;
+            transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            padding: 30px 20px;
+            box-shadow: 10px 0 30px rgba(0,0,0,0.5);
+            overflow-y: auto;
+        }
+        .sidebar.active { left: 0; }
 
-        /* Pure Glassmorphism Structure Panel */
+        .sidebar-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(4px);
+            z-index: 998;
+            display: none;
+        }
+        .sidebar-overlay.active { display: block; }
+
+        .close-sidebar-btn {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 1.2rem;
+            float: right;
+            cursor: pointer;
+            margin-bottom: 20px;
+        }
+
+        .sidebar-nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 16px;
+            color: var(--text-muted);
+            text-decoration: none;
+            border-radius: 12px;
+            margin-bottom: 8px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .sidebar-nav-item:hover, .sidebar-nav-item.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        /* App Sections Views */
+        .app-section { display: none; }
+        .app-section.active-view { display: block; }
+
+        .container { max-width: 900px; margin: 30px auto; padding: 0 20px; }
+
+        /* Glassmorphism Cards styling matching Index */
         .card-panel {
-            background: var(--glass-bg);
-            backdrop-filter: blur(25px);
-            -webkit-backdrop-filter: blur(25px);
+            background: rgba(17, 24, 39, 0.6);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
             border: 1px solid var(--glass-border);
-            border-radius: 24px;
-            padding: 35px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.3);
+            margin-bottom: 25px;
         }
 
-        .section-title { margin-bottom: 25px; color: #fff; font-weight: 700; }
+        .section-title { margin-bottom: 25px; font-weight: 700; font-size: 1.4rem; display: flex; align-items: center; gap: 10px; }
         .form-group { margin-bottom: 20px; }
-        .form-group label { display: block; margin-bottom: 6px; font-weight: 600; color: var(--text-muted); font-size: 0.9rem; }
+        .form-group label { display: block; margin-bottom: 8px; font-weight: 500; color: var(--text-muted); font-size: 0.85rem; }
 
-        input, select {
-            width: 100%; padding: 12px; background: rgba(0, 0, 0, 0.3); border: 1px solid var(--glass-border);
-            border-radius: 10px; outline: none; font-size: 1rem; color: #fff; transition: 0.2s;
+        input {
+            width: 100%; padding: 12px 16px; background: rgba(5, 5, 10, 0.4); border: 1px solid var(--glass-border);
+            border-radius: 12px; outline: none; font-size: 0.95rem; color: #fff; transition: 0.2s;
         }
-        input:focus, select:focus { border-color: var(--primary); }
+        input:focus { border-color: var(--primary); box-shadow: 0 0 10px rgba(99, 102, 241, 0.2); }
 
         .btn {
-            width: 100%; padding: 14px; border: none; border-radius: 10px;
-            font-size: 1.1rem; font-weight: 600; cursor: pointer; transition: 0.2s;
+            width: 100%; padding: 14px; border: none; border-radius: 12px;
+            font-size: 1rem; font-weight: 600; cursor: pointer; transition: 0.2s;
         }
-        .btn-success { background: var(--success); color: white; box-shadow: 0 4px 15px rgba(16, 185, 129, 0.2); }
+        .btn-success { background: var(--success); color: white; }
         .btn-success:hover { background: #059669; }
 
-        .sem-block { background: rgba(0,0,0,0.2); padding: 15px; border-radius: 12px; margin-bottom: 15px; border: 1px solid rgba(255,255,255,0.02); }
-        .sub-item-row { display: flex; justify-content: space-between; background: rgba(255,255,255,0.04); padding: 10px 14px; margin-bottom: 6px; border-radius: 8px; font-size: 0.95rem; }
+        .sem-block { background: rgba(255,255,255,0.02); padding: 18px; border-radius: 14px; margin-bottom: 15px; border: 1px solid var(--glass-border); }
+        .sub-item-row { display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.03); padding: 12px 16px; margin-top: 8px; border-radius: 10px; font-size: 0.9rem; }
 
-        /* Student Live Tracker Feed Components */
-        .logs-wrapper { max-height: 600px; overflow-y: auto; padding-right: 5px; }
-        .log-box-card { border-left: 4px solid #10b981; background: rgba(255, 255, 255, 0.02); border-top: 1px solid rgba(255,255,255,0.05); border-bottom: 1px solid rgba(255,255,255,0.05); border-right: 1px solid rgba(255,255,255,0.05); padding: 14px; margin-bottom: 12px; border-radius: 0 10px 10px 0; }
-        .score-lbl-badge { color: #10b981; font-weight: 700; font-size: 1.1rem; text-shadow: 0 0 10px rgba(16,185,129,0.2); }
+        /* Student Logs Cards list styling */
+        .logs-wrapper { display: flex; flex-direction: column; gap: 14px; }
+        .log-box-card { 
+            position: relative;
+            border-left: 4px solid var(--success); 
+            background: rgba(255, 255, 255, 0.02); 
+            border-top: 1px solid var(--glass-border);
+            border-bottom: 1px solid var(--glass-border);
+            border-right: 1px solid var(--glass-border);
+            padding: 18px; 
+            border-radius: 0 16px 16px 0; 
+            cursor: pointer;
+            transition: transform 0.2s, background 0.2s;
+        }
+        .log-box-card:hover { 
+            transform: translateY(-2px);
+            background: rgba(255, 255, 255, 0.04);
+        }
+        .score-lbl-badge { color: var(--success); font-weight: 700; font-size: 1.1rem; }
+        
+        /* Action buttons layout */
+        .card-actions-wrapper {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 10px;
+        }
+        .delete-log-btn {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--danger);
+            border: none;
+            padding: 8px 14px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 600;
+            transition: 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            z-index: 5;
+        }
+        .delete-log-btn:hover {
+            background: var(--danger);
+            color: #fff;
+        }
 
-        @media(max-width: 850px) { .admin-grid { grid-template-columns: 1fr; } }
+        /* Crystal Clear Modal Setup for Complete User Specs Data display */
+        .custom-modal {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(3, 7, 18, 0.85);
+            backdrop-filter: blur(8px);
+            z-index: 1000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .custom-modal.modal-open { display: flex; }
+        .modal-body-content {
+            background: #0f172a;
+            border: 1px solid var(--glass-border);
+            max-width: 650px;
+            width: 100%;
+            border-radius: 20px;
+            padding: 25px;
+            position: relative;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.6);
+            animation: modalFadeIn 0.3s ease;
+        }
+        @keyframes modalFadeIn { from {transform: translateY(15px); opacity: 0;} to {transform: translateY(0); opacity: 1;} }
+        
+        .close-modal {
+            position: absolute; top: 20px; right: 20px;
+            background: none; border: none; color: var(--text-muted);
+            font-size: 1.3rem; cursor: pointer;
+        }
+
+        /* Detailed Index Layout Table Inside Popup */
+        .data-table-specs {
+            width: 100%; border-collapse: collapse; margin-top: 20px; text-align: left; font-size: 0.9rem;
+        }
+        .data-table-specs th, .data-table-specs td {
+            padding: 12px; border-bottom: 1px solid var(--glass-border);
+        }
+        .data-table-specs th { color: var(--text-muted); font-weight: 600; }
+        .summary-gpa-footer {
+            margin-top: 20px; padding: 15px; border-radius: 12px;
+            background: rgba(99, 102, 241, 0.1); border: 1px solid rgba(99, 102, 241, 0.2);
+            display: flex; justify-content: space-between; font-weight: 600;
+        }
     </style>
 </head>
 <body>
 
+    <!-- Main Navigation Architecture -->
     <nav class="navbar">
-        <div class="logo">⚙️ Central <span class="highlight">Admin Control</span></div>
-        <a href="index.html" style="color: white; text-decoration: none; font-weight:600; background: rgba(255,255,255,0.1); padding: 8px 16px; border-radius: 8px; font-size: 0.9rem;">← Main Website</a>
+        <button class="menu-dots-btn" id="menu-toggle"><i class="fa-solid fa-bars"></i></button>
+        <div class="logo-title">⚙️ Admin <span class="highlight">Control</span></div>
+        <a href="index.html" style="color: white; text-decoration: none; font-size: 0.85rem; font-weight:600; background: rgba(255,255,255,0.06); padding: 8px 14px; border-radius: 10px; border: 1px solid var(--glass-border);">← Website</a>
     </nav>
 
+    <!-- Sidebar Multi Sections Overlay Structure -->
+    <div class="sidebar-overlay" id="sidebar-overlay"></div>
+    <div class="sidebar" id="sidebar-drawer">
+        <button class="close-sidebar-btn" id="sidebar-close"><i class="fa-solid fa-xmark"></i></button>
+        <h3 style="margin-bottom: 25px; font-weight:700; color: white;">Navigation</h3>
+        
+        <div class="sidebar-nav-item active" data-target="subject-section">
+            <i class="fa-solid fa-book-bookmark"></i> Manage Subjects
+        </div>
+        <div class="sidebar-nav-item" data-target="live-users-section">
+            <i class="fa-solid fa-users-viewfinder"></i> Live User Data
+        </div>
+    </div>
+
+    <!-- Interface Main Center Wrapper -->
     <div class="container">
-        <div class="admin-grid">
-            
+        
+        <!-- Section 1: Manage Subjects Panel View -->
+        <div id="subject-section" class="app-section active-view">
             <div class="card-panel">
-                <h2 class="section-title">Manage Subjects</h2>
+                <h2 class="section-title"><i class="fa-solid fa-folder-plus" style="color: var(--primary);"></i> Manage Subjects Structure</h2>
                 <div class="form-group">
                     <label>Semester Name</label>
-                    <input type="text" id="admin-sem" placeholder="e.g., Fall 2025">
+                    <input type="text" id="admin-sem" placeholder="e.g., 1st semester">
                 </div>
                 <div class="form-group">
                     <label>Subject Name</label>
@@ -107,24 +299,60 @@
                     <input type="number" id="admin-sub-ch" min="1" max="5" placeholder="3">
                 </div>
                 <button class="btn btn-success" id="save-btn">Save Subject Structure</button>
-                
-                <h3 style="margin-top: 30px; margin-bottom:15px; color: var(--text-muted);">Active Configurations</h3>
+            </div>
+            
+            <div class="card-panel">
+                <h3 style="margin-bottom:20px; color: var(--text-main); font-weight: 600;">Active Configurations</h3>
                 <div id="admin-list-container">Loading configurations...</div>
             </div>
+        </div>
 
+        <!-- Section 2: Live Global Tracking Calculations Dynamic Feed -->
+        <div id="live-users-section" class="app-section">
             <div class="card-panel">
-                <h2 class="section-title" style="color: #ef4444; text-shadow: 0 0 15px rgba(239, 68, 68, 0.15);">📊 Live User Calculations</h2>
+                <h2 class="section-title" style="color: var(--success);"><i class="fa-solid fa-chart-line"></i> Live User Calculations</h2>
+                <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 20px;">Click/Tap any user card to inspect full transcript records dashboard.</p>
                 <div id="logs-container" class="logs-wrapper">
-                    Loading live logs from students...
+                    Syncing cloud packets data logs...
                 </div>
             </div>
+        </div>
 
+    </div>
+
+    <!-- Global Inspection Lightbox Modal Dialog Popup -->
+    <div class="custom-modal" id="details-modal">
+        <div class="modal-body-content">
+            <button class="close-modal" id="modal-close-btn"><i class="fa-solid fa-circle-xmark"></i></button>
+            <h3 id="modal-user-title" style="color: #fff; font-weight: 700; margin-bottom: 4px;">Student Name</h3>
+            <span id="modal-timestamp" style="color: var(--text-muted); font-size: 0.75rem;">Time Details</span>
+            
+            <div style="overflow-x: auto;">
+                <table class="data-table-specs">
+                    <thead>
+                        <tr>
+                            <th>Subject</th>
+                            <th>Credit Hours</th>
+                            <th>Grade Point</th>
+                            <th>Grade</th>
+                        </tr>
+                    </thead>
+                    <tbody id="modal-table-rows">
+                        <!-- Content dynamically inserted -->
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="summary-gpa-footer">
+                <span>Calculated Global Output:</span>
+                <span id="modal-gpa-badge" style="color: var(--success); font-weight:700;">4.00</span>
+            </div>
         </div>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getDatabase, ref, set, get, child, onValue } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+        import { getDatabase, ref, set, get, child, onValue, remove } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyCRximbg48XT2HxpQoRdyp137soJwcEWqw",
@@ -140,7 +368,37 @@
         const db = getDatabase(app);
 
         let academicData = {};
+        let activeLogsData = {};
 
+        // Sidebar Navigation Logic Engine
+        const menuToggle = document.getElementById('menu-toggle');
+        const sidebarDrawer = document.getElementById('sidebar-drawer');
+        const sidebarOverlay = document.getElementById('sidebar-overlay');
+        const sidebarClose = document.getElementById('sidebar-close');
+
+        function toggleSidebar() {
+            sidebarDrawer.classList.toggle('active');
+            sidebarOverlay.classList.toggle('active');
+        }
+        menuToggle.addEventListener('click', toggleSidebar);
+        sidebarClose.addEventListener('click', toggleSidebar);
+        sidebarOverlay.addEventListener('click', toggleSidebar);
+
+        document.querySelectorAll('.sidebar-nav-item').forEach(item => {
+            item.addEventListener('click', () => {
+                document.querySelectorAll('.sidebar-nav-item').forEach(i => i.classList.remove('active'));
+                item.classList.add('active');
+                
+                const targetView = item.getAttribute('data-target');
+                document.querySelectorAll('.app-section').forEach(section => {
+                    section.classList.remove('active-view');
+                });
+                document.getElementById(targetView).classList.add('active-view');
+                toggleSidebar();
+            });
+        });
+
+        // Load Subject Configurations Architecture
         async function loadInitialData() {
             const dbRef = ref(db);
             const snapshot = await get(child(dbRef, "uet_config/subjectsData"));
@@ -176,43 +434,129 @@
         function renderAdminPanelList() {
             const container = document.getElementById('admin-list-container');
             container.innerHTML = '';
+            if(Object.keys(academicData).length === 0) {
+                container.innerHTML = '<p style="color:var(--text-muted); font-size:0.9rem;">No active configurations found.</p>';
+                return;
+            }
             for(let sem in academicData) {
                 let div = document.createElement('div');
                 div.className = 'sem-block';
-                div.innerHTML = `<h4 style="margin-bottom: 10px; color:#a78bfa;">${sem}</h4>`;
+                div.innerHTML = `<h4 style="color:#a78bfa; font-weight:600;">${sem}</h4>`;
                 academicData[sem].forEach(sub => {
                     div.innerHTML += `
                         <div class="sub-item-row">
-                            <span>${sub.name} (${sub.ch} CH)</span>
-                            <button onclick="deleteSubject('${sem}', ${sub.id})" style="color:#ef4444; border:none; background:none; cursor:pointer; font-weight:bold; font-size:1rem;">✕</button>
+                            <span>${sub.name} <b style="color:var(--text-muted); margin-left:8px;">(${sub.ch} CH)</b></span>
+                            <button onclick="deleteSubject('${sem}', ${sub.id})" style="color:var(--danger); border:none; background:none; cursor:pointer; font-size:1rem;"><i class="fa-regular fa-trash-can"></i></button>
                         </div>`;
                 });
                 container.appendChild(div);
             }
         }
 
+        // Live Logs Tracking Engine With Submissions Inspection & Clean Deletion 
         const logsRef = ref(db, 'student_logs');
         onValue(logsRef, (snapshot) => {
             const container = document.getElementById('logs-container');
             container.innerHTML = '';
+            activeLogsData = {}; 
+
             if(!snapshot.exists()) {
-                container.innerHTML = '<p style="color:#71717a;">No calculations made yet.</p>';
+                container.innerHTML = '<p style="color:#71717a; font-size:0.95rem;">No active user telemetry matching records found.</p>';
                 return;
             }
             
-            let logsArray = [];
             snapshot.forEach((childSnapshot) => {
-                logsArray.push(childSnapshot.val());
+                const logKey = childSnapshot.key;
+                const logVal = childSnapshot.val();
+                activeLogsData[logKey] = logVal; 
+                
+                // Card Box Layout HTML Injection
+                const card = document.createElement('div');
+                card.className = 'log-box-card';
+                card.setAttribute('onclick', `openUserDetailedTranscript('${logKey}')`);
+                
+                card.innerHTML = `
+                    <strong style="color:#fff; font-size:1.05rem;">${logVal.name || 'Anonymous Student'}</strong> 
+                    <span style="float:right; font-size:0.75rem; color:var(--text-muted);">${logVal.timestamp || ''}</span>
+                    <p style="margin-top:6px; color:#d4d4d8; font-size:0.9rem;">
+                        Semester: <b style="color:#fbbf24;">${logVal.semester || 'N/A'}</b>
+                    </p>
+                    <div class="card-actions-wrapper">
+                        <div>Calculated CGPA: <span class="score-lbl-badge">${logVal.gpa || '0.00'}</span></div>
+                        <button class="delete-log-btn" onclick="deleteUserLogRecord(event, '${logKey}')">
+                            <i class="fa-solid fa-trash-arrow-up"></i> Delete Permanently
+                        </button>
+                    </div>
+                `;
+                container.appendChild(card);
             });
-            
-            logsArray.reverse().forEach((data) => {
-                container.innerHTML += `
-                    <div class="log-box-card">
-                        <strong style="color:#fff; font-size:1.05rem;">${data.name}</strong> 
-                        <span style="float:right; font-size:0.75rem; color:#71717a;">${data.timestamp}</span>
-                        <p style="margin-top:5px; color:#d4d4d8; font-size:0.9rem;">Semester: <b style="color:#fbbf24;">${data.semester}</b> | Calculated CGPA: <span class="score-lbl-badge">${data.gpa}</span></p>
-                    </div>`;
-            });
+        });
+
+        // Permanent Cloud Firebase Node Wipe Execution 
+        window.deleteUserLogRecord = async function(event, nodeKey) {
+            event.stopPropagation(); // Stops modal popup triggering on pressing delete button
+            if(confirm("Kia aap waqai is bachy ka data Firebase sy hamesha kalia delete krna chahty hain?")) {
+                try {
+                    await remove(ref(db, `student_logs/${nodeKey}`));
+                    alert("User log successfully dropped from Database nodes.");
+                } catch(err) {
+                    alert("Error processing deletion sequence: " + err.message);
+                }
+            }
+        }
+
+        // Modal Popups View Actions Engine
+        const detailsModal = document.getElementById('details-modal');
+        
+        window.openUserDetailedTranscript = function(nodeKey) {
+            const targetData = activeLogsData[nodeKey];
+            if(!targetData) return;
+
+            document.getElementById('modal-user-title').innerText = targetData.name || 'Student Sheet';
+            document.getElementById('modal-timestamp').innerText = `Submitted on: ${targetData.timestamp || 'Unknown Time'} (Semester: ${targetData.semester || 'N/A'})`;
+            document.getElementById('modal-gpa-badge').innerText = targetData.gpa || '0.00';
+
+            const tableBody = document.getElementById('modal-table-rows');
+            tableBody.innerHTML = '';
+
+            // Agar index array fields available hon database records me tab dynamic breakdown build ho sakega
+            if(targetData.subjectsBreakdown && Array.isArray(targetData.subjectsBreakdown)) {
+                targetData.subjectsBreakdown.forEach(item => {
+                    tableBody.innerHTML += `
+                        <tr>
+                            <td style="color:#fff; font-weight:500;">${item.name || 'N/A'}</td>
+                            <td>${item.ch || '0'}</td>
+                            <td>${item.gp || '0'}</td>
+                            <td><span style="background:rgba(255,255,255,0.06); padding:4px 8px; border-radius:6px; font-weight:600; color:#fbbf24;">${item.grade || '-'}</span></td>
+                        </tr>
+                    `;
+                });
+            } else if (targetData.subjects || targetData.details) {
+                // Alternative formatting mapping mechanism 
+                let list = targetData.subjects || targetData.details;
+                Object.values(list).forEach(item => {
+                    tableBody.innerHTML += `
+                        <tr>
+                            <td style="color:#fff; font-weight:500;">${item.name || 'N/A'}</td>
+                            <td>${item.ch || item.creditHours || '0'}</td>
+                            <td>${item.gp || item.gradePoints || '0'}</td>
+                            <td><span style="background:rgba(255,255,255,0.06); padding:4px 8px; border-radius:6px; font-weight:600; color:#fbbf24;">${item.grade || '-'}</span></td>
+                        </tr>
+                    `;
+                });
+            } else {
+                tableBody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:var(--text-muted); padding:20px;">Is entry me details dynamic fields array mapped nahi hain. (CGPA: ${targetData.gpa})</td></tr>`;
+            }
+
+            detailsModal.classList.add('modal-open');
+        }
+
+        // Close Modal Events
+        document.getElementById('modal-close-btn').addEventListener('click', () => {
+            detailsModal.classList.remove('modal-open');
+        });
+        detailsModal.addEventListener('click', (e) => {
+            if(e.target === detailsModal) detailsModal.classList.remove('modal-open');
         });
 
         loadInitialData();
