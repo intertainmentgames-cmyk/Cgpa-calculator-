@@ -89,6 +89,11 @@
             align-items: center;
         }
 
+        /* 4-Column Layout exclusively for Dynamic Manual Mode to give wide input fields */
+        .manual-mode {
+            grid-template-columns: 2.3fr 1fr 1fr 1.2fr !important;
+        }
+
         .table-heading {
             padding: 12px 10px;
             font-weight: 600;
@@ -130,8 +135,7 @@
             font-size: 0.95rem;
             border-radius: 8px;
             color: #fff;
-            flex: 2;
-            min-width: 0;
+            width: 100%;
         }
         .manual-select-ch {
             padding: 0 8px;
@@ -140,8 +144,8 @@
             border-radius: 8px;
             background: rgba(15, 20, 36, 0.8);
             color: #fff;
-            flex: 1;
-            min-width: 75px;
+            width: 100%;
+            text-align: center;
         }
 
         .live-points-col { text-align: center; font-weight: 700; color: #34d399; font-size: 1.05rem; }
@@ -267,11 +271,12 @@
 
         @media(max-width: 600px) {
             .grid-layout { grid-template-columns: 2.2fr 1.2fr 1.2fr; gap: 8px; }
+            .manual-mode { grid-template-columns: 1.8fr 0.9fr 0.9fr 1.1fr !important; gap: 6px !important; }
             .added-row { grid-template-columns: 2.2fr 1.2fr 1.2fr; font-size: 0.8rem; padding: 10px 4px; }
             .table-heading { font-size: 0.75rem; padding: 10px 4px; letter-spacing: 0.3px; }
             .subject-row { padding: 12px 6px; border-radius: 10px; }
             .manual-input-name { padding: 8px; font-size: 0.85rem; }
-            .manual-select-ch { height: 34px; font-size: 0.8rem; min-width: 65px; }
+            .manual-select-ch { height: 34px; font-size: 0.8rem; }
             .sub-details { font-size: 0.85rem; }
             .live-points-col { font-size: 0.95rem; }
             .sub-grade { font-size: 0.8rem; padding: 4px; height: 34px; }
@@ -320,6 +325,7 @@
             </div>
 
             <div id="table-headings" class="grid-layout table-heading hidden">
+                <!-- Headings will be dynamically modified by JavaScript -->
                 <div class="heading-item">Subject Name (CH)</div>
                 <div class="heading-item text-center">Grade Point</div>
                 <div class="heading-item text-right">Select Grade</div>
@@ -395,7 +401,6 @@
         let userAddedSubjects = []; 
 
         document.addEventListener('DOMContentLoaded', () => {
-            // Force reset selection index variables on load
             document.getElementById('department-select').selectedIndex = 0;
             
             document.getElementById('department-select').addEventListener('change', handleDepartmentChange);
@@ -446,12 +451,25 @@
             if (dept === 'other') {
                 semWrapper.classList.add('hidden');
                 headings.classList.remove('hidden');
+                headings.classList.add('manual-mode');
+                headings.innerHTML = `
+                    <div class="heading-item">Subject Name</div>
+                    <div class="heading-item text-center">CH</div>
+                    <div class="heading-item text-center">Grade Point</div>
+                    <div class="heading-item text-right">Select Grade</div>
+                `;
                 addBtn.classList.remove('hidden');
                 calcBtn.style.display = 'block';
                 renderSingleManualRow(); 
             } else if (dept === 'mechanical') {
                 semWrapper.classList.remove('hidden');
                 headings.classList.add('hidden');
+                headings.classList.remove('manual-mode');
+                headings.innerHTML = `
+                    <div class="heading-item">Subject Name (CH)</div>
+                    <div class="heading-item text-center">Grade Point</div>
+                    <div class="heading-item text-right">Select Grade</div>
+                `;
                 addBtn.classList.add('hidden');
                 calcBtn.style.display = 'none';
                 document.getElementById('semester-select').value = '';
@@ -463,18 +481,18 @@
             container.innerHTML = '';
 
             let row = document.createElement('div');
-            row.className = 'grid-layout subject-row';
+            row.className = 'grid-layout subject-row manual-mode';
             row.innerHTML = `
-                <div class="sub-meta-container">
-                    <div class="subject-info-wrapper">
-                        <input type="text" class="manual-input-name" id="manual-sub-name" placeholder="Subject Name">
-                        <select class="manual-select-ch" id="manual-sub-ch">
-                            <option value="3">3 CH</option>
-                            <option value="4">4 CH</option>
-                            <option value="2">2 CH</option>
-                            <option value="1">1 CH</option>
-                        </select>
-                    </div>
+                <div>
+                    <input type="text" class="manual-input-name" id="manual-sub-name" placeholder="Subject Name">
+                </div>
+                <div>
+                    <select class="manual-select-ch" id="manual-sub-ch">
+                        <option value="3">3</option>
+                        <option value="4">4</option>
+                        <option value="2">2</option>
+                        <option value="1">1</option>
+                    </select>
                 </div>
                 <div class="live-points-col" id="manual-live-pts">4.00</div>
                 <div>
@@ -505,7 +523,6 @@
             let itemRow = document.createElement('div');
             itemRow.className = 'added-row';
             
-            // FIXED: Integrated dynamic text logic systems inside container outputs safely
             itemRow.innerHTML = `
                 <div class="auto-scale-text" title="${name} (${ch} CH)">${name} (${ch} CH)</div>
                 <div style="text-align:center; font-weight:700; color:#34d399;">${pts.toFixed(2)}</div>
@@ -646,7 +663,6 @@
             }
             document.getElementById('success-overlay').classList.add('hidden');
             
-            // Full Reset UI Form state on closing screen context safely
             document.getElementById('student-name').value = '';
             document.getElementById('department-select').selectedIndex = 0;
             document.getElementById('semester-wrapper').classList.add('hidden');
