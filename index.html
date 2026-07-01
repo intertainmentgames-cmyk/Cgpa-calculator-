@@ -97,14 +97,14 @@
         /* Master Grid Layout Rules for Clean Columns */
         .grid-layout {
             display: grid;
-            grid-template-columns: 2.5fr 1.2fr 1.2fr;
+            grid-template-columns: minmax(120px, 2.5fr) minmax(70px, 1.2fr) minmax(80px, 1.2fr);
             gap: 12px;
             align-items: center;
         }
 
         /* 4-Column Layout exclusively for Dynamic Manual Mode to give wide input fields */
         .manual-mode {
-            grid-template-columns: 2.3fr 1fr 1fr 1.2fr !important;
+            grid-template-columns: minmax(100px, 2.3fr) minmax(50px, 1fr) minmax(60px, 1fr) minmax(80px, 1.2fr) !important;
         }
 
         .table-heading {
@@ -133,11 +133,11 @@
         }
         .subject-row:hover { background: rgba(255, 255, 255, 0.06); border-color: rgba(255, 255, 255, 0.15); }
         
-        .sub-meta-container { display: flex; align-items: center; gap: 8px; min-width: 0; width: 100%; }
+        .sub-meta-container { display: flex; align-items: center; gap: 10px; min-width: 0; width: 100%; }
         .subject-row input[type="checkbox"] { width: 18px; height: 18px; accent-color: #38bdf8; cursor: pointer; flex-shrink: 0; }
         
-        .subject-info-wrapper { display: flex; flex-direction: row; align-items: center; gap: 10px; width: 100%; min-width: 0; }
-        .sub-details { font-weight: 600; color: #f8fafc; font-size: 0.95rem; line-height: 1.4; word-wrap: break-word; }
+        .subject-info-wrapper { display: flex; flex-direction: row; align-items: center; gap: 10px; width: 100%; min-width: 0; overflow: hidden; }
+        .sub-details { font-weight: 600; color: #f8fafc; font-size: 0.95rem; line-height: 1.4; white-space: nowrap; text-overflow: ellipsis; overflow: hidden; }
         .sub-ch { font-weight: 400; color: #38bdf8; font-size: 0.8rem; margin-top: 1px; }
         
         .manual-input-name {
@@ -186,7 +186,7 @@
         
         .added-row {
             display: grid;
-            grid-template-columns: 2.5fr 1.2fr 1.2fr;
+            grid-template-columns: minmax(120px, 2.5fr) minmax(70px, 1.2fr) minmax(80px, 1.2fr);
             padding: 12px 8px;
             border-bottom: 1px solid rgba(255,255,255,0.05);
             font-size: 0.9rem;
@@ -206,10 +206,11 @@
         .auto-scale-text {
             font-size: clamp(0.75rem, 2.5vw, 0.95rem);
             white-space: nowrap;
-            overflow: hidden;
             text-overflow: ellipsis;
+            overflow: hidden;
             font-weight: 500;
             color: #fff;
+            line-height: 1.4;
         }
 
         .btn {
@@ -288,9 +289,9 @@
         @media(max-width: 600px) {
             .logo { font-size: 1.2rem; gap: 6px; }
             .logo img { height: 36px; }
-            .grid-layout { grid-template-columns: 2.2fr 1.2fr 1.2fr; gap: 8px; }
-            .manual-mode { grid-template-columns: 1.8fr 0.9fr 0.9fr 1.1fr !important; gap: 6px !important; }
-            .added-row { grid-template-columns: 2.2fr 1.2fr 1.2fr; font-size: 0.8rem; padding: 10px 4px; }
+            .grid-layout { grid-template-columns: minmax(110px, 2.2fr) minmax(65px, 1.2fr) minmax(70px, 1.2fr); gap: 8px; }
+            .manual-mode { grid-template-columns: minmax(90px, 1.8fr) minmax(45px, 0.9fr) minmax(45px, 0.9fr) minmax(70px, 1.1fr) !important; gap: 6px !important; }
+            .added-row { grid-template-columns: minmax(110px, 2.2fr) minmax(65px, 1.2fr) minmax(70px, 1.2fr); font-size: 0.8rem; padding: 10px 4px; }
             .table-heading { font-size: 0.75rem; padding: 10px 4px; letter-spacing: 0.3px; }
             .subject-row { padding: 12px 6px; border-radius: 10px; }
             .manual-input-name { padding: 8px; font-size: 0.85rem; }
@@ -575,7 +576,7 @@
                     <div class="sub-meta-container">
                         <input type="checkbox" id="chk-${index}" checked data-ch="${sub.ch}">
                         <div class="subject-info-wrapper">
-                            <div class="sub-details auto-scale-text" title="${sub.name}">${sub.name} (${sub.ch} CH)</div>
+                            <div class="sub-details" title="${sub.name}">${sub.name} (${sub.ch} CH)</div>
                         </div>
                     </div>
                     <div class="live-points-col" id="pts-${index}">4.00</div>
