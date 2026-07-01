@@ -5,20 +5,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Panel - Control Center</title>
     <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
-<body style="background: #0f172a;">
+<body style="background: #0b0f19;">
 
-    <nav class="navbar" style="background: rgba(0,0,0,0.4);">
+    <nav class="navbar" style="background: rgba(0,0,0,0.2);">
         <div class="logo">⚙️ Central <span class="highlight">Admin Control</span></div>
-        <a href="index.html" style="color: white; text-decoration: none; font-weight:600;">← Main Website</a>
+        <a href="index.html" style="color: white; text-decoration: none; font-weight:600; font-size:0.95rem; background:rgba(255,255,255,0.1); padding: 8px 16px; border-radius:8px;">← Main Website</a>
     </nav>
 
     <div class="container" style="max-width: 1200px;">
         <div class="admin-grid">
             
-            <div class="card-panel">
-                <h2 class="section-title">Manage Subjects</h2>
+            <div class="glass-card">
+                <h2 class="section-title" style="color: #fff;">Manage Subjects</h2>
                 <div class="form-group">
                     <label>Semester Name</label>
                     <input type="text" id="admin-sem" placeholder="e.g., Fall 2025">
@@ -33,13 +33,13 @@
                 </div>
                 <button class="btn btn-success" id="save-btn">Save Subject Structure</button>
                 
-                <h3 style="margin-top: 30px; margin-bottom:10px;">Active Configurations</h3>
+                <h3 style="margin-top: 30px; margin-bottom:15px; color:#a1a1aa;">Active Configurations</h3>
                 <div id="admin-list-container">Loading configurations...</div>
             </div>
 
-            <div class="card-panel" style="background: #ffffff;">
-                <h2 class="section-title" style="color: #ef4444;">📊 Live User Calculations</h2>
-                <div id="logs-container" style="max-height: 600px; overflow-y: auto;">
+            <div class="glass-card" style="background: rgba(255,255,255,0.04); border-color: rgba(239, 68, 68, 0.25);">
+                <h2 class="section-title" style="color: #ef4444; text-shadow: 0 0 15px rgba(239, 68, 68, 0.2);">📊 Live User Calculations</h2>
+                <div id="logs-container" style="max-height: 600px; overflow-y: auto; padding-right:5px;">
                     Loading live logs from students...
                 </div>
             </div>
@@ -51,7 +51,6 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getDatabase, ref, set, get, child, onValue } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
-        // Config Auto-Injected
         const firebaseConfig = {
             apiKey: "AIzaSyCRximbg48XT2HxpQoRdyp137soJwcEWqw",
             authDomain: "cpga-calculator-72d01.firebaseapp.com",
@@ -104,25 +103,25 @@
             container.innerHTML = '';
             for(let sem in academicData) {
                 let div = document.createElement('div');
-                div.innerHTML = `<h4 style="margin-top:10px; color:#4f46e5;">${sem}</h4>`;
+                div.className = "admin-sem-block";
+                div.innerHTML = `<h4 style="margin-top:10px; margin-bottom: 8px; color:#a78bfa;">${sem}</h4>`;
                 academicData[sem].forEach(sub => {
                     div.innerHTML += `
-                        <div style="display:flex; justify-content:space-between; background:#f1f5f9; padding:8px; margin-bottom:4px; border-radius:4px;">
-                            <span>${sub.name} (${sub.ch} CH)</span>
-                            <button onclick="deleteSubject('${sem}', ${sub.id})" style="color:red; border:none; background:none; cursor:pointer; font-weight:bold;">X</button>
+                        <div style="display:flex; justify-content:space-between; background:rgba(255,255,255,0.05); padding:10px; margin-bottom:6px; border-radius:6px; border: 1px solid rgba(255,255,255,0.05); color:#e4e4e7;">
+                            <span>${sub.name} <b style="color:#60a5fa; font-size:0.85rem; margin-left:5px;">${sub.ch} CH</b></span>
+                            <button onclick="deleteSubject('${sem}', ${sub.id})" style="color:#ef4444; border:none; background:none; cursor:pointer; font-weight:bold; font-size:1rem;">✕</button>
                         </div>`;
                 });
                 container.appendChild(div);
             }
         }
 
-        // Realtime logs data sync listener
         const logsRef = ref(db, 'student_logs');
         onValue(logsRef, (snapshot) => {
             const container = document.getElementById('logs-container');
             container.innerHTML = '';
             if(!snapshot.exists()) {
-                container.innerHTML = '<p>No calculations made yet.</p>';
+                container.innerHTML = '<p style="color:#71717a;">No calculations made yet.</p>';
                 return;
             }
             
@@ -133,10 +132,10 @@
             
             logsArray.reverse().forEach((data) => {
                 container.innerHTML += `
-                    <div style="border-left: 4px solid #10b981; background: #f8fafc; padding: 12px; margin-bottom: 10px; border-radius:4px; box-shadow: 0 2px 4px rgba(0,0,0,0.02);">
-                        <strong style="color:#1e293b; font-size:1.1rem;">${data.name}</strong> 
-                        <span style="float:right; font-size:0.8rem; color:#94a3b8;">${data.timestamp}</span>
-                        <p style="margin-top:5px; color:#475569;">Semester: <b>${data.semester}</b> | Calculated CGPA: <span style="color:#10b981; font-weight:700;">${data.gpa}</span></p>
+                    <div style="border-left: 4px solid #10b981; background: rgba(255,255,255,0.03); border-top: 1px solid rgba(255,255,255,0.05); border-bottom: 1px solid rgba(255,255,255,0.05); border-right: 1px solid rgba(255,255,255,0.05); padding: 14px; margin-bottom: 12px; border-radius:0 8px 8px 0; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
+                        <strong style="color:#fff; font-size:1.05rem;">${data.name}</strong> 
+                        <span style="float:right; font-size:0.75rem; color:#71717a;">${data.timestamp}</span>
+                        <p style="margin-top:6px; color:#d4d4d8; font-size:0.9rem;">Semester: <b style="color:#fbbf24;">${data.semester}</b> | CGPA: <span style="color:#10b981; font-weight:700; font-size:1.1rem; text-shadow:0 0 10px rgba(16,185,129,0.2);">${data.gpa}</span></p>
                     </div>`;
             });
         });
