@@ -5,18 +5,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>UET CGPA Calculator</title>
     <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <!-- Confetti Library for Store Style Success -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 </head>
 <body>
 
     <nav class="navbar">
         <div class="logo">UET CGPA <span class="highlight">Calculator</span></div>
+        <div class="nav-links"><span class="domain-tag">cgpacalculator.engineer</span></div>
     </nav>
 
     <div class="container">
-        <div class="glass-card animate-fade-in">
+        <div class="card-panel">
             <h2 class="section-title">Calculate Your GPA / CGPA</h2>
             
             <div class="form-group">
@@ -31,43 +31,22 @@
                 </select>
             </div>
 
-            <!-- Dynamic Table System -->
-            <div id="calculator-table-wrapper" class="hidden">
-                <!-- Perfect 3-Column Header Table Grid -->
-                <div class="table-grid table-header">
-                    <div class="col-subject">Subject Name</div>
-                    <div class="col-points text-center">Grade Points</div>
-                    <div class="col-grade text-right">Select Grade</div>
-                </div>
+            <div id="subjects-container" class="subjects-list"></div>
 
-                <!-- Live Container for Subjects Rows -->
-                <div id="subjects-container"></div>
-                
-                <button id="calculate-btn" class="btn btn-primary main-calc-btn" onclick="calculateCGPA()">Calculate CGPA</button>
+            <button id="calculate-btn" class="btn btn-primary" onclick="calculateCGPA()" style="display: none;">Calculate CGPA</button>
+
+            <div id="result-box" class="result-card hidden">
+                <h3 id="result-message"></h3>
+                <div class="gpa-display">YOUR CGPA IS: <span id="cgpa-score">0.00</span></div>
             </div>
         </div>
     </div>
 
-    <!-- Store-Style Full-Screen Success Overlay -->
-    <div id="success-overlay" class="overlay hidden">
-        <div class="overlay-content">
-            <div class="checkmark-circle">
-                <div class="checkmark"></div>
-            </div>
-            <h1 class="overlay-title">CALCULATION COMPLETED</h1>
-            <p id="result-message" class="overlay-msg"></p>
-            <div class="final-score-box">
-                YOUR CGPA IS: <span id="cgpa-score">0.00</span>
-            </div>
-            <button class="btn btn-close" onclick="closeOverlay()">Calculate Again</button>
-        </div>
-    </div>
-
-    <!-- Firebase System Module Connection -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getDatabase, ref, get, child, push } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
+        // Config Auto-Injected
         const firebaseConfig = {
             apiKey: "AIzaSyCRximbg48XT2HxpQoRdyp137soJwcEWqw",
             authDomain: "cpga-calculator-72d01.firebaseapp.com",
@@ -96,7 +75,7 @@
                     academicData = snapshot.val();
                     populateSemesterDropdown();
                 } else {
-                    document.getElementById('semester-select').innerHTML = '<option value="">No configurations found</option>';
+                    document.getElementById('semester-select').innerHTML = '<option value="">No data found in Admin Panel</option>';
                 }
             } catch (error) {
                 console.error(error);
@@ -114,62 +93,33 @@
         window.loadSemesterSubjects = function() {
             const sem = document.getElementById('semester-select').value;
             const container = document.getElementById('subjects-container');
-            const wrapper = document.getElementById('calculator-table-wrapper');
+            const calcBtn = document.getElementById('calculate-btn');
             container.innerHTML = '';
 
             if(!sem || !academicData[sem]) {
-                wrapper.classList.add('hidden');
+                calcBtn.style.display = 'none';
                 return;
             }
 
-            wrapper.classList.remove('hidden');
-
             academicData[sem].forEach((sub, index) => {
                 let row = document.createElement('div');
-                row.className = 'table-grid table-row';
+                row.className = 'subject-row';
                 row.innerHTML = `
-                    <div class="col-subject sub-meta">
-                        <label class="checkbox-container">
-                            <input type="checkbox" id="chk-${index}" checked data-ch="${sub.ch}">
-                            <span class="checkmark-box"></span>
-                        </label>
-                        <div class="name-details">
-                            <span class="sub-title">${sub.name}</span>
-                            <span class="ch-counter">${sub.ch} CH</span>
-                        </div>
-                    </div>
-                    <div class="col-points text-center dynamic-pts" id="pts-${index}">4.00</div>
-                    <div class="col-grade text-right">
-                        <select class="grade-selector" id="grade-${index}" onchange="updateLivePoints(${index})">
-                            <option value="A">A</option>
-                            <option value="A-">A-</option>
-                            <option value="B+">B+</option>
-                            <option value="B">B</option>
-                            <option value="B-">B-</option>
-                            <option value="C+">C+</option>
-                            <option value="C">C</option>
-                            <option value="C-">C-</option>
-                            <option value="D+">D+</option>
-                            <option value="D">D</option>
-                            <option value="F">F</option>
-                        </select>
-                    </div>
+                    <input type="checkbox" id="chk-${index}" checked data-ch="${sub.ch}">
+                    <div class="sub-details">${sub.name}</div>
+                    <div class="sub-ch">${sub.ch} CH</div>
+                    <select class="sub-grade" id="grade-${index}">
+                        ${Object.keys(gradePoints).map(g => `<option value="${g}">${g}</option>`).join('')}
+                    </select>
                 `;
                 container.appendChild(row);
             });
-        }
-
-        window.updateLivePoints = function(index) {
-            const grade = document.getElementById(`grade-${index}`).value;
-            const ptsDiv = document.getElementById(`pts-${index}`);
-            if(gradePoints[grade] !== undefined) {
-                ptsDiv.innerText = gradePoints[grade].toFixed(2);
-            }
+            calcBtn.style.display = 'block';
         }
 
         window.calculateCGPA = async function() {
             const sem = document.getElementById('semester-select').value;
-            const studentName = document.getElementById('student-name').value.trim() || "Valued Student";
+            const studentName = document.getElementById('student-name').value.trim() || "Anonymous Student";
             let totalPoints = 0;
             let totalCreditHours = 0;
 
@@ -183,39 +133,46 @@
                 }
             });
 
-            if(totalCreditHours === 0) {
-                alert("Please select at least one subject checkbox.");
-                return;
-            }
+            if(totalCreditHours === 0) return alert("Kam az kam ek subject select karein!");
 
             const cgpa = (totalPoints / totalCreditHours).toFixed(2);
             
             try {
-                await push(ref(db, 'student_logs'), {
+                const logsRef = ref(db, 'student_logs');
+                await push(logsRef, {
                     name: studentName,
                     semester: sem,
                     gpa: cgpa,
                     timestamp: new Date().toLocaleString()
                 });
-            } catch (e) { console.error(e); }
+            } catch (e) {
+                console.error("Error saving log: ", e);
+            }
 
-            // Trigger Premium Store Fireworks Popup
-            const overlay = document.getElementById('success-overlay');
-            document.getElementById('cgpa-score').innerText = cgpa;
-            document.getElementById('result-message').innerText = `Amazing effort, ${studentName}! Your performance data has been evaluated successfully.`;
-            overlay.classList.remove('hidden');
+            displayResult(cgpa, studentName);
+        }
+
+        function displayResult(cgpa, name) {
+            const resultBox = document.getElementById('result-box');
+            const scoreSpan = document.getElementById('cgpa-score');
+            const msgH3 = document.getElementById('result-message');
+
+            scoreSpan.innerText = cgpa;
+            resultBox.classList.remove('hidden');
+
+            if (cgpa >= 3.90) msgH3.innerText = `👑 Outstanding, ${name}! You are at the absolute top tier of engineering!`;
+            else if (cgpa >= 3.70) msgH3.innerText = `🌟 Exceptional Work, ${name}! Brilliant performance!`;
+            else if (cgpa >= 3.30) msgH3.innerText = `✨ Brilliant, ${name}! Pushing boundaries successfully!`;
+            else if (cgpa >= 3.00) msgH3.innerText = `👍 Good Job, ${name}! Solid engineering performance!`;
+            else msgH3.innerText = `🎯 Growth Mindset, ${name}! Keep grinding, next semester will be massive!`;
 
             let duration = 4 * 1000;
             let end = Date.now() + duration;
             (function frame() {
-                confetti({ particleCount: 7, angle: 60, spread: 55, origin: { x: 0, y: 0.7 } });
-                confetti({ particleCount: 7, angle: 120, spread: 55, origin: { x: 1, y: 0.7 } });
-                if (Date.now() < end) requestAnimationFrame(frame);
+                confetti({ particleCount: 5, angle: 60, spread: 55, origin: { x: 0 } });
+                confetti({ particleCount: 5, angle: 120, spread: 55, origin: { x: 1 } });
+                if (Date.now() < end) { requestAnimationFrame(frame); }
             }());
-        }
-
-        window.closeOverlay = function() {
-            document.getElementById('success-overlay').classList.add('hidden');
         }
 
         fetchDatabase();
