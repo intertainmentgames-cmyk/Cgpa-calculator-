@@ -63,6 +63,18 @@
         .form-group { margin-bottom: 22px; }
         .form-group label { display: block; margin-bottom: 8px; font-weight: 500; color: var(--text-muted); font-size: 0.9rem; }
 
+        /* Hamesha On Rehne Wala Note Box */
+        .note-box {
+            background: rgba(56, 189, 248, 0.1);
+            border: 1px solid rgba(56, 189, 248, 0.3);
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 22px;
+            font-size: 0.9rem;
+            color: #38bdf8;
+            line-height: 1.5;
+        }
+
         input, select {
             width: 100%; padding: 14px; background: var(--input-bg); border: 1px solid var(--glass-border);
             border-radius: 12px; outline: none; font-size: 1rem; color: #fff; transition: all 0.25s ease;
@@ -103,15 +115,75 @@
         }
         .subject-row:hover { background: rgba(255, 255, 255, 0.06); border-color: rgba(255, 255, 255, 0.15); }
         
-        .sub-meta-container { display: flex; align-items: center; gap: 12px; min-width: 0; }
+        .sub-meta-container { display: flex; align-items: center; gap: 12px; min-width: 0; width: 100%; }
         .subject-row input[type="checkbox"] { width: 18px; height: 18px; accent-color: #38bdf8; cursor: pointer; flex-shrink: 0; }
         
-        .subject-info-wrapper { min-width: 0; }
+        .subject-info-wrapper { min-width: 0; width: 100%; }
         .sub-details { font-weight: 600; color: #f8fafc; font-size: 0.95rem; line-height: 1.4; word-wrap: break-word; }
         .sub-ch { font-weight: 400; color: #38bdf8; font-size: 0.8rem; margin-top: 1px; }
         
+        /* Manual entry input styling */
+        .manual-input-name {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 10px 12px;
+            font-size: 0.95rem;
+            border-radius: 8px;
+            color: #fff;
+            width: 100%;
+        }
+        .manual-select-ch {
+            padding: 6px;
+            font-size: 0.85rem;
+            height: 34px;
+            border-radius: 6px;
+            margin-top: 6px;
+            background: rgba(15, 20, 36, 0.8);
+            color: #fff;
+            width: 100%;
+        }
+
         .live-points-col { text-align: center; font-weight: 700; color: #34d399; font-size: 1.05rem; }
         .sub-grade { width: 100%; padding: 8px 6px; font-size: 0.9rem; text-align: center; height: 38px; border-radius: 8px; }
+
+        /* Notebook Dynamic Secondary Section Layout */
+        .preview-section-title {
+            margin-top: 35px;
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #94a3b8;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            border-left: 3px solid #34d399;
+            padding-left: 10px;
+        }
+        .added-subjects-table {
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            padding: 10px;
+            margin-bottom: 20px;
+            max-height: 280px;
+            overflow-y: auto;
+        }
+        .added-row {
+            display: grid;
+            grid-template-columns: 2.2fr 1fr 1fr 1fr;
+            padding: 12px 8px;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            font-size: 0.9rem;
+            color: #e2e8f0;
+        }
+        .added-row:last-child { border-bottom: none; }
+        .added-row-header {
+            font-weight: 600;
+            color: #64748b;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.5px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
 
         .btn {
             width: 100%; padding: 15px; border: none; border-radius: 14px;
@@ -120,7 +192,18 @@
         .btn-primary { background: linear-gradient(135deg, #4f46e5 0%, #3b82f6 100%); color: white; box-shadow: 0 10px 25px rgba(59, 130, 246, 0.25); margin-top: 20px; }
         .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 15px 30px rgba(59, 130, 246, 0.4); }
         
-        /* Fixed Button Outside Layout to Bypass Canvas Layer Conflict */
+        .btn-secondary {
+            background: linear-gradient(135deg, #047857 0%, #10b981 100%);
+            color: white;
+            padding: 12px;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            margin-top: 15px;
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.2);
+        }
+        .btn-secondary:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(16, 185, 129, 0.3); }
+
         .btn-close { 
             background: rgba(255, 255, 255, 0.12); 
             border: 1px solid var(--glass-border); 
@@ -134,12 +217,8 @@
             max-width: 440px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.3);
             pointer-events: auto !important;
-            isolation: isolate;
-            -webkit-tap-highlight-color: rgba(255,255,255,0.3);
-            touch-action: manipulation;
         }
         .btn-close:hover { background: rgba(255, 255, 255, 0.22); transform: translateY(-1px); }
-        .btn-close:active { transform: translateY(0px) scale(0.98); background: rgba(255, 255, 255, 0.3); }
 
         .overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
@@ -153,12 +232,8 @@
             overflow: hidden;
             z-index: 9999;
         }
-        .overlay-canvas {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none !important; z-index: 1;
-        }
-        .overlay-inner-content {
-            position: relative; z-index: 5;
-        }
+        .overlay-canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none !important; z-index: 1; }
+        .overlay-inner-content { position: relative; z-index: 5; }
         .checkmark-circle { width: 90px; height: 90px; border-radius: 50%; background: #10b981; display: flex; align-items: center; justify-content: center; margin: 0 auto; box-shadow: 0 0 40px rgba(16, 185, 129, 0.5); }
         .checkmark { width: 42px; height: 22px; border-left: 6px solid #fff; border-bottom: 6px solid #fff; transform: rotate(-45deg); margin-top: -8px; }
         
@@ -179,6 +254,7 @@
 
         @media(max-width: 600px) {
             .grid-layout { grid-template-columns: 1.8fr 0.9fr 1.3fr; gap: 8px; }
+            .added-row { grid-template-columns: 1.6fr 0.9fr 1fr 0.9fr; font-size: 0.8rem; padding: 10px 4px; }
             .table-heading { font-size: 0.75rem; padding: 10px 4px; letter-spacing: 0.3px; }
             .subject-row { padding: 12px 6px; border-radius: 10px; }
             .sub-details { font-size: 0.85rem; }
@@ -186,7 +262,6 @@
             .sub-grade { font-size: 0.8rem; padding: 4px; height: 34px; }
             .card-panel { padding: 25px 16px; }
             .overlay-content { padding: 35px 20px; }
-            .overlay-title { font-size: 1.3rem; }
             #cgpa-score { font-size: 2.6rem; }
         }
         
@@ -208,8 +283,20 @@
                 <label for="student-name">Your Name</label>
                 <input type="text" id="student-name" placeholder="Enter your name">
             </div>
-            
+
             <div class="form-group">
+                <label for="department-select">Choose Department</label>
+                <select id="department-select">
+                    <option value="mechanical">Mechanical Engineering</option>
+                    <option value="other">Other Department (Manual Entry)</option>
+                </select>
+            </div>
+
+            <div id="note-message" class="note-box">
+                <strong>Note:</strong> Mechanical students don't need to enter subjects. Other departments, please select "Other" to manually add your subjects and credit hours.
+            </div>
+            
+            <div class="form-group" id="semester-wrapper">
                 <label for="semester-select">Choose Semester</label>
                 <select id="semester-select">
                     <option value="">-- Loading Semesters... --</option>
@@ -223,6 +310,23 @@
             </div>
 
             <div id="subjects-container" class="subjects-list"></div>
+
+            <button id="add-subject-btn" class="btn btn-secondary hidden">
+                ➕ Add Subject
+            </button>
+
+            <div id="preview-wrapper" class="hidden">
+                <div class="preview-section-title">Added Subjects List</div>
+                <div class="added-subjects-table">
+                    <div class="added-row added-row-header">
+                        <div>Subject</div>
+                        <div style="text-align: center;">CH</div>
+                        <div style="text-align: center;">Pts</div>
+                        <div style="text-align: right;">Grade</div>
+                    </div>
+                    <div id="preview-rows-container"></div>
+                </div>
+            </div>
 
             <button id="calculate-btn" class="btn btn-primary" style="display: none;">Calculate CGPA</button>
         </div>
@@ -242,7 +346,7 @@
                 </div>
             </div>
         </div>
-        <button id="close-overlay-btn" class="btn btn-close" type="button">Calculate Again</button>
+        <button id="close-overlay-btn" class="btn btn-close">Calculate Again</button>
     </div>
 
     <footer class="footer">
@@ -273,22 +377,16 @@
 
         let academicData = {};
         let animationFrameId = null;
-        let localConfettiInstance = null;
+        
+        // FIXED: Array state to globally hold lists generated from your custom notebook logic
+        let userAddedSubjects = []; 
 
-        // Secure binding event system
         document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('department-select').addEventListener('change', handleDepartmentChange);
             document.getElementById('semester-select').addEventListener('change', loadSemesterSubjects);
+            document.getElementById('add-subject-btn').addEventListener('click', moveRowToTableSection);
             document.getElementById('calculate-btn').addEventListener('click', calculateCGPA);
-
-            // Close button: bind on multiple event types so it works
-            // reliably across all mobile browsers (touch + click quirks).
-            const closeBtn = document.getElementById('close-overlay-btn');
-            closeBtn.addEventListener('click', closeOverlay);
-            closeBtn.addEventListener('touchend', function(e) {
-                e.preventDefault();
-                closeOverlay();
-            }, { passive: false });
-
+            document.getElementById('close-overlay-btn').addEventListener('click', closeOverlay);
             fetchDatabase();
         });
 
@@ -313,6 +411,104 @@
             for(let sem in academicData) {
                 select.innerHTML += `<option value="${sem}">${sem}</option>`;
             }
+        }
+
+        function handleDepartmentChange() {
+            const dept = document.getElementById('department-select').value;
+            const semWrapper = document.getElementById('semester-wrapper');
+            const container = document.getElementById('subjects-container');
+            const headings = document.getElementById('table-headings');
+            const calcBtn = document.getElementById('calculate-btn');
+            const addBtn = document.getElementById('add-subject-btn');
+            const previewWrapper = document.getElementById('preview-wrapper');
+
+            container.innerHTML = '';
+            document.getElementById('preview-rows-container').innerHTML = '';
+            userAddedSubjects = [];
+            previewWrapper.classList.add('hidden');
+            
+            if (dept === 'other') {
+                semWrapper.classList.add('hidden');
+                headings.classList.remove('hidden');
+                addBtn.classList.remove('hidden');
+                calcBtn.style.display = 'block';
+                
+                // Mount exactly 1 clean temporary row onto workspace area
+                renderSingleManualRow(); 
+            } else {
+                semWrapper.classList.remove('hidden');
+                headings.classList.add('hidden');
+                addBtn.classList.add('hidden');
+                calcBtn.style.display = 'none';
+                document.getElementById('semester-select').value = '';
+            }
+        }
+
+        // FIXED: Builds exactly 1 dynamic setup workspace on the dashboard
+        function renderSingleManualRow() {
+            const container = document.getElementById('subjects-container');
+            container.innerHTML = '';
+
+            let row = document.createElement('div');
+            row.className = 'grid-layout subject-row';
+            row.innerHTML = `
+                <div class="sub-meta-container">
+                    <div class="subject-info-wrapper">
+                        <input type="text" class="manual-input-name" id="manual-sub-name" placeholder="e.g., Programming Fundamentals">
+                        <select class="manual-select-ch" id="manual-sub-ch">
+                            <option value="3">3 CH</option>
+                            <option value="4">4 CH</option>
+                            <option value="2">2 CH</option>
+                            <option value="1">1 CH</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="live-points-col" id="manual-live-pts">4.00</div>
+                <div>
+                    <select class="sub-grade" id="manual-sub-grade">
+                        ${Object.keys(gradePoints).map(g => `<option value="${g}">${g}</option>`).join('')}
+                    </select>
+                </div>
+            `;
+            container.appendChild(row);
+
+            document.getElementById('manual-sub-grade').addEventListener('change', () => {
+                const grade = document.getElementById('manual-sub-grade').value;
+                document.getElementById('manual-live-pts').innerText = gradePoints[grade].toFixed(2);
+            });
+        }
+
+        // FIXED: Shift execution layer shifts details from top workspace to notebook table safely
+        function moveRowToTableSection() {
+            const nameInput = document.getElementById('manual-sub-name');
+            const name = nameInput.value.trim() || "Subject " + (userAddedSubjects.length + 1);
+            const ch = parseInt(document.getElementById('manual-sub-ch').value);
+            const grade = document.getElementById('manual-sub-grade').value;
+            const pts = gradePoints[grade];
+
+            // Append item down to data matrix safely
+            userAddedSubjects.push({ name, ch, grade, pts });
+
+            // Make table component container visible right away
+            document.getElementById('preview-wrapper').classList.remove('hidden');
+
+            // Render details inside custom sub table display layout
+            const previewContainer = document.getElementById('preview-rows-container');
+            let itemRow = document.createElement('div');
+            itemRow.className = 'added-row';
+            itemRow.innerHTML = `
+                <div style="font-weight:500; color:#fff;">${name}</div>
+                <div style="text-align:center; color:#38bdf8;">${ch}</div>
+                <div style="text-align:center; color:#34d399;">${pts.toFixed(2)}</div>
+                <div style="text-align:right; font-weight:600; color:#38bdf8;">${grade}</div>
+            `;
+            previewContainer.appendChild(itemRow);
+
+            // Wipe out oopar wali raw so that bacha text clean write kare easily
+            nameInput.value = '';
+            document.getElementById('manual-sub-ch').value = '3';
+            document.getElementById('manual-sub-grade').value = 'A';
+            document.getElementById('manual-live-pts').innerText = '4.00';
         }
 
         function loadSemesterSubjects() {
@@ -353,36 +549,42 @@
                 
                 const selectEl = document.getElementById(`grade-${index}`);
                 selectEl.value = "A";
-                selectEl.addEventListener('change', () => updateLivePoints(index));
+                selectEl.addEventListener('change', () => {
+                    const grade = selectEl.value;
+                    document.getElementById(`pts-${index}`).innerText = gradePoints[grade].toFixed(2);
+                });
             });
             calcBtn.style.display = 'block';
         }
 
-        function updateLivePoints(index) {
-            const grade = document.getElementById(`grade-${index}`).value;
-            const ptsDiv = document.getElementById(`pts-${index}`);
-            if(gradePoints[grade] !== undefined) {
-                ptsDiv.innerText = gradePoints[grade].toFixed(2);
-            }
-        }
-
         async function calculateCGPA() {
-            const sem = document.getElementById('semester-select').value;
+            const dept = document.getElementById('department-select').value;
             const studentName = document.getElementById('student-name').value.trim() || "Student";
             let totalPoints = 0;
             let totalCreditHours = 0;
 
-            if(!sem || !academicData[sem]) return;
+            if (dept === 'mechanical') {
+                const sem = document.getElementById('semester-select').value;
+                if(!sem || !academicData[sem]) return;
 
-            academicData[sem].forEach((sub, index) => {
-                const chkBox = document.getElementById(`chk-${index}`);
-                if(chkBox && chkBox.checked) {
-                    const grade = document.getElementById(`grade-${index}`).value;
-                    const points = gradePoints[grade];
-                    totalPoints += (points * sub.ch);
-                    totalCreditHours += sub.ch;
+                academicData[sem].forEach((sub, index) => {
+                    const chkBox = document.getElementById(`chk-${index}`);
+                    if(chkBox && chkBox.checked) {
+                        const grade = document.getElementById(`grade-${index}`).value;
+                        totalPoints += (gradePoints[grade] * sub.ch);
+                        totalCreditHours += sub.ch;
+                    }
+                });
+            } else {
+                // FIXED: Calculates direct array loops aggregated from the dynamic table list logic
+                if(userAddedSubjects.length === 0) {
+                    return alert("Please add at least one subject down to your list container first!");
                 }
-            });
+                userAddedSubjects.forEach(sub => {
+                    totalPoints += (sub.pts * sub.ch);
+                    totalCreditHours += sub.ch;
+                });
+            }
 
             if(totalCreditHours === 0) return alert("Please select at least one subject!");
 
@@ -392,7 +594,7 @@
                 const logsRef = ref(db, 'student_logs');
                 await push(logsRef, {
                     name: studentName,
-                    semester: sem,
+                    semester: dept === 'mechanical' ? document.getElementById('semester-select').value : "Other Dept (Dynamic Table List)",
                     gpa: cgpa,
                     timestamp: new Date().toLocaleString()
                 });
@@ -411,7 +613,6 @@
 
             scoreSpan.innerText = cgpa;
             overlay.classList.remove('hidden');
-            overlay.style.display = 'flex';
 
             if (cgpa >= 3.90) msgP.innerText = `👑 Excellent performance, ${name}! You are tracking at the absolute top tier!`;
             else if (cgpa >= 3.60) msgP.innerText = `🌟 Brilliant work, ${name}! Outstanding academic achievement!`;
@@ -419,59 +620,26 @@
             else if (cgpa >= 2.50) msgP.innerText = `✨ Fair work, ${name}! Steady performance, keep pushing higher!`;
             else msgP.innerText = `🎯 Continuous growth mindset, ${name}! Keep grinding, next term will be massive!`;
 
-            localConfettiInstance = confetti.create(myCanvas, {
-                resize: true,
-                useWorker: true
-            });
-
+            const localConfetti = confetti.create(myCanvas, { resize: true, useWorker: true });
             let duration = 4 * 1000;
             let end = Date.now() + duration;
 
             function frame() {
-                if (!localConfettiInstance) return;
-                localConfettiInstance({ particleCount: 5, angle: 60, spread: 55, origin: { x: 0, y: 0.8 } });
-                localConfettiInstance({ particleCount: 5, angle: 120, spread: 55, origin: { x: 1, y: 0.8 } });
-                
-                if (Date.now() < end) {
-                    animationFrameId = requestAnimationFrame(frame);
-                }
+                localConfetti({ particleCount: 5, angle: 60, spread: 55, origin: { x: 0, y: 0.8 } });
+                localConfetti({ particleCount: 5, angle: 120, spread: 55, origin: { x: 1, y: 0.8 } });
+                if (Date.now() < end) animationFrameId = requestAnimationFrame(frame);
             }
             frame();
         }
 
         function closeOverlay() {
-            // Stop the confetti animation loop completely
-            if (animationFrameId) {
-                cancelAnimationFrame(animationFrameId);
-                animationFrameId = null;
-            }
-            if (localConfettiInstance) {
-                localConfettiInstance.reset();
-                localConfettiInstance = null;
-            }
-
+            if (animationFrameId) cancelAnimationFrame(animationFrameId);
             const myCanvas = document.getElementById('confetti-canvas');
             if (myCanvas) {
                 const ctx = myCanvas.getContext('2d');
                 ctx.clearRect(0, 0, myCanvas.width, myCanvas.height);
-                // fully reset canvas size so no leftover worker/state lingers
-                myCanvas.width = 0;
-                myCanvas.height = 0;
             }
-
-            // Force-hide the overlay (class + inline style, so nothing can keep it stuck)
-            const overlay = document.getElementById('success-overlay');
-            overlay.classList.add('hidden');
-            overlay.style.display = 'none';
-
-            // Reset the form so user lands back on a clean subject-selection page
-            document.getElementById('student-name').value = '';
-            document.getElementById('semester-select').value = '';
-            document.getElementById('subjects-container').innerHTML = '';
-            document.getElementById('table-headings').classList.add('hidden');
-            document.getElementById('calculate-btn').style.display = 'none';
-
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+            document.getElementById('success-overlay').classList.add('hidden');
         }
     </script>
 </body>
