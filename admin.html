@@ -3,45 +3,45 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Panel - Control Center</title>
+    <title>Admin Dashboard - Management</title>
     <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
-<body style="background: #0b0f19;">
+<body>
 
-    <nav class="navbar" style="background: rgba(0,0,0,0.2);">
-        <div class="logo">⚙️ Central <span class="highlight">Admin Control</span></div>
-        <a href="index.html" style="color: white; text-decoration: none; font-weight:600; font-size:0.95rem; background:rgba(255,255,255,0.1); padding: 8px 16px; border-radius:8px;">← Main Website</a>
+    <nav class="navbar">
+        <div class="logo">⚙️ Admin <span class="highlight">Control Center</span></div>
+        <a href="index.html" class="nav-back-btn">← Main Website</a>
     </nav>
 
     <div class="container" style="max-width: 1200px;">
-        <div class="admin-grid">
+        <div class="admin-grid-layout">
             
+            <!-- Management Input Terminal -->
             <div class="glass-card">
-                <h2 class="section-title" style="color: #fff;">Manage Subjects</h2>
+                <h2 class="section-title text-left">Manage Subjects</h2>
                 <div class="form-group">
                     <label>Semester Name</label>
-                    <input type="text" id="admin-sem" placeholder="e.g., Fall 2025">
+                    <input type="text" id="admin-sem" placeholder="e.g., 1st semester">
                 </div>
                 <div class="form-group">
                     <label>Subject Name</label>
-                    <input type="text" id="admin-sub-name" placeholder="e.g., Engineering Mechanics-I">
+                    <input type="text" id="admin-sub-name" placeholder="e.g., Thermodynamics">
                 </div>
                 <div class="form-group">
                     <label>Credit Hours</label>
-                    <input type="number" id="admin-sub-ch" min="1" max="5" placeholder="3">
+                    <input type="number" id="admin-sub-ch" min="1" max="6" placeholder="e.g., 3">
                 </div>
-                <button class="btn btn-success" id="save-btn">Save Subject Structure</button>
+                <button class="btn btn-primary" id="save-btn" style="width:100%;">Save Subject Structure</button>
                 
-                <h3 style="margin-top: 30px; margin-bottom:15px; color:#a1a1aa;">Active Configurations</h3>
-                <div id="admin-list-container">Loading configurations...</div>
+                <h3 class="sub-heading-list">Active Configurations</h3>
+                <div id="admin-list-container">Loading...</div>
             </div>
 
-            <div class="glass-card" style="background: rgba(255,255,255,0.04); border-color: rgba(239, 68, 68, 0.25);">
-                <h2 class="section-title" style="color: #ef4444; text-shadow: 0 0 15px rgba(239, 68, 68, 0.2);">📊 Live User Calculations</h2>
-                <div id="logs-container" style="max-height: 600px; overflow-y: auto; padding-right:5px;">
-                    Loading live logs from students...
-                </div>
+            <!-- Live Performance Feed -->
+            <div class="glass-card live-feed-card">
+                <h2 class="section-title text-left" style="color:#10b981;">📊 Live Calculations Log</h2>
+                <div id="logs-container" class="logs-feed-box">Loading student tracking logs...</div>
             </div>
 
         </div>
@@ -63,16 +63,12 @@
 
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
-
         let academicData = {};
 
-        async function loadInitialData() {
-            const dbRef = ref(db);
-            const snapshot = await get(child(dbRef, "uet_config/subjectsData"));
-            if(snapshot.exists()) {
-                academicData = snapshot.val();
-            }
-            renderAdminPanelList();
+        async function loadData() {
+            const snapshot = await get(child(ref(db), "uet_config/subjectsData"));
+            if(snapshot.exists()) academicData = snapshot.val();
+            renderList();
         }
 
         document.getElementById('save-btn').addEventListener('click', async () => {
@@ -80,7 +76,7 @@
             const name = document.getElementById('admin-sub-name').value.trim();
             const ch = parseInt(document.getElementById('admin-sub-ch').value);
 
-            if(!sem || !name || !ch) return alert("Saari fields fill krna lazmi hain!");
+            if(!sem || !name || !ch) return alert("All fields are mandatory!");
 
             if(!academicData[sem]) academicData[sem] = [];
             academicData[sem].push({ id: Date.now(), name, ch });
@@ -88,59 +84,50 @@
             await set(ref(db, "uet_config/subjectsData"), academicData);
             document.getElementById('admin-sub-name').value = '';
             document.getElementById('admin-sub-ch').value = '';
-            renderAdminPanelList();
+            renderList();
         });
 
         window.deleteSubject = async function(sem, id) {
-            academicData[sem] = academicData[sem].filter(sub => sub.id !== id);
+            academicData[sem] = academicData[sem].filter(s => s.id !== id);
             if(academicData[sem].length === 0) delete academicData[sem];
             await set(ref(db, "uet_config/subjectsData"), academicData);
-            renderAdminPanelList();
+            renderList();
         }
 
-        function renderAdminPanelList() {
-            const container = document.getElementById('admin-list-container');
-            container.innerHTML = '';
+        function renderList() {
+            const res = document.getElementById('admin-list-container');
+            res.innerHTML = '';
             for(let sem in academicData) {
                 let div = document.createElement('div');
-                div.className = "admin-sem-block";
-                div.innerHTML = `<h4 style="margin-top:10px; margin-bottom: 8px; color:#a78bfa;">${sem}</h4>`;
-                academicData[sem].forEach(sub => {
+                div.className = 'admin-block-item';
+                div.innerHTML = `<div class='sem-badge-header'>${sem}</div>`;
+                academicData[sem].forEach(s => {
                     div.innerHTML += `
-                        <div style="display:flex; justify-content:space-between; background:rgba(255,255,255,0.05); padding:10px; margin-bottom:6px; border-radius:6px; border: 1px solid rgba(255,255,255,0.05); color:#e4e4e7;">
-                            <span>${sub.name} <b style="color:#60a5fa; font-size:0.85rem; margin-left:5px;">${sub.ch} CH</b></span>
-                            <button onclick="deleteSubject('${sem}', ${sub.id})" style="color:#ef4444; border:none; background:none; cursor:pointer; font-weight:bold; font-size:1rem;">✕</button>
+                        <div class="admin-sub-row">
+                            <span>${s.name} <small>(${s.ch} CH)</small></span>
+                            <span class="del-icon" onclick="deleteSubject('${sem}', ${s.id})">✕</span>
                         </div>`;
                 });
-                container.appendChild(div);
+                res.appendChild(div);
             }
         }
 
-        const logsRef = ref(db, 'student_logs');
-        onValue(logsRef, (snapshot) => {
-            const container = document.getElementById('logs-container');
-            container.innerHTML = '';
-            if(!snapshot.exists()) {
-                container.innerHTML = '<p style="color:#71717a;">No calculations made yet.</p>';
-                return;
-            }
-            
-            let logsArray = [];
-            snapshot.forEach((childSnapshot) => {
-                logsArray.push(childSnapshot.val());
-            });
-            
-            logsArray.reverse().forEach((data) => {
-                container.innerHTML += `
-                    <div style="border-left: 4px solid #10b981; background: rgba(255,255,255,0.03); border-top: 1px solid rgba(255,255,255,0.05); border-bottom: 1px solid rgba(255,255,255,0.05); border-right: 1px solid rgba(255,255,255,0.05); padding: 14px; margin-bottom: 12px; border-radius:0 8px 8px 0; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
-                        <strong style="color:#fff; font-size:1.05rem;">${data.name}</strong> 
-                        <span style="float:right; font-size:0.75rem; color:#71717a;">${data.timestamp}</span>
-                        <p style="margin-top:6px; color:#d4d4d8; font-size:0.9rem;">Semester: <b style="color:#fbbf24;">${data.semester}</b> | CGPA: <span style="color:#10b981; font-weight:700; font-size:1.1rem; text-shadow:0 0 10px rgba(16,185,129,0.2);">${data.gpa}</span></p>
+        onValue(ref(db, 'student_logs'), (snapshot) => {
+            const box = document.getElementById('logs-container');
+            box.innerHTML = '';
+            if(!snapshot.exists()) { box.innerHTML = '<p>No records generated yet.</p>'; return; }
+            let arr = [];
+            snapshot.forEach(c => { arr.push(c.val()); });
+            arr.reverse().forEach(l => {
+                box.innerHTML += `
+                    <div class="log-card">
+                        <div class="log-top"><strong>${l.name}</strong><small>${l.timestamp}</small></div>
+                        <div class="log-body">Semester: <b>${l.semester}</b> | Score: <span class="score-lbl">${l.gpa}</span></div>
                     </div>`;
             });
         });
 
-        loadInitialData();
+        loadData();
     </script>
 </body>
 </html>
