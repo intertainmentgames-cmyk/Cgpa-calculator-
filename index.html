@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UET CGPA Calculator</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+</head>
+<body>
+
+    <nav class="navbar">
+        <div class="logo">UET CGPA <span class="highlight">Calculator</span></div>
+        <div class="nav-links"><span class="domain-tag">cgpacalculator.engineer</span></div>
+    </nav>
+
+    <div class="container">
+        <div class="card-panel">
+            <h2 class="section-title">Calculate Your GPA / CGPA</h2>
+            
+            <div class="form-group">
+                <label for="student-name">Your Name</label>
+                <input type="text" id="student-name" placeholder="Enter your name">
+            </div>
+            
+            <div class="form-group">
+                <label for="semester-select">Choose Semester</label>
+                <select id="semester-select" onchange="loadSemesterSubjects()">
+                    <option value="">-- Loading Semesters... --</option>
+                </select>
+            </div>
+
+            <div id="subjects-container" class="subjects-list"></div>
+
+            <button id="calculate-btn" class="btn btn-primary" onclick="calculateCGPA()" style="display: none;">Calculate CGPA</button>
+
+            <div id="result-box" class="result-card hidden">
+                <h3 id="result-message"></h3>
+                <div class="gpa-display">YOUR CGPA IS: <span id="cgpa-score">0.00</span></div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getFirestore, doc, getDoc, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        // TODO: Apni Firebase Config yahan paste karna replace karke
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_AUTH_DOMAIN",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_STORAGE_BUCKET",
+            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+            appId: "YOUR_APP_ID"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        const gradePoints = {
+            'A': 4.00, 'A-': 3.70, 'B+': 3.30, 'B': 3.00, 'B-': 2.70,
+            'C+': 2.30, 'C': 2.00, 'C-': 1.70, 'D+': 1.30, 'D': 1.00, 'F': 0.00
+        };
+
+        let academicData = {};
+
+        async function fetchDatabase() {
+            const docRef = doc(db, "uet_config", "subjectsData");
+            const docSnap = await getDoc(docRef);
+            if (docSnap.exists()) {
+                academicData = docSnap.data();
+                populateSemesterDropdown();
+            } else {
+                document.getElementById('semester-select').innerHTML = '<option value="">No data found in Admin</option>';
+            }
+        }
+
+        function populateSemesterDropdown() {
+            const select = document.getElementById('semester-select');
+            select.innerHTML = '<option value="">-- Select Semester --</option>';
+            for(let sem in academicData) {
+                select.innerHTML += `<option value="${sem}">${sem}</option>`;
+            }
+        }
+
+        window.loadSemesterSubjects = function() {
+            const sem = document.getElementById('semester-select').value;
+            const container = document.getElementById('subjects-container');
+            const calcBtn = document.getElementById('calculate-btn');
+            container.innerHTML = '';
+
+            if(!sem || !academicData[sem]) {
+                calcBtn.style.display = 'none';
+                return;
+            }
+
+            academicData[sem].forEach((sub, index) => {
+                let row = document.createElement('div');
+                row.className = 'subject-row';
+                row.innerHTML = `
+                    <input type="checkbox" id="chk-${index}" checked data-ch="${sub.ch}">
+                    <div class="sub-details">${sub.name}</div>
+                    <div class="sub-ch">${sub.ch} CH</div>
+                    <select class="sub-grade" id="grade-${index}">
+                        ${Object.keys(gradePoints).map(g => `<option value="${g}">${g}</option>`).join('')}
+                    </select>
+                `;
+                container.appendChild(row);
+            });
+            calcBtn.style.display = 'block';
+        }
+
+        window.calculateCGPA = async function() {
+            const sem = document.getElementById('semester-select').value;
+            const studentName = document.getElementById('student-name').value.trim() || "Anonymous Student";
+            let totalPoints = 0;
+            let totalCreditHours = 0;
+
+            academicData[sem].forEach((sub, index) => {
+                const isChecked = document.getElementById(`chk-${index}`).checked;
+                if(isChecked) {
+                    const grade = document.getElementById(`grade-${index}`).value;
+                    const points = gradePoints[grade];
+                    totalPoints += (points * sub.ch);
+                    totalCreditHours += sub.ch;
+                }
+            });
+
+            if(totalCreditHours === 0) return alert("Kam az kam ek subject select karein!");
+
+            const cgpa = (totalPoints / totalCreditHours).toFixed(2);
+            
+            // Send student calculation log to Firebase
+            try {
+                await addDoc(collection(db, "student_logs"), {
+                    name: studentName,
+                    semester: sem,
+                    gpa: cgpa,
+                    timestamp: new Date().toLocaleString()
+                });
+            } catch (e) {
+                console.error("Error saving log: ", e);
+            }
+
+            displayResult(cgpa, studentName);
+        }
+
+        function displayResult(cgpa, name) {
+            const resultBox = document.getElementById('result-box');
+            const scoreSpan = document.getElementById('cgpa-score');
+            const msgH3 = document.getElementById('result-message');
+
+            scoreSpan.innerText = cgpa;
+            resultBox.classList.remove('hidden');
+
+            if (cgpa >= 3.90) msgH3.innerText = `👑 Outstanding, ${name}! Top of the tier!`;
+            else if (cgpa >= 3.70) msgH3.innerText = `🌟 Exceptional Work, ${name}! Brilliant execution!`;
+            else if (cgpa >= 3.30) msgH3.innerText = `✨ Brilliant, ${name}! Pushing boundaries!`;
+            else if (cgpa >= 3.00) msgH3.innerText = `👍 Good Job, ${name}! Solid engineering performance!`;
+            else msgH3.innerText = `🎯 Growth Mindset, ${name}! Keep grinding, next semester will be massive!`;
+
+            let duration = 3 * 1000;
+            let end = Date.now() + duration;
+            (function frame() {
+                confetti({ particleCount: 5, angle: 60, spread: 55, origin: { x: 0 } });
+                confetti({ particleCount: 5, angle: 120, spread: 55, origin: { x: 1 } });
+                if (Date.now() < end) { requestAnimationFrame(frame); }
+            }());
+        }
+
+        // Initialize loading
+        fetchDatabase();
+    </script>
+</body>
+</html>
