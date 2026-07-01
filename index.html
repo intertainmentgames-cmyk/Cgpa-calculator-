@@ -63,7 +63,6 @@
         .form-group { margin-bottom: 22px; }
         .form-group label { display: block; margin-bottom: 8px; font-weight: 500; color: var(--text-muted); font-size: 0.9rem; }
 
-        /* Hamesha On Rehne Wala Note Box */
         .note-box {
             background: rgba(56, 189, 248, 0.1);
             border: 1px solid rgba(56, 189, 248, 0.3);
@@ -82,9 +81,10 @@
         input:focus, select:focus { border-color: #38bdf8; box-shadow: 0 0 15px rgba(56, 189, 248, 0.25); background: rgba(0,0,0,0.2); }
         select option { background: #0f1424; color: #fff; }
 
+        /* Master Grid Layout Rules for Clean Columns */
         .grid-layout {
             display: grid;
-            grid-template-columns: 2.2fr 1fr 1.2fr;
+            grid-template-columns: 2.5fr 1.2fr 1.2fr;
             gap: 12px;
             align-items: center;
         }
@@ -115,14 +115,14 @@
         }
         .subject-row:hover { background: rgba(255, 255, 255, 0.06); border-color: rgba(255, 255, 255, 0.15); }
         
-        .sub-meta-container { display: flex; align-items: center; gap: 12px; min-width: 0; width: 100%; }
+        /* FIXED: Force manual inputs to absolutely stay inside a single line row layout */
+        .sub-meta-container { display: flex; align-items: center; gap: 8px; min-width: 0; width: 100%; }
         .subject-row input[type="checkbox"] { width: 18px; height: 18px; accent-color: #38bdf8; cursor: pointer; flex-shrink: 0; }
         
-        .subject-info-wrapper { min-width: 0; width: 100%; }
+        .subject-info-wrapper { display: flex; flex-direction: row; align-items: center; gap: 10px; width: 100%; min-width: 0; }
         .sub-details { font-weight: 600; color: #f8fafc; font-size: 0.95rem; line-height: 1.4; word-wrap: break-word; }
         .sub-ch { font-weight: 400; color: #38bdf8; font-size: 0.8rem; margin-top: 1px; }
         
-        /* Manual entry input styling */
         .manual-input-name {
             background: rgba(255, 255, 255, 0.05);
             border: 1px solid rgba(255, 255, 255, 0.1);
@@ -130,23 +130,23 @@
             font-size: 0.95rem;
             border-radius: 8px;
             color: #fff;
-            width: 100%;
+            flex: 2;
+            min-width: 0;
         }
         .manual-select-ch {
-            padding: 6px;
+            padding: 0 8px;
             font-size: 0.85rem;
-            height: 34px;
-            border-radius: 6px;
-            margin-top: 6px;
+            height: 38px;
+            border-radius: 8px;
             background: rgba(15, 20, 36, 0.8);
             color: #fff;
-            width: 100%;
+            flex: 1;
+            min-width: 75px;
         }
 
         .live-points-col { text-align: center; font-weight: 700; color: #34d399; font-size: 1.05rem; }
         .sub-grade { width: 100%; padding: 8px 6px; font-size: 0.9rem; text-align: center; height: 38px; border-radius: 8px; }
 
-        /* Notebook Dynamic Secondary Section Layout */
         .preview-section-title {
             margin-top: 35px;
             margin-bottom: 15px;
@@ -167,13 +167,16 @@
             max-height: 280px;
             overflow-y: auto;
         }
+        
+        /* FIXED: Match grid pattern exactly with master layout columns */
         .added-row {
             display: grid;
-            grid-template-columns: 2.2fr 1fr 1fr 1fr;
+            grid-template-columns: 2.5fr 1.2fr 1.2fr;
             padding: 12px 8px;
             border-bottom: 1px solid rgba(255,255,255,0.05);
             font-size: 0.9rem;
             color: #e2e8f0;
+            align-items: center;
         }
         .added-row:last-child { border-bottom: none; }
         .added-row-header {
@@ -183,6 +186,16 @@
             font-size: 0.75rem;
             letter-spacing: 0.5px;
             border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        /* FIXED: Automated text auto-scaling system logic rules */
+        .auto-scale-text {
+            font-size: clamp(0.75rem, 2.5vw, 0.95rem);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            font-weight: 500;
+            color: #fff;
         }
 
         .btn {
@@ -253,10 +266,12 @@
         .hidden { display: none !important; }
 
         @media(max-width: 600px) {
-            .grid-layout { grid-template-columns: 1.8fr 0.9fr 1.3fr; gap: 8px; }
-            .added-row { grid-template-columns: 1.6fr 0.9fr 1fr 0.9fr; font-size: 0.8rem; padding: 10px 4px; }
+            .grid-layout { grid-template-columns: 2.2fr 1.2fr 1.2fr; gap: 8px; }
+            .added-row { grid-template-columns: 2.2fr 1.2fr 1.2fr; font-size: 0.8rem; padding: 10px 4px; }
             .table-heading { font-size: 0.75rem; padding: 10px 4px; letter-spacing: 0.3px; }
             .subject-row { padding: 12px 6px; border-radius: 10px; }
+            .manual-input-name { padding: 8px; font-size: 0.85rem; }
+            .manual-select-ch { height: 34px; font-size: 0.8rem; min-width: 65px; }
             .sub-details { font-size: 0.85rem; }
             .live-points-col { font-size: 0.95rem; }
             .sub-grade { font-size: 0.8rem; padding: 4px; height: 34px; }
@@ -287,6 +302,7 @@
             <div class="form-group">
                 <label for="department-select">Choose Department</label>
                 <select id="department-select">
+                    <option value="" selected disabled>-- Select Department --</option>
                     <option value="mechanical">Mechanical Engineering</option>
                     <option value="other">Other Department (Manual Entry)</option>
                 </select>
@@ -296,7 +312,7 @@
                 <strong>Note:</strong> Mechanical students don't need to enter subjects. Other departments, please select "Other" to manually add your subjects and credit hours.
             </div>
             
-            <div class="form-group" id="semester-wrapper">
+            <div class="form-group hidden" id="semester-wrapper">
                 <label for="semester-select">Choose Semester</label>
                 <select id="semester-select">
                     <option value="">-- Loading Semesters... --</option>
@@ -304,7 +320,7 @@
             </div>
 
             <div id="table-headings" class="grid-layout table-heading hidden">
-                <div class="heading-item">Subject Name</div>
+                <div class="heading-item">Subject Name (CH)</div>
                 <div class="heading-item text-center">Grade Point</div>
                 <div class="heading-item text-right">Select Grade</div>
             </div>
@@ -320,9 +336,8 @@
                 <div class="added-subjects-table">
                     <div class="added-row added-row-header">
                         <div>Subject</div>
-                        <div style="text-align: center;">CH</div>
-                        <div style="text-align: center;">Pts</div>
-                        <div style="text-align: right;">Grade</div>
+                        <div style="text-align: center;">Grade Point</div>
+                        <div style="text-align: right; padding-right: 8px;">Grade</div>
                     </div>
                     <div id="preview-rows-container"></div>
                 </div>
@@ -377,11 +392,12 @@
 
         let academicData = {};
         let animationFrameId = null;
-        
-        // FIXED: Array state to globally hold lists generated from your custom notebook logic
         let userAddedSubjects = []; 
 
         document.addEventListener('DOMContentLoaded', () => {
+            // Force reset selection index variables on load
+            document.getElementById('department-select').selectedIndex = 0;
+            
             document.getElementById('department-select').addEventListener('change', handleDepartmentChange);
             document.getElementById('semester-select').addEventListener('change', loadSemesterSubjects);
             document.getElementById('add-subject-btn').addEventListener('click', moveRowToTableSection);
@@ -432,10 +448,8 @@
                 headings.classList.remove('hidden');
                 addBtn.classList.remove('hidden');
                 calcBtn.style.display = 'block';
-                
-                // Mount exactly 1 clean temporary row onto workspace area
                 renderSingleManualRow(); 
-            } else {
+            } else if (dept === 'mechanical') {
                 semWrapper.classList.remove('hidden');
                 headings.classList.add('hidden');
                 addBtn.classList.add('hidden');
@@ -444,7 +458,6 @@
             }
         }
 
-        // FIXED: Builds exactly 1 dynamic setup workspace on the dashboard
         function renderSingleManualRow() {
             const container = document.getElementById('subjects-container');
             container.innerHTML = '';
@@ -454,7 +467,7 @@
             row.innerHTML = `
                 <div class="sub-meta-container">
                     <div class="subject-info-wrapper">
-                        <input type="text" class="manual-input-name" id="manual-sub-name" placeholder="e.g., Programming Fundamentals">
+                        <input type="text" class="manual-input-name" id="manual-sub-name" placeholder="Subject Name">
                         <select class="manual-select-ch" id="manual-sub-ch">
                             <option value="3">3 CH</option>
                             <option value="4">4 CH</option>
@@ -478,7 +491,6 @@
             });
         }
 
-        // FIXED: Shift execution layer shifts details from top workspace to notebook table safely
         function moveRowToTableSection() {
             const nameInput = document.getElementById('manual-sub-name');
             const name = nameInput.value.trim() || "Subject " + (userAddedSubjects.length + 1);
@@ -486,25 +498,21 @@
             const grade = document.getElementById('manual-sub-grade').value;
             const pts = gradePoints[grade];
 
-            // Append item down to data matrix safely
             userAddedSubjects.push({ name, ch, grade, pts });
-
-            // Make table component container visible right away
             document.getElementById('preview-wrapper').classList.remove('hidden');
 
-            // Render details inside custom sub table display layout
             const previewContainer = document.getElementById('preview-rows-container');
             let itemRow = document.createElement('div');
             itemRow.className = 'added-row';
+            
+            // FIXED: Integrated dynamic text logic systems inside container outputs safely
             itemRow.innerHTML = `
-                <div style="font-weight:500; color:#fff;">${name}</div>
-                <div style="text-align:center; color:#38bdf8;">${ch}</div>
-                <div style="text-align:center; color:#34d399;">${pts.toFixed(2)}</div>
-                <div style="text-align:right; font-weight:600; color:#38bdf8;">${grade}</div>
+                <div class="auto-scale-text" title="${name} (${ch} CH)">${name} (${ch} CH)</div>
+                <div style="text-align:center; font-weight:700; color:#34d399;">${pts.toFixed(2)}</div>
+                <div style="text-align:right; font-weight:600; color:#38bdf8; padding-right:12px;">${grade}</div>
             `;
             previewContainer.appendChild(itemRow);
 
-            // Wipe out oopar wali raw so that bacha text clean write kare easily
             nameInput.value = '';
             document.getElementById('manual-sub-ch').value = '3';
             document.getElementById('manual-sub-grade').value = 'A';
@@ -533,14 +541,12 @@
                     <div class="sub-meta-container">
                         <input type="checkbox" id="chk-${index}" checked data-ch="${sub.ch}">
                         <div class="subject-info-wrapper">
-                            <div class="sub-details" title="${sub.name}">${sub.name}</div>
-                            <div class="sub-ch">${sub.ch} CH</div>
+                            <div class="sub-details auto-scale-text" title="${sub.name}">${sub.name} (${sub.ch} CH)</div>
                         </div>
                     </div>
                     <div class="live-points-col" id="pts-${index}">4.00</div>
                     <div>
                         <select class="sub-grade" id="grade-${index}">
-                            <option value="" disabled>Choose Grade</option>
                             ${Object.keys(gradePoints).map(g => `<option value="${g}">${g}</option>`).join('')}
                         </select>
                     </div>
@@ -576,9 +582,8 @@
                     }
                 });
             } else {
-                // FIXED: Calculates direct array loops aggregated from the dynamic table list logic
                 if(userAddedSubjects.length === 0) {
-                    return alert("Please add at least one subject down to your list container first!");
+                    return alert("Please add at least one subject to your list first!");
                 }
                 userAddedSubjects.forEach(sub => {
                     totalPoints += (sub.pts * sub.ch);
@@ -640,6 +645,18 @@
                 ctx.clearRect(0, 0, myCanvas.width, myCanvas.height);
             }
             document.getElementById('success-overlay').classList.add('hidden');
+            
+            // Full Reset UI Form state on closing screen context safely
+            document.getElementById('student-name').value = '';
+            document.getElementById('department-select').selectedIndex = 0;
+            document.getElementById('semester-wrapper').classList.add('hidden');
+            document.getElementById('table-headings').classList.add('hidden');
+            document.getElementById('subjects-container').innerHTML = '';
+            document.getElementById('add-subject-btn').classList.add('hidden');
+            document.getElementById('preview-wrapper').classList.add('hidden');
+            document.getElementById('preview-rows-container').innerHTML = '';
+            document.getElementById('calculate-btn').style.display = 'none';
+            userAddedSubjects = [];
         }
     </script>
 </body>
