@@ -135,6 +135,9 @@
         }
 
         .section-title { margin-bottom: 25px; font-weight: 700; font-size: 1.4rem; display: flex; align-items: center; gap: 10px; }
+        .live-users-header-wrapper { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; gap: 15px; flex-wrap: wrap; }
+        .live-users-header-wrapper .section-title { margin-bottom: 0; }
+        
         .form-group { margin-bottom: 20px; }
         .form-group label { display: block; margin-bottom: 8px; font-weight: 500; color: var(--text-muted); font-size: 0.85rem; }
 
@@ -152,6 +155,13 @@
         .btn-success:hover { background: #059669; }
         .btn-primary { background: var(--primary); color: white; }
         .btn-primary:hover { background: #4f46e5; }
+        
+        .btn-danger-action {
+            background: rgba(239, 68, 68, 0.15); color: #fca5a5; border: 1px solid rgba(239, 68, 68, 0.4);
+            padding: 10px 18px; border-radius: 12px; cursor: pointer; font-size: 0.9rem; font-weight: 600;
+            display: flex; align-items: center; gap: 8px; transition: 0.2s; width: auto;
+        }
+        .btn-danger-action:hover { background: var(--danger); color: #fff; border-color: var(--danger); box-shadow: 0 0 15px rgba(239, 64, 64, 0.3); }
 
         .sem-block { background: rgba(255,255,255,0.02); padding: 18px; border-radius: 14px; margin-bottom: 15px; border: 1px solid var(--glass-border); }
         .sub-item-row { display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.03); padding: 12px 16px; margin-top: 8px; border-radius: 10px; font-size: 0.9rem; position: relative; }
@@ -281,7 +291,10 @@
 
         <div id="live-users-section" class="app-section">
             <div class="card-panel">
-                <h2 class="section-title" style="color: var(--success);"><i class="fa-solid fa-chart-line"></i> Live User Calculations</h2>
+                <div class="live-users-header-wrapper">
+                    <h2 class="section-title" style="color: var(--success);"><i class="fa-solid fa-chart-line"></i> Live User Calculations</h2>
+                    <button class="btn-danger-action" id="delete-all-logs-btn"><i class="fa-solid fa-dumpster-fire"></i> Delete All Logs</button>
+                </div>
                 <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 20px;">Click/Tap any user card to inspect full transcript records dashboard.</p>
                 <div id="logs-container" class="logs-wrapper">
                     Syncing cloud packets data logs...
@@ -583,6 +596,22 @@
             });
         });
 
+        // 🚀 DELETE ALL LOGS FUNCTIONALITY
+        document.getElementById('delete-all-logs-btn').addEventListener('click', async () => {
+            if (Object.keys(activeLogsData).length === 0) {
+                return alert("Delete krne k liye koi data majood nahi hai!");
+            }
+            
+            if (confirm("⚠️ WARNING: Kia aap waqai SAARE users ka data Firebase se hamesha k liye delete krna chahty hain? Ye action undo nahi ho sakta!")) {
+                try {
+                    await remove(ref(db, 'student_logs'));
+                    alert("Pura student logs data database se clean kr dia gaya hai.");
+                } catch(err) {
+                    alert("Error processing wipeout sequence: " + err.message);
+                }
+            }
+        });
+
         window.deleteUserLogRecord = async function(event, nodeKey) {
             event.stopPropagation(); 
             if(confirm("Kia aap waqai is bachy ka data Firebase sy hamesha kalia delete krna chahty hain?")) {
@@ -609,7 +638,6 @@
             tableBody.innerHTML = '';
 
             let subjectList = null;
-            // 🚀 Index.html se bheja gaya data yahan accurately verify ho rha ha
             if (targetData.subjectsBreakdown && (Array.isArray(targetData.subjectsBreakdown) || typeof targetData.subjectsBreakdown === 'object')) {
                 subjectList = targetData.subjectsBreakdown;
             } else if (targetData.subjects && (Array.isArray(targetData.subjects) || typeof targetData.subjects === 'object')) {
