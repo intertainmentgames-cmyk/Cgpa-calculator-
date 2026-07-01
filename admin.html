@@ -408,20 +408,29 @@
             renderAdminPanelList();
         }
 
+        // FIXED SAVE LOGIC: Force integer parsing and valid structured objects
         document.getElementById('save-btn').addEventListener('click', async () => {
             const sem = document.getElementById('admin-sem').value.trim();
             const name = document.getElementById('admin-sub-name').value.trim();
-            const ch = parseInt(document.getElementById('admin-sub-ch').value);
+            const chInput = document.getElementById('admin-sub-ch').value;
+            const ch = parseInt(chInput, 10);
 
-            if(!sem || !name || !ch) return alert("Saari fields fill krna lazmi hain!");
+            if(!sem || !name || !chInput || isNaN(ch)) return alert("Saari fields fill krna lazmi hain!");
 
             if(!academicData[sem]) academicData[sem] = [];
-            academicData[sem].push({ id: Date.now(), name, ch });
+            
+            // Clean dynamic structures
+            academicData[sem].push({ 
+                id: Date.now(), 
+                name: name, 
+                ch: ch 
+            });
 
             await set(ref(db, "uet_config/subjectsData"), academicData);
             document.getElementById('admin-sub-name').value = '';
             document.getElementById('admin-sub-ch').value = '';
             renderAdminPanelList();
+            alert("Subject successfully saved!");
         });
 
         window.deleteSubject = async function(sem, id) {
@@ -434,7 +443,7 @@
         function renderAdminPanelList() {
             const container = document.getElementById('admin-list-container');
             container.innerHTML = '';
-            if(Object.keys(academicData).length === 0) {
+            if(!academicData || Object.keys(academicData).length === 0) {
                 container.innerHTML = '<p style="color:var(--text-muted); font-size:0.9rem;">No active configurations found.</p>';
                 return;
             }
@@ -442,13 +451,16 @@
                 let div = document.createElement('div');
                 div.className = 'sem-block';
                 div.innerHTML = `<h4 style="color:#a78bfa; font-weight:600;">${sem}</h4>`;
-                academicData[sem].forEach(sub => {
-                    div.innerHTML += `
-                        <div class="sub-item-row">
-                            <span>${sub.name} <b style="color:var(--text-muted); margin-left:8px;">(${sub.ch} CH)</b></span>
-                            <button onclick="deleteSubject('${sem}', ${sub.id})" style="color:var(--danger); border:none; background:none; cursor:pointer; font-size:1rem;"><i class="fa-regular fa-trash-can"></i></button>
-                        </div>`;
-                });
+                
+                if (Array.isArray(academicData[sem])) {
+                    academicData[sem].forEach(sub => {
+                        div.innerHTML += `
+                            <div class="sub-item-row">
+                                <span>${sub.name} <b style="color:var(--text-muted); margin-left:8px;">(${sub.ch} CH)</b></span>
+                                <button onclick="deleteSubject('${sem}', ${sub.id})" style="color:var(--danger); border:none; background:none; cursor:pointer; font-size:1rem;"><i class="fa-regular fa-trash-can"></i></button>
+                            </div>`;
+                    });
+                }
                 container.appendChild(div);
             }
         }
@@ -470,7 +482,6 @@
                 const logVal = childSnapshot.val();
                 activeLogsData[logKey] = logVal; 
                 
-                // Card Box Layout HTML Injection
                 const card = document.createElement('div');
                 card.className = 'log-box-card';
                 card.setAttribute('onclick', `openUserDetailedTranscript('${logKey}')`);
@@ -488,14 +499,12 @@
                         </button>
                     </div>
                 `;
-                // FIX 1: appendChild ki jagah prepend use kia taky naya user hamesha top par show ho
                 container.prepend(card);
             });
         });
 
-        // Permanent Cloud Firebase Node Wipe Execution 
         window.deleteUserLogRecord = async function(event, nodeKey) {
-            event.stopPropagation(); // Stops modal popup triggering on pressing delete button
+            event.stopPropagation(); 
             if(confirm("Kia aap waqai is bachy ka data Firebase sy hamesha kalia delete krna chahty hain?")) {
                 try {
                     await remove(ref(db, `student_logs/${nodeKey}`));
@@ -506,7 +515,6 @@
             }
         }
 
-        // Modal Popups View Actions Engine
         const detailsModal = document.getElementById('details-modal');
         
         window.openUserDetailedTranscript = function(nodeKey) {
@@ -520,7 +528,6 @@
             const tableBody = document.getElementById('modal-table-rows');
             tableBody.innerHTML = '';
 
-            // FIX 2: Dynamic data mapping automation engine (Flexible Check)
             let subjectList = null;
             if (targetData.subjectsBreakdown && (Array.isArray(targetData.subjectsBreakdown) || typeof targetData.subjectsBreakdown === 'object')) {
                 subjectList = targetData.subjectsBreakdown;
@@ -529,7 +536,6 @@
             } else if (targetData.details && (Array.isArray(targetData.details) || typeof targetData.details === 'object')) {
                 subjectList = targetData.details;
             } else {
-                // Auto-fallback: pure object nodes me sy nested target list scan krna
                 for (let key in targetData) {
                     if (!['name', 'timestamp', 'gpa', 'cgpa', 'semester'].includes(key) && typeof targetData[key] === 'object') {
                         subjectList = targetData[key];
@@ -541,7 +547,6 @@
             if (subjectList) {
                 const items = Array.isArray(subjectList) ? subjectList : Object.values(subjectList);
                 items.forEach(item => {
-                    // Mapped variables safely checking all common key standards
                     const sName = item.name || item.subject || item.subjectName || 'N/A';
                     const sCh = item.ch || item.creditHours || item.credit_hours || item.credits || '0';
                     const sGp = item.gp || item.gradePoints || item.gradePoint || item.points || '0';
@@ -563,7 +568,6 @@
             detailsModal.classList.add('modal-open');
         }
 
-        // Close Modal Events
         document.getElementById('modal-close-btn').addEventListener('click', () => {
             detailsModal.classList.remove('modal-open');
         });
