@@ -4,15 +4,153 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>UET CGPA Calculator</title>
-    <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    
+    <style>
+        :root {
+            --primary: #6366f1;
+            --success: #10b981;
+            --glass-bg: rgba(255, 255, 255, 0.06);
+            --glass-border: rgba(255, 255, 255, 0.12);
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+
+        body {
+            background: radial-gradient(circle at top right, #1e1b4b 0%, #0f0728 60%, #03000a 100%);
+            min-height: 100vh;
+            color: var(--text-main);
+            padding-bottom: 50px;
+            overflow-x: hidden;
+        }
+
+        .navbar {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px 40px;
+            background: rgba(3, 0, 10, 0.4);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--glass-border);
+        }
+
+        .logo { font-size: 1.4rem; font-weight: 700; color: white; }
+        .highlight { color: #facc15; text-shadow: 0 0 15px rgba(250, 204, 21, 0.3); }
+
+        .container { max-width: 850px; margin: 40px auto; padding: 0 20px; }
+
+        /* Pure Premium Glassmorphism */
+        .card-panel {
+            background: var(--glass-bg);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            padding: 35px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        .section-title { margin-bottom: 25px; color: var(--text-main); font-weight: 700; text-align: center; }
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; margin-bottom: 6px; font-weight: 600; color: var(--text-muted); font-size: 0.9rem; }
+
+        input, select {
+            width: 100%; padding: 12px; background: rgba(0, 0, 0, 0.3); border: 1px solid var(--glass-border);
+            border-radius: 10px; outline: none; font-size: 1rem; color: #fff; transition: 0.2s;
+        }
+        input:focus, select:focus { border-color: var(--primary); box-shadow: 0 0 15px rgba(99, 102, 241, 0.25); }
+        select option { background: #0f0728; color: #fff; }
+
+        /* 3-Column Lock Grid Framework */
+        .grid-layout {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1.2fr;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .table-heading {
+            padding: 10px 15px;
+            font-weight: 600;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            margin-top: 25px;
+            margin-bottom: 8px;
+        }
+
+        .subject-row {
+            background: rgba(255, 255, 255, 0.02);
+            padding: 14px 15px;
+            border-radius: 12px;
+            margin-bottom: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.03);
+            transition: all 0.2s;
+        }
+        .subject-row:hover { background: rgba(255, 255, 255, 0.04); border-color: rgba(255, 255, 255, 0.08); }
+        
+        .sub-meta-container { display: flex; align-items: center; gap: 12px; }
+        .subject-row input[type="checkbox"] { width: auto; transform: scale(1.3); accent-color: var(--primary); cursor: pointer; }
+        .sub-details { font-weight: 600; color: #f1f5f9; }
+        .sub-ch { font-weight: 500; color: #818cf8; font-size: 0.85rem; margin-top: 2px; }
+        
+        .live-points-col { text-align: center; font-weight: 700; color: #34d399; text-shadow: 0 0 10px rgba(52, 211, 153, 0.2); }
+        .sub-grade { max-width: 100%; padding: 8px 10px; font-size: 0.9rem; text-align: center; }
+
+        .btn {
+            width: 100%; padding: 14px; border: none; border-radius: 12px;
+            font-size: 1.1rem; font-weight: 600; cursor: pointer; transition: 0.2s;
+        }
+        .btn-primary { background: linear-gradient(135deg, var(--primary) 0%, #4f46e5 100%); color: white; box-shadow: 0 8px 20px rgba(99, 102, 241, 0.2); }
+        .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 12px 24px rgba(99, 102, 241, 0.35); }
+        
+        .btn-close { background: rgba(255,255,255,0.1); border: 1px solid var(--glass-border); color: #fff; margin-top: 15px; font-size: 0.95rem; }
+        .btn-close:hover { background: rgba(255,255,255,0.18); }
+
+        /* Store-Style Full Screen Order Complete Success Popup */
+        .overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(3, 0, 10, 0.8); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px);
+            z-index: 9999; display: flex; align-items: center; justify-content: center; padding: 20px;
+        }
+        .overlay-content {
+            background: rgba(255, 255, 255, 0.05); border: 1px solid var(--glass-border);
+            padding: 40px 30px; border-radius: 28px; text-align: center; max-width: 480px; width: 100%;
+            box-shadow: 0 30px 70px rgba(0,0,0,0.6); animation: scaleUp 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+        }
+        .checkmark-circle { width: 85px; height: 85px; border-radius: 50%; background: #10b981; display: flex; align-items: center; justify-content: center; margin: 0 auto; box-shadow: 0 0 30px rgba(16, 185, 129, 0.4); }
+        .checkmark { width: 40px; height: 22px; border-left: 5px solid #fff; border-bottom: 5px solid #fff; transform: rotate(-45deg); margin-top: -6px; }
+        .overlay-title { font-size: 1.4rem; font-weight: 800; color: #fff; margin-top: 20px; letter-spacing: 1px; }
+        .overlay-msg { font-size: 0.95rem; color: var(--text-muted); margin: 12px 0 25px 0; line-height: 1.5; }
+        
+        .final-score-box { background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.2); padding: 18px; border-radius: 16px; font-weight: 600; }
+        #cgpa-score { display: block; font-size: 2.8rem; font-weight: 700; color: #34d399; margin-top: 5px; text-shadow: 0 0 20px rgba(52, 211, 153, 0.3); }
+
+        .hidden { display: none !important; }
+
+        @media(max-width: 768px) {
+            .grid-layout { grid-template-columns: 1.5fr 0.8fr 1.2fr; gap: 8px; }
+            .table-heading { font-size: 0.7rem; padding: 10px 5px; }
+            .subject-row { padding: 12px 8px; }
+            .sub-details { font-size: 0.85rem; }
+            .sub-grade { font-size: 0.8rem; padding: 6px; }
+        }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes scaleUp { from { transform: scale(0.85); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+    </style>
 </head>
 <body>
 
     <nav class="navbar">
         <div class="logo">UET CGPA <span class="highlight">Calculator</span></div>
-        </nav>
+    </nav>
 
     <div class="container">
         <div class="card-panel">
@@ -30,15 +168,13 @@
                 </select>
             </div>
 
-            <div id="calculator-table-wrapper" class="hidden">
-                <div class="table-columns-header">
-                    <div class="header-col">Subject Name</div>
-                    <div class="header-col text-center">Grade Points</div>
-                    <div class="header-col text-right">Select Grade</div>
-                </div>
-                
-                <div id="subjects-container" class="subjects-list"></div>
+            <div id="table-headings" class="grid-layout table-heading hidden">
+                <div>Subject Name</div>
+                <div style="text-align: center;">Grade Point</div>
+                <div style="text-align: right; padding-right: 15px;">Select Grade</div>
             </div>
+
+            <div id="subjects-container" class="subjects-list"></div>
 
             <button id="calculate-btn" class="btn btn-primary" onclick="calculateCGPA()" style="display: none;">Calculate CGPA</button>
         </div>
@@ -54,7 +190,7 @@
             <div class="final-score-box">
                 YOUR CGPA IS: <span id="cgpa-score">0.00</span>
             </div>
-            <button class="btn-close" onclick="closeOverlay()">Calculate Again</button>
+            <button class="btn btn-close" onclick="closeOverlay()">Calculate Again</button>
         </div>
     </div>
 
@@ -62,7 +198,6 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getDatabase, ref, get, child, push } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
-        // Config Auto-Injected
         const firebaseConfig = {
             apiKey: "AIzaSyCRximbg48XT2HxpQoRdyp137soJwcEWqw",
             authDomain: "cpga-calculator-72d01.firebaseapp.com",
@@ -110,34 +245,39 @@
             const sem = document.getElementById('semester-select').value;
             const container = document.getElementById('subjects-container');
             const calcBtn = document.getElementById('calculate-btn');
-            const tableWrapper = document.getElementById('calculator-table-wrapper');
+            const headings = document.getElementById('table-headings');
             container.innerHTML = '';
 
             if(!sem || !academicData[sem]) {
                 calcBtn.style.display = 'none';
-                tableWrapper.classList.add('hidden');
+                headings.classList.add('hidden');
                 return;
             }
 
-            tableWrapper.classList.remove('hidden');
+            headings.classList.remove('hidden');
 
             academicData[sem].forEach((sub, index) => {
                 let row = document.createElement('div');
-                row.className = 'subject-row';
+                row.className = 'grid-layout subject-row';
                 row.innerHTML = `
-                    <div class="col-subject-info">
+                    <div class="sub-meta-container">
                         <input type="checkbox" id="chk-${index}" checked data-ch="${sub.ch}">
-                        <div class="sub-details">${sub.name} <span class="sub-ch">(${sub.ch} CH)</span></div>
+                        <div>
+                            <div class="sub-details">${sub.name}</div>
+                            <div class="sub-ch">${sub.ch} CH</div>
+                        </div>
                     </div>
-                    <div class="col-points-live" id="pts-${index}">4.00</div>
-                    <div class="col-grade-selector">
+                    <div class="live-points-col" id="pts-${index}">4.00</div>
+                    <div>
                         <select class="sub-grade" id="grade-${index}" onchange="updateLivePoints(${index})">
-                            <option value="" disabled selected>Choose Grade</option>
+                            <option value="" disabled>Choose Grade</option>
                             ${Object.keys(gradePoints).map(g => `<option value="${g}">${g}</option>`).join('')}
                         </select>
                     </div>
                 `;
                 container.appendChild(row);
+                // Pre-set selection smoothly
+                document.getElementById(`grade-${index}`).value = "A";
             });
             calcBtn.style.display = 'block';
         }
@@ -156,23 +296,16 @@
             let totalPoints = 0;
             let totalCreditHours = 0;
 
-            let missingGrade = false;
-
             academicData[sem].forEach((sub, index) => {
                 const isChecked = document.getElementById(`chk-${index}`).checked;
                 if(isChecked) {
                     const grade = document.getElementById(`grade-${index}`).value;
-                    if(!grade) {
-                        missingGrade = true;
-                        return;
-                    }
                     const points = gradePoints[grade];
                     totalPoints += (points * sub.ch);
                     totalCreditHours += sub.ch;
                 }
             });
 
-            if(missingGrade) return alert("Meharbani karke pehle sab subjects ke grades select karein!");
             if(totalCreditHours === 0) return alert("Kam az kam ek subject select karein!");
 
             const cgpa = (totalPoints / totalCreditHours).toFixed(2);
@@ -198,16 +331,14 @@
             const msgP = document.getElementById('result-message');
 
             scoreSpan.innerText = cgpa;
-            
+            overlay.classList.remove('hidden');
+
             if (cgpa >= 3.90) msgP.innerText = `👑 Outstanding, ${name}! You are at the absolute top tier of engineering!`;
             else if (cgpa >= 3.70) msgP.innerText = `🌟 Exceptional Work, ${name}! Brilliant performance!`;
             else if (cgpa >= 3.30) msgP.innerText = `✨ Brilliant, ${name}! Pushing boundaries successfully!`;
             else if (cgpa >= 3.00) msgP.innerText = `👍 Good Job, ${name}! Solid engineering performance!`;
             else msgP.innerText = `🎯 Growth Mindset, ${name}! Keep grinding, next semester will be massive!`;
 
-            overlay.classList.remove('hidden');
-
-            // Infinite Store Fireworks burst effect
             let duration = 4 * 1000;
             let end = Date.now() + duration;
             (function frame() {
