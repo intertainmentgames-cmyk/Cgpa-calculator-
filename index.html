@@ -192,7 +192,7 @@
             
             <div class="form-group">
                 <label for="semester-select">Choose Semester</label>
-                <select id="semester-select" onchange="loadSemesterSubjects()">
+                <select id="semester-select">
                     <option value="">-- Loading Semesters... --</option>
                 </select>
             </div>
@@ -205,7 +205,7 @@
 
             <div id="subjects-container" class="subjects-list"></div>
 
-            <button id="calculate-btn" class="btn btn-primary" onclick="calculateCGPA()" style="display: none;">Calculate CGPA</button>
+            <button id="calculate-btn" class="btn btn-primary" style="display: none;">Calculate CGPA</button>
         </div>
     </div>
 
@@ -221,7 +221,7 @@
                 <div class="final-score-box">
                     YOUR CGPA IS <span id="cgpa-score">0.00</span>
                 </div>
-                <button class="btn btn-close" onclick="closeOverlay()">Calculate Again</button>
+                <button id="close-overlay-btn" class="btn btn-close">Calculate Again</button>
             </div>
         </div>
     </div>
@@ -255,6 +255,11 @@
         let academicData = {};
         let animationFrameId = null;
 
+        // Event Listeners setup to replace messy inline html onclick hooks
+        document.getElementById('semester-select').addEventListener('change', loadSemesterSubjects);
+        document.getElementById('calculate-btn').addEventListener('click', calculateCGPA);
+        document.getElementById('close-overlay-btn').addEventListener('click', closeOverlay);
+
         async function fetchDatabase() {
             const dbRef = ref(db);
             try {
@@ -278,7 +283,7 @@
             }
         }
 
-        window.loadSemesterSubjects = function() {
+        function loadSemesterSubjects() {
             const sem = document.getElementById('semester-select').value;
             const container = document.getElementById('subjects-container');
             const calcBtn = document.getElementById('calculate-btn');
@@ -306,19 +311,22 @@
                     </div>
                     <div class="live-points-col" id="pts-${index}">4.00</div>
                     <div>
-                        <select class="sub-grade" id="grade-${index}" onchange="updateLivePoints(${index})">
+                        <select class="sub-grade" id="grade-${index}">
                             <option value="" disabled>Choose Grade</option>
                             ${Object.keys(gradePoints).map(g => `<option value="${g}">${g}</option>`).join('')}
                         </select>
                     </div>
                 `;
                 container.appendChild(row);
-                document.getElementById(`grade-${index}`).value = "A";
+                
+                const selectEl = document.getElementById(`grade-${index}`);
+                selectEl.value = "A";
+                selectEl.addEventListener('change', () => updateLivePoints(index));
             });
             calcBtn.style.display = 'block';
         }
 
-        window.updateLivePoints = function(index) {
+        function updateLivePoints(index) {
             const grade = document.getElementById(`grade-${index}`).value;
             const ptsDiv = document.getElementById(`pts-${index}`);
             if(gradePoints[grade] !== undefined) {
@@ -326,7 +334,7 @@
             }
         }
 
-        window.calculateCGPA = async function() {
+        async function calculateCGPA() {
             const sem = document.getElementById('semester-select').value;
             const studentName = document.getElementById('student-name').value.trim() || "Student";
             let totalPoints = 0;
@@ -395,7 +403,7 @@
             frame();
         }
 
-        window.closeOverlay = function() {
+        function closeOverlay() {
             if (animationFrameId) {
                 cancelAnimationFrame(animationFrameId);
             }
