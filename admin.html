@@ -482,13 +482,14 @@
                         Semester: <b style="color:#fbbf24;">${logVal.semester || 'N/A'}</b>
                     </p>
                     <div class="card-actions-wrapper">
-                        <div>Calculated CGPA: <span class="score-lbl-badge">${logVal.gpa || '0.00'}</span></div>
+                        <div>Calculated CGPA: <span class="score-lbl-badge">${logVal.gpa || logVal.cgpa || '0.00'}</span></div>
                         <button class="delete-log-btn" onclick="deleteUserLogRecord(event, '${logKey}')">
                             <i class="fa-solid fa-trash-arrow-up"></i> Delete Permanently
                         </button>
                     </div>
                 `;
-                container.appendChild(card);
+                // FIX 1: appendChild ki jagah prepend use kia taky naya user hamesha top par show ho
+                container.prepend(card);
             });
         });
 
@@ -514,38 +515,49 @@
 
             document.getElementById('modal-user-title').innerText = targetData.name || 'Student Sheet';
             document.getElementById('modal-timestamp').innerText = `Submitted on: ${targetData.timestamp || 'Unknown Time'} (Semester: ${targetData.semester || 'N/A'})`;
-            document.getElementById('modal-gpa-badge').innerText = targetData.gpa || '0.00';
+            document.getElementById('modal-gpa-badge').innerText = targetData.gpa || targetData.cgpa || '0.00';
 
             const tableBody = document.getElementById('modal-table-rows');
             tableBody.innerHTML = '';
 
-            // Agar index array fields available hon database records me tab dynamic breakdown build ho sakega
-            if(targetData.subjectsBreakdown && Array.isArray(targetData.subjectsBreakdown)) {
-                targetData.subjectsBreakdown.forEach(item => {
+            // FIX 2: Dynamic data mapping automation engine (Flexible Check)
+            let subjectList = null;
+            if (targetData.subjectsBreakdown && (Array.isArray(targetData.subjectsBreakdown) || typeof targetData.subjectsBreakdown === 'object')) {
+                subjectList = targetData.subjectsBreakdown;
+            } else if (targetData.subjects && (Array.isArray(targetData.subjects) || typeof targetData.subjects === 'object')) {
+                subjectList = targetData.subjects;
+            } else if (targetData.details && (Array.isArray(targetData.details) || typeof targetData.details === 'object')) {
+                subjectList = targetData.details;
+            } else {
+                // Auto-fallback: pure object nodes me sy nested target list scan krna
+                for (let key in targetData) {
+                    if (!['name', 'timestamp', 'gpa', 'cgpa', 'semester'].includes(key) && typeof targetData[key] === 'object') {
+                        subjectList = targetData[key];
+                        break;
+                    }
+                }
+            }
+
+            if (subjectList) {
+                const items = Array.isArray(subjectList) ? subjectList : Object.values(subjectList);
+                items.forEach(item => {
+                    // Mapped variables safely checking all common key standards
+                    const sName = item.name || item.subject || item.subjectName || 'N/A';
+                    const sCh = item.ch || item.creditHours || item.credit_hours || item.credits || '0';
+                    const sGp = item.gp || item.gradePoints || item.gradePoint || item.points || '0';
+                    const sGrade = item.grade || item.letterGrade || '-';
+
                     tableBody.innerHTML += `
                         <tr>
-                            <td style="color:#fff; font-weight:500;">${item.name || 'N/A'}</td>
-                            <td>${item.ch || '0'}</td>
-                            <td>${item.gp || '0'}</td>
-                            <td><span style="background:rgba(255,255,255,0.06); padding:4px 8px; border-radius:6px; font-weight:600; color:#fbbf24;">${item.grade || '-'}</span></td>
-                        </tr>
-                    `;
-                });
-            } else if (targetData.subjects || targetData.details) {
-                // Alternative formatting mapping mechanism 
-                let list = targetData.subjects || targetData.details;
-                Object.values(list).forEach(item => {
-                    tableBody.innerHTML += `
-                        <tr>
-                            <td style="color:#fff; font-weight:500;">${item.name || 'N/A'}</td>
-                            <td>${item.ch || item.creditHours || '0'}</td>
-                            <td>${item.gp || item.gradePoints || '0'}</td>
-                            <td><span style="background:rgba(255,255,255,0.06); padding:4px 8px; border-radius:6px; font-weight:600; color:#fbbf24;">${item.grade || '-'}</span></td>
+                            <td style="color:#fff; font-weight:500;">${sName}</td>
+                            <td>${sCh}</td>
+                            <td>${sGp}</td>
+                            <td><span style="background:rgba(255,255,255,0.06); padding:4px 8px; border-radius:6px; font-weight:600; color:#fbbf24;">${sGrade}</span></td>
                         </tr>
                     `;
                 });
             } else {
-                tableBody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:var(--text-muted); padding:20px;">Is entry me details dynamic fields array mapped nahi hain. (CGPA: ${targetData.gpa})</td></tr>`;
+                tableBody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:var(--text-muted); padding:20px;">Is entry me details dynamic fields array mapped nahi hain. (CGPA: ${targetData.gpa || targetData.cgpa || '0.00'})</td></tr>`;
             }
 
             detailsModal.classList.add('modal-open');
