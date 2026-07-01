@@ -19,7 +19,6 @@
 
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
 
-        /* Liquid Dynamic Glass Theme Background */
         body {
             background-color: #0b0f19;
             background-image: 
@@ -29,7 +28,7 @@
             background-attachment: fixed;
             min-height: 100vh;
             color: var(--text-main);
-            padding-bottom: 80px; /* Space for the footer */
+            padding-bottom: 80px;
             overflow-x: hidden;
         }
 
@@ -49,7 +48,6 @@
 
         .container { max-width: 700px; margin: 40px auto; padding: 0 16px; }
 
-        /* Liquid Glassmorphism Main Panel */
         .card-panel {
             background: var(--glass-bg);
             backdrop-filter: blur(30px);
@@ -72,7 +70,6 @@
         input:focus, select:focus { border-color: #38bdf8; box-shadow: 0 0 15px rgba(56, 189, 248, 0.25); background: rgba(0,0,0,0.2); }
         select option { background: #0f1424; color: #fff; }
 
-        /* Flawless 3-Column Lock Grid Architecture */
         .grid-layout {
             display: grid;
             grid-template-columns: 2.2fr 1fr 1.2fr;
@@ -123,10 +120,9 @@
         .btn-primary { background: linear-gradient(135deg, #4f46e5 0%, #3b82f6 100%); color: white; box-shadow: 0 10px 25px rgba(59, 130, 246, 0.25); margin-top: 20px; }
         .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 15px 30px rgba(59, 130, 246, 0.4); }
         
-        .btn-close { background: rgba(255, 255, 255, 0.08); border: 1px solid var(--glass-border); color: #fff; margin-top: 25px; font-size: 1rem; z-index: 10; position: relative; }
+        .btn-close { background: rgba(255, 255, 255, 0.08); border: 1px solid var(--glass-border); color: #fff; margin-top: 25px; font-size: 1rem; z-index: 99; position: relative; }
         .btn-close:hover { background: rgba(255, 255, 255, 0.15); }
 
-        /* Store-Style Full Screen Confirmation Overlay Overlay System */
         .overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(7, 10, 19, 0.85); backdrop-filter: blur(30px); -webkit-backdrop-filter: blur(30px);
@@ -153,7 +149,6 @@
         .final-score-box { background: rgba(255, 255, 255, 0.03); border: 1px solid var(--glass-border); padding: 20px; border-radius: 20px; font-weight: 500; color: var(--text-muted); font-size: 0.95rem; letter-spacing: 0.5px; }
         #cgpa-score { display: block; font-size: 3.2rem; font-weight: 700; color: #34d399; margin-top: 6px; text-shadow: 0 0 25px rgba(52, 211, 153, 0.4); }
 
-        /* Shared Professional Footer Element Style */
         .footer {
             position: fixed; bottom: 0; left: 0; width: 100%; text-align: center;
             padding: 16px; background: rgba(11, 15, 25, 0.4); backdrop-filter: blur(15px);
@@ -163,7 +158,6 @@
 
         .hidden { display: none !important; }
 
-        /* Responsive Optimization to Lock Columns and Elements */
         @media(max-width: 600px) {
             .grid-layout { grid-template-columns: 1.8fr 0.9fr 1.3fr; gap: 8px; }
             .table-heading { font-size: 0.75rem; padding: 10px 4px; letter-spacing: 0.3px; }
@@ -382,7 +376,6 @@
             else if (cgpa >= 2.50) msgP.innerText = `✨ Fair work, ${name}! Steady performance, keep pushing higher!`;
             else msgP.innerText = `🎯 Continuous growth mindset, ${name}! Keep grinding, next term will be massive!`;
 
-            // Custom instance binding to target overlay canvas element precisely
             const localConfetti = confetti.create(myCanvas, {
                 resize: true,
                 useWorker: true
