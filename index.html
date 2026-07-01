@@ -133,8 +133,13 @@
             width: 100%;
             max-width: 440px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            pointer-events: auto !important;
+            isolation: isolate;
+            -webkit-tap-highlight-color: rgba(255,255,255,0.3);
+            touch-action: manipulation;
         }
         .btn-close:hover { background: rgba(255, 255, 255, 0.22); transform: translateY(-1px); }
+        .btn-close:active { transform: translateY(0px) scale(0.98); background: rgba(255, 255, 255, 0.3); }
 
         .overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
@@ -237,7 +242,7 @@
                 </div>
             </div>
         </div>
-        <button id="close-overlay-btn" class="btn btn-close">Calculate Again</button>
+        <button id="close-overlay-btn" class="btn btn-close" type="button">Calculate Again</button>
     </div>
 
     <footer class="footer">
@@ -268,12 +273,22 @@
 
         let academicData = {};
         let animationFrameId = null;
+        let localConfettiInstance = null;
 
         // Secure binding event system
         document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('semester-select').addEventListener('change', loadSemesterSubjects);
             document.getElementById('calculate-btn').addEventListener('click', calculateCGPA);
-            document.getElementById('close-overlay-btn').addEventListener('click', closeOverlay);
+
+            // Close button: bind on multiple event types so it works
+            // reliably across all mobile browsers (touch + click quirks).
+            const closeBtn = document.getElementById('close-overlay-btn');
+            closeBtn.addEventListener('click', closeOverlay);
+            closeBtn.addEventListener('touchend', function(e) {
+                e.preventDefault();
+                closeOverlay();
+            }, { passive: false });
+
             fetchDatabase();
         });
 
@@ -396,6 +411,7 @@
 
             scoreSpan.innerText = cgpa;
             overlay.classList.remove('hidden');
+            overlay.style.display = 'flex';
 
             if (cgpa >= 3.90) msgP.innerText = `👑 Excellent performance, ${name}! You are tracking at the absolute top tier!`;
             else if (cgpa >= 3.60) msgP.innerText = `🌟 Brilliant work, ${name}! Outstanding academic achievement!`;
@@ -403,7 +419,7 @@
             else if (cgpa >= 2.50) msgP.innerText = `✨ Fair work, ${name}! Steady performance, keep pushing higher!`;
             else msgP.innerText = `🎯 Continuous growth mindset, ${name}! Keep grinding, next term will be massive!`;
 
-            const localConfetti = confetti.create(myCanvas, {
+            localConfettiInstance = confetti.create(myCanvas, {
                 resize: true,
                 useWorker: true
             });
@@ -412,8 +428,9 @@
             let end = Date.now() + duration;
 
             function frame() {
-                localConfetti({ particleCount: 5, angle: 60, spread: 55, origin: { x: 0, y: 0.8 } });
-                localConfetti({ particleCount: 5, angle: 120, spread: 55, origin: { x: 1, y: 0.8 } });
+                if (!localConfettiInstance) return;
+                localConfettiInstance({ particleCount: 5, angle: 60, spread: 55, origin: { x: 0, y: 0.8 } });
+                localConfettiInstance({ particleCount: 5, angle: 120, spread: 55, origin: { x: 1, y: 0.8 } });
                 
                 if (Date.now() < end) {
                     animationFrameId = requestAnimationFrame(frame);
@@ -423,16 +440,38 @@
         }
 
         function closeOverlay() {
+            // Stop the confetti animation loop completely
             if (animationFrameId) {
                 cancelAnimationFrame(animationFrameId);
+                animationFrameId = null;
             }
+            if (localConfettiInstance) {
+                localConfettiInstance.reset();
+                localConfettiInstance = null;
+            }
+
             const myCanvas = document.getElementById('confetti-canvas');
             if (myCanvas) {
                 const ctx = myCanvas.getContext('2d');
                 ctx.clearRect(0, 0, myCanvas.width, myCanvas.height);
+                // fully reset canvas size so no leftover worker/state lingers
+                myCanvas.width = 0;
+                myCanvas.height = 0;
             }
-            
-            document.getElementById('success-overlay').classList.add('hidden');
+
+            // Force-hide the overlay (class + inline style, so nothing can keep it stuck)
+            const overlay = document.getElementById('success-overlay');
+            overlay.classList.add('hidden');
+            overlay.style.display = 'none';
+
+            // Reset the form so user lands back on a clean subject-selection page
+            document.getElementById('student-name').value = '';
+            document.getElementById('semester-select').value = '';
+            document.getElementById('subjects-container').innerHTML = '';
+            document.getElementById('table-headings').classList.add('hidden');
+            document.getElementById('calculate-btn').style.display = 'none';
+
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
     </script>
 </body>
