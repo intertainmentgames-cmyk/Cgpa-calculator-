@@ -650,7 +650,7 @@
                 console.error("Error saving log: ", e);
             }
 
-            displayOverlayResult(cgpa, studentName);
+            displayOverlayResult(parseFloat(cgpa), studentName);
         }
 
         function displayOverlayResult(cgpa, name) {
@@ -658,14 +658,20 @@
             const scoreSpan = document.getElementById('cgpa-score');
             const msgP = document.getElementById('result-message');
 
-            scoreSpan.innerText = cgpa;
+            scoreSpan.innerText = cgpa.toFixed(2);
             overlay.classList.add('active');
 
-            if (cgpa >= 3.90) msgP.innerText = `👑 Absolute Topper! You are crushing it, ${name}!`;
-            else if (cgpa >= 3.60) msgP.innerText = `🌟 Amazing job, ${name}! Brilliant academic score!`;
-            else if (cgpa >= 3.00) msgP.innerText = `👍 Great work, ${name}! Very strong engineering score!`;
-            else if (cgpa >= 2.50) msgP.innerText = `✨ Good effort, ${name}! Keep grinding and push it higher!`;
-            else msgP.innerText = `🎯 Keep your head up, ${name}! Work hard, next semester is yours!`;
+            if (cgpa >= 3.90) {
+                msgP.innerText = `👑 Absolute Topper! You are crushing it, ${name}!`;
+            } else if (cgpa >= 3.60) {
+                msgP.innerText = `🌟 Amazing job, ${name}! Brilliant academic score!`;
+            } else if (cgpa >= 3.00) {
+                msgP.innerText = `👍 Great work, ${name}! Very strong engineering score!`;
+            } else if (cgpa >= 2.50) {
+                msgP.innerText = `✨ Good effort, ${name}! Keep grinding and push it higher!`;
+            } else {
+                msgP.innerText = `🎯 Keep your head up, ${name}! Work hard, next semester is yours!`;
+            }
         }
 
         function closeOverlay() {
