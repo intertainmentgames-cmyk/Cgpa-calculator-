@@ -235,22 +235,6 @@
         }
         .btn-secondary:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(16, 185, 129, 0.3); }
 
-        .btn-close { 
-            background: rgba(255, 255, 255, 0.12); 
-            border: 1px solid var(--glass-border); 
-            color: #fff; 
-            margin-top: 20px; 
-            font-size: 1rem; 
-            z-index: 100000; 
-            position: relative; 
-            cursor: pointer;
-            width: 100%;
-            max-width: 440px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-            pointer-events: auto !important;
-        }
-        .btn-close:hover { background: rgba(255, 255, 255, 0.22); transform: translateY(-1px); }
-
         .overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(7, 10, 19, 0.85); backdrop-filter: blur(30px); -webkit-backdrop-filter: blur(30px);
@@ -258,11 +242,36 @@
         }
         .overlay-content {
             position: relative; background: rgba(255, 255, 255, 0.04); border: 1px solid var(--glass-border);
-            padding: 40px 30px; border-radius: 32px; text-align: center; max-width: 500px; width: 100%;
+            padding: 50px 30px 40px 30px; border-radius: 32px; text-align: center; max-width: 500px; width: 100%;
             box-shadow: 0 40px 80px rgba(0, 0, 0, 0.7); animation: scaleUp 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
             overflow: hidden;
             z-index: 9999;
         }
+        
+        /* Top Left Arrow Button styling inside Overlay */
+        .btn-back-arrow {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid var(--glass-border);
+            color: #fff;
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            font-size: 1.3rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            z-index: 100;
+        }
+        .btn-back-arrow:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: scale(1.05);
+        }
+
         .overlay-canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none !important; z-index: 1; }
         .overlay-inner-content { position: relative; z-index: 5; }
         .checkmark-circle { width: 90px; height: 90px; border-radius: 50%; background: #10b981; display: flex; align-items: center; justify-content: center; margin: 0 auto; box-shadow: 0 0 40px rgba(16, 185, 129, 0.5); }
@@ -297,7 +306,8 @@
             .live-points-col { font-size: 0.95rem; }
             .sub-grade { font-size: 0.8rem; padding: 4px; height: 34px; }
             .card-panel { padding: 25px 16px; }
-            .overlay-content { padding: 35px 20px; }
+            .overlay-content { padding: 45px 20px 30px 20px; }
+            .btn-back-arrow { top: 15px; left: 15px; width: 36px; height: 36px; font-size: 1.1rem; }
             #cgpa-score { font-size: 2.6rem; }
         }
         
@@ -310,7 +320,7 @@
     <nav class="navbar">
         <div class="logo">
             <img src="https://i.ibb.co/N6rtZLj4/518e5401-2240-4b58-9f46-53e0673b81de-removalai-preview.png" alt="UET Logo">
-            UET CGPA <span class="highlight">Calculator</span>
+            UET CGPA &nbsp;<span class="highlight">Calculator</span>
         </div>
     </nav>
 
@@ -374,6 +384,7 @@
 
     <div id="success-overlay" class="overlay hidden">
         <div class="overlay-content">
+            <button id="close-overlay-btn" class="btn-back-arrow" title="Go Back">&#8592;</button>
             <canvas id="confetti-canvas" class="overlay-canvas"></canvas>
             <div class="overlay-inner-content">
                 <div class="checkmark-circle">
@@ -386,7 +397,6 @@
                 </div>
             </div>
         </div>
-        <button id="close-overlay-btn" class="btn btn-close">Calculate Again</button>
     </div>
 
     <footer class="footer">
