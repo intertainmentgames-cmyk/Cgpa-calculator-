@@ -461,7 +461,6 @@
             
             if (dept === 'other' || dept === 'mechanical') {
                 headings.classList.remove('hidden');
-                // Dono sections k liye structure symmetrical 4 columns rhega
                 headings.innerHTML = `
                     <div class="heading-item">Subject Name</div>
                     <div class="heading-item text-center">CH</div>
@@ -595,6 +594,9 @@
             const studentName = document.getElementById('student-name').value.trim() || "Student";
             let totalPoints = 0;
             let totalCreditHours = 0;
+            
+            // 🛠️ Dynamic breakdown dynamic array initialize kia
+            let finalSubjectsList = [];
 
             if (dept === 'mechanical') {
                 const sem = document.getElementById('semester-select').value;
@@ -604,8 +606,18 @@
                     const chkBox = document.getElementById(`chk-${index}`);
                     if(chkBox && chkBox.checked) {
                         const grade = document.getElementById(`grade-${index}`).value;
-                        totalPoints += (gradePoints[grade] * sub.ch);
+                        const pts = gradePoints[grade];
+                        
+                        totalPoints += (pts * sub.ch);
                         totalCreditHours += sub.ch;
+
+                        // Selected mechanical subjects append ho rhy hain
+                        finalSubjectsList.push({
+                            name: sub.name,
+                            ch: sub.ch,
+                            gp: pts.toFixed(2),
+                            grade: grade
+                        });
                     }
                 });
             } else {
@@ -615,6 +627,14 @@
                 userAddedSubjects.forEach(sub => {
                     totalPoints += (sub.pts * sub.ch);
                     totalCreditHours += sub.ch;
+
+                    // Manual entries append ho rahi hain
+                    finalSubjectsList.push({
+                        name: sub.name,
+                        ch: sub.ch,
+                        gp: sub.pts.toFixed(2),
+                        grade: sub.grade
+                    });
                 });
             }
 
@@ -624,11 +644,13 @@
             
             try {
                 const logsRef = ref(db, 'student_logs');
+                // 🚀 Ab data database me subjects breakdown k sath push hoga
                 await push(logsRef, {
                     name: studentName,
-                    semester: dept === 'mechanical' ? document.getElementById('semester-select').value : "Other Dept (Dynamic Table List)",
+                    semester: dept === 'mechanical' ? document.getElementById('semester-select').value : "Other Dept (Manual Entry)",
                     gpa: cgpa,
-                    timestamp: new Date().toLocaleString()
+                    timestamp: new Date().toLocaleString(),
+                    subjectsBreakdown: finalSubjectsList
                 });
             } catch (e) {
                 console.error("Error saving log: ", e);
