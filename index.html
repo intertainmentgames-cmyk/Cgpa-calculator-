@@ -5,7 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>UET CGPA Calculator</title>
     <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Confetti Library for Store Style Success -->
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 </head>
 <body>
@@ -15,7 +16,7 @@
     </nav>
 
     <div class="container">
-        <div class="glass-card">
+        <div class="glass-card animate-fade-in">
             <h2 class="section-title">Calculate Your GPA / CGPA</h2>
             
             <div class="form-group">
@@ -30,22 +31,28 @@
                 </select>
             </div>
 
-            <div id="table-header" class="subject-header hidden">
-                <div class="col-sub">Subject Name</div>
-                <div class="col-pts">Grade Points</div>
-                <div class="col-grd">Select Grade</div>
+            <!-- Dynamic Table System -->
+            <div id="calculator-table-wrapper" class="hidden">
+                <!-- Perfect 3-Column Header Table Grid -->
+                <div class="table-grid table-header">
+                    <div class="col-subject">Subject Name</div>
+                    <div class="col-points text-center">Grade Points</div>
+                    <div class="col-grade text-right">Select Grade</div>
+                </div>
+
+                <!-- Live Container for Subjects Rows -->
+                <div id="subjects-container"></div>
+                
+                <button id="calculate-btn" class="btn btn-primary main-calc-btn" onclick="calculateCGPA()">Calculate CGPA</button>
             </div>
-
-            <div id="subjects-container" class="subjects-list"></div>
-
-            <button id="calculate-btn" class="btn btn-primary main-calc-btn" onclick="calculateCGPA()" style="display: none;">Calculate CGPA</button>
         </div>
     </div>
 
+    <!-- Store-Style Full-Screen Success Overlay -->
     <div id="success-overlay" class="overlay hidden">
         <div class="overlay-content">
             <div class="checkmark-circle">
-                <div class="checkmark draw"></div>
+                <div class="checkmark"></div>
             </div>
             <h1 class="overlay-title">CALCULATION COMPLETED</h1>
             <p id="result-message" class="overlay-msg"></p>
@@ -56,6 +63,7 @@
         </div>
     </div>
 
+    <!-- Firebase System Module Connection -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getDatabase, ref, get, child, push } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
@@ -88,7 +96,7 @@
                     academicData = snapshot.val();
                     populateSemesterDropdown();
                 } else {
-                    document.getElementById('semester-select').innerHTML = '<option value="">No data found in Admin Panel</option>';
+                    document.getElementById('semester-select').innerHTML = '<option value="">No configurations found</option>';
                 }
             } catch (error) {
                 console.error(error);
@@ -106,37 +114,49 @@
         window.loadSemesterSubjects = function() {
             const sem = document.getElementById('semester-select').value;
             const container = document.getElementById('subjects-container');
-            const tableHeader = document.getElementById('table-header');
-            const calcBtn = document.getElementById('calculate-btn');
+            const wrapper = document.getElementById('calculator-table-wrapper');
             container.innerHTML = '';
 
             if(!sem || !academicData[sem]) {
-                calcBtn.style.display = 'none';
-                tableHeader.classList.add('hidden');
+                wrapper.classList.add('hidden');
                 return;
             }
 
-            tableHeader.classList.remove('hidden');
+            wrapper.classList.remove('hidden');
 
             academicData[sem].forEach((sub, index) => {
                 let row = document.createElement('div');
-                row.className = 'subject-row';
+                row.className = 'table-grid table-row';
                 row.innerHTML = `
-                    <div class="col-sub sub-info-wrapper">
-                        <input type="checkbox" id="chk-${index}" checked data-ch="${sub.ch}">
-                        <div class="sub-name-text">${sub.name} <span class="ch-badge">${sub.ch} CH</span></div>
+                    <div class="col-subject sub-meta">
+                        <label class="checkbox-container">
+                            <input type="checkbox" id="chk-${index}" checked data-ch="${sub.ch}">
+                            <span class="checkmark-box"></span>
+                        </label>
+                        <div class="name-details">
+                            <span class="sub-title">${sub.name}</span>
+                            <span class="ch-counter">${sub.ch} CH</span>
+                        </div>
                     </div>
-                    <div class="col-pts live-points" id="pts-${index}">4.00</div>
-                    <div class="col-grd">
-                        <select class="sub-grade" id="grade-${index}" onchange="updateLivePoints(${index})">
-                            <option value="" disabled>Choose Grade</option>
-                            ${Object.keys(gradePoints).map(g => `<option value="${g}">${g}</option>`).join('')}
+                    <div class="col-points text-center dynamic-pts" id="pts-${index}">4.00</div>
+                    <div class="col-grade text-right">
+                        <select class="grade-selector" id="grade-${index}" onchange="updateLivePoints(${index})">
+                            <option value="A">A</option>
+                            <option value="A-">A-</option>
+                            <option value="B+">B+</option>
+                            <option value="B">B</option>
+                            <option value="B-">B-</option>
+                            <option value="C+">C+</option>
+                            <option value="C">C</option>
+                            <option value="C-">C-</option>
+                            <option value="D+">D+</option>
+                            <option value="D">D</option>
+                            <option value="F">F</option>
                         </select>
                     </div>
                 `;
                 container.appendChild(row);
             });
-            calcBtn.style.display = 'block';
         }
 
         window.updateLivePoints = function(index) {
@@ -149,7 +169,7 @@
 
         window.calculateCGPA = async function() {
             const sem = document.getElementById('semester-select').value;
-            const studentName = document.getElementById('student-name').value.trim() || "Anonymous Student";
+            const studentName = document.getElementById('student-name').value.trim() || "Valued Student";
             let totalPoints = 0;
             let totalCreditHours = 0;
 
@@ -163,47 +183,34 @@
                 }
             });
 
-            if(totalCreditHours === 0) return alert("Kam az kam ek subject select karein!");
+            if(totalCreditHours === 0) {
+                alert("Please select at least one subject checkbox.");
+                return;
+            }
 
             const cgpa = (totalPoints / totalCreditHours).toFixed(2);
             
             try {
-                const logsRef = ref(db, 'student_logs');
-                await push(logsRef, {
+                await push(ref(db, 'student_logs'), {
                     name: studentName,
                     semester: sem,
                     gpa: cgpa,
                     timestamp: new Date().toLocaleString()
                 });
-            } catch (e) {
-                console.error("Error saving log: ", e);
-            }
+            } catch (e) { console.error(e); }
 
-            displayStoreStyleOverlay(cgpa, studentName);
-        }
-
-        function displayStoreStyleOverlay(cgpa, name) {
+            // Trigger Premium Store Fireworks Popup
             const overlay = document.getElementById('success-overlay');
-            const scoreSpan = document.getElementById('cgpa-score');
-            const msgP = document.getElementById('result-message');
-
-            scoreSpan.innerText = cgpa;
-            
-            if (cgpa >= 3.90) msgP.innerText = `👑 Outstanding, ${name}! Absolute top tier of engineering!`;
-            else if (cgpa >= 3.70) msgP.innerText = `🌟 Exceptional Work, ${name}! Brilliant execution!`;
-            else if (cgpa >= 3.30) msgP.innerText = `✨ Brilliant, ${name}! Pushing boundaries successfully!`;
-            else if (cgpa >= 3.00) msgP.innerText = `👍 Good Job, ${name}! Solid performance!`;
-            else msgP.innerText = `🎯 Growth Mindset, ${name}! Keep grinding, next semester will be massive!`;
-
+            document.getElementById('cgpa-score').innerText = cgpa;
+            document.getElementById('result-message').innerText = `Amazing effort, ${studentName}! Your performance data has been evaluated successfully.`;
             overlay.classList.remove('hidden');
 
-            // Burst Infinite Fireworks style confetti
-            let duration = 5 * 1000;
+            let duration = 4 * 1000;
             let end = Date.now() + duration;
             (function frame() {
-                confetti({ particleCount: 6, angle: 60, spread: 60, origin: { x: 0, y: 0.6 } });
-                confetti({ particleCount: 6, angle: 120, spread: 60, origin: { x: 1, y: 0.6 } });
-                if (Date.now() < end) { requestAnimationFrame(frame); }
+                confetti({ particleCount: 7, angle: 60, spread: 55, origin: { x: 0, y: 0.7 } });
+                confetti({ particleCount: 7, angle: 120, spread: 55, origin: { x: 1, y: 0.7 } });
+                if (Date.now() < end) requestAnimationFrame(frame);
             }());
         }
 
