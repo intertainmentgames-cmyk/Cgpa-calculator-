@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Panel - Control Center</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
-    <!-- FontAwesome icons for delete/menu -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
@@ -13,6 +12,7 @@
             --primary: #6366f1;
             --success: #10b981;
             --danger: #ef4444;
+            --warning: #fbbf24;
             --glass-bg: rgba(255, 255, 255, 0.04);
             --glass-border: rgba(255, 255, 255, 0.08);
             --text-main: #f8fafc;
@@ -146,11 +146,12 @@
         .form-group { margin-bottom: 20px; }
         .form-group label { display: block; margin-bottom: 8px; font-weight: 500; color: var(--text-muted); font-size: 0.85rem; }
 
-        input {
+        input, select {
             width: 100%; padding: 12px 16px; background: rgba(5, 5, 10, 0.4); border: 1px solid var(--glass-border);
             border-radius: 12px; outline: none; font-size: 0.95rem; color: #fff; transition: 0.2s;
         }
-        input:focus { border-color: var(--primary); box-shadow: 0 0 10px rgba(99, 102, 241, 0.2); }
+        input:focus, select:focus { border-color: var(--primary); box-shadow: 0 0 10px rgba(99, 102, 241, 0.2); }
+        select option { background: #0f172a; color: #fff; }
 
         .btn {
             width: 100%; padding: 14px; border: none; border-radius: 12px;
@@ -158,9 +159,58 @@
         }
         .btn-success { background: var(--success); color: white; }
         .btn-success:hover { background: #059669; }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-primary:hover { background: #4f46e5; }
 
         .sem-block { background: rgba(255,255,255,0.02); padding: 18px; border-radius: 14px; margin-bottom: 15px; border: 1px solid var(--glass-border); }
         .sub-item-row { display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.03); padding: 12px 16px; margin-top: 8px; border-radius: 10px; font-size: 0.9rem; }
+        
+        .action-btns {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        /* Action Dropdown Menu */
+        .actions-dropdown {
+            position: relative;
+            display: inline-block;
+        }
+        .dropdown-trigger {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            padding: 5px;
+            font-size: 1.1rem;
+            transition: 0.2s;
+        }
+        .dropdown-trigger:hover { color: #fff; }
+        .dropdown-menu {
+            display: none;
+            position: absolute;
+            right: 0;
+            top: 25px;
+            background: #1e293b;
+            border: 1px solid var(--glass-border);
+            border-radius: 8px;
+            min-width: 130px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+            z-index: 10;
+        }
+        .dropdown-menu.show { display: block; }
+        .dropdown-item {
+            padding: 10px 14px;
+            color: var(--text-main);
+            font-size: 0.85rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: 0.2s;
+        }
+        .dropdown-item:hover { background: rgba(255,255,255,0.05); }
+        .dropdown-item.del-btn { color: var(--danger); }
 
         /* Student Logs Cards list styling */
         .logs-wrapper { display: flex; flex-direction: column; gap: 14px; }
@@ -258,14 +308,12 @@
 </head>
 <body>
 
-    <!-- Main Navigation Architecture -->
     <nav class="navbar">
         <button class="menu-dots-btn" id="menu-toggle"><i class="fa-solid fa-bars"></i></button>
         <div class="logo-title">⚙️ Admin <span class="highlight">Control</span></div>
         <a href="index.html" style="color: white; text-decoration: none; font-size: 0.85rem; font-weight:600; background: rgba(255,255,255,0.06); padding: 8px 14px; border-radius: 10px; border: 1px solid var(--glass-border);">← Website</a>
     </nav>
 
-    <!-- Sidebar Multi Sections Overlay Structure -->
     <div class="sidebar-overlay" id="sidebar-overlay"></div>
     <div class="sidebar" id="sidebar-drawer">
         <button class="close-sidebar-btn" id="sidebar-close"><i class="fa-solid fa-xmark"></i></button>
@@ -279,10 +327,8 @@
         </div>
     </div>
 
-    <!-- Interface Main Center Wrapper -->
     <div class="container">
         
-        <!-- Section 1: Manage Subjects Panel View -->
         <div id="subject-section" class="app-section active-view">
             <div class="card-panel">
                 <h2 class="section-title"><i class="fa-solid fa-folder-plus" style="color: var(--primary);"></i> Manage Subjects Structure</h2>
@@ -307,7 +353,6 @@
             </div>
         </div>
 
-        <!-- Section 2: Live Global Tracking Calculations Dynamic Feed -->
         <div id="live-users-section" class="app-section">
             <div class="card-panel">
                 <h2 class="section-title" style="color: var(--success);"><i class="fa-solid fa-chart-line"></i> Live User Calculations</h2>
@@ -320,7 +365,30 @@
 
     </div>
 
-    <!-- Global Inspection Lightbox Modal Dialog Popup -->
+    <div class="custom-modal" id="edit-subject-modal">
+        <div class="modal-body-content" style="max-width: 450px;">
+            <button class="close-modal" id="edit-modal-close-btn"><i class="fa-solid fa-circle-xmark"></i></button>
+            <h3 style="color: #fff; font-weight: 700; margin-bottom: 20px;"><i class="fa-solid fa-pen-to-square" style="color: var(--warning)"></i> Edit Subject</h3>
+            
+            <input type="hidden" id="edit-old-sem">
+            <input type="hidden" id="edit-sub-id">
+
+            <div class="form-group">
+                <label>Semester Name</label>
+                <input type="text" id="edit-sem-name">
+            </div>
+            <div class="form-group">
+                <label>Subject Name</label>
+                <input type="text" id="edit-sub-name">
+            </div>
+            <div class="form-group">
+                <label>Credit Hours</label>
+                <input type="number" id="edit-sub-ch" min="1" max="5">
+            </div>
+            <button class="btn btn-primary" id="update-sub-btn">Update Subject</button>
+        </div>
+    </div>
+
     <div class="custom-modal" id="details-modal">
         <div class="modal-body-content">
             <button class="close-modal" id="modal-close-btn"><i class="fa-solid fa-circle-xmark"></i></button>
@@ -338,8 +406,7 @@
                         </tr>
                     </thead>
                     <tbody id="modal-table-rows">
-                        <!-- Content dynamically inserted -->
-                    </tbody>
+                        </tbody>
                 </table>
             </div>
 
@@ -448,6 +515,72 @@
             renderAdminPanelList();
         }
 
+        // Toggle Actions Dropdown Menu
+        window.toggleDropdown = function(event, id) {
+            event.stopPropagation();
+            document.querySelectorAll('.dropdown-menu').forEach(el => {
+                if(el.id !== 'dropdown-' + id) el.classList.remove('show');
+            });
+            document.getElementById('dropdown-' + id).classList.toggle('show');
+        }
+
+        // Close dropdowns on window click
+        window.addEventListener('click', () => {
+            document.querySelectorAll('.dropdown-menu').forEach(el => el.classList.remove('show'));
+        });
+
+        // Open Edit Subject Modal Setup
+        window.openEditSubjectModal = function(sem, id, name, ch) {
+            document.getElementById('edit-old-sem').value = sem;
+            document.getElementById('edit-sub-id').value = id;
+            document.getElementById('edit-sem-name').value = sem;
+            document.getElementById('edit-sub-name').value = name;
+            document.getElementById('edit-sub-ch').value = ch;
+            
+            document.getElementById('edit-subject-modal').classList.add('modal-open');
+        }
+
+        // Save Updated Subject Data Sequence
+        document.getElementById('update-sub-btn').addEventListener('click', async () => {
+            const oldSem = document.getElementById('edit-old-sem').value;
+            const id = parseInt(document.getElementById('edit-sub-id').value, 10);
+            const newSem = document.getElementById('edit-sem-name').value.trim();
+            const newName = document.getElementById('edit-sub-name').value.trim();
+            const newCh = parseInt(document.getElementById('edit-sub-ch').value, 10);
+
+            if(!newSem || !newName || isNaN(newCh)) return alert("Saari fields fill krna lazmi hain!");
+
+            // 1. Delete target from old semester list node tracking array
+            if (!Array.isArray(academicData[oldSem])) {
+                academicData[oldSem] = Object.values(academicData[oldSem]);
+            }
+            academicData[oldSem] = academicData[oldSem].filter(sub => sub && sub.id !== id);
+            if(academicData[oldSem].length === 0) delete academicData[oldSem];
+
+            // 2. Inject or push payload configuration to new target structure
+            if(!academicData[newSem]) {
+                academicData[newSem] = [];
+            } else if (!Array.isArray(academicData[newSem])) {
+                academicData[newSem] = Object.values(academicData[newSem]);
+            }
+
+            academicData[newSem].push({
+                id: id,
+                name: newName,
+                ch: newCh
+            });
+
+            // Write modified structures back to Database node
+            await set(ref(db, "uet_config/subjectsData"), academicData);
+            document.getElementById('edit-subject-modal').classList.remove('modal-open');
+            renderAdminPanelList();
+            alert("Subject details successfully updated!");
+        });
+
+        document.getElementById('edit-modal-close-btn').addEventListener('click', () => {
+            document.getElementById('edit-subject-modal').classList.remove('modal-open');
+        });
+
         function renderAdminPanelList() {
             const container = document.getElementById('admin-list-container');
             container.innerHTML = '';
@@ -468,7 +601,21 @@
                         div.innerHTML += `
                             <div class="sub-item-row">
                                 <span>${sub.name} <b style="color:var(--text-muted); margin-left:8px;">(${sub.ch} CH)</b></span>
-                                <button onclick="deleteSubject('${sem}', ${sub.id})" style="color:var(--danger); border:none; background:none; cursor:pointer; font-size:1rem;"><i class="fa-regular fa-trash-can"></i></button>
+                                <div class="action-btns">
+                                    <div class="actions-dropdown">
+                                        <button class="dropdown-trigger" onclick="toggleDropdown(event, ${sub.id})">
+                                            <i class="fa-solid fa-ellipsis-vertical"></i>
+                                        </button>
+                                        <div class="dropdown-menu" id="dropdown-${sub.id}">
+                                            <div class="dropdown-item" onclick="openEditSubjectModal('${sem}', ${sub.id}, '${sub.name.replace(/'/g, "\\'")}', ${sub.ch})">
+                                                <i class="fa-solid fa-pen-to-square" style="color:var(--warning)"></i> Edit Subject
+                                            </div>
+                                            <div class="dropdown-item del-btn" onclick="deleteSubject('${sem}', ${sub.id})">
+                                                <i class="fa-regular fa-trash-can"></i> Delete
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>`;
                     }
                 });
