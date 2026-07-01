@@ -120,37 +120,39 @@
         .btn-primary { background: linear-gradient(135deg, #4f46e5 0%, #3b82f6 100%); color: white; box-shadow: 0 10px 25px rgba(59, 130, 246, 0.25); margin-top: 20px; }
         .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 15px 30px rgba(59, 130, 246, 0.4); }
         
-        /* Close Button Lock to Front Layer */
+        /* Fixed Button Outside Layout to Bypass Canvas Layer Conflict */
         .btn-close { 
-            background: rgba(255, 255, 255, 0.08); 
+            background: rgba(255, 255, 255, 0.12); 
             border: 1px solid var(--glass-border); 
             color: #fff; 
-            margin-top: 25px; 
+            margin-top: 20px; 
             font-size: 1rem; 
-            z-index: 100; 
+            z-index: 100000; 
             position: relative; 
-            pointer-events: auto !important;
             cursor: pointer;
+            width: 100%;
+            max-width: 440px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
         }
-        .btn-close:hover { background: rgba(255, 255, 255, 0.15); }
+        .btn-close:hover { background: rgba(255, 255, 255, 0.22); transform: translateY(-1px); }
 
         .overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(7, 10, 19, 0.85); backdrop-filter: blur(30px); -webkit-backdrop-filter: blur(30px);
-            z-index: 9999; display: flex; align-items: center; justify-content: center; padding: 24px;
+            z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 24px;
         }
         .overlay-content {
             position: relative; background: rgba(255, 255, 255, 0.04); border: 1px solid var(--glass-border);
-            padding: 45px 35px; border-radius: 32px; text-align: center; max-width: 500px; width: 100%;
+            padding: 40px 30px; border-radius: 32px; text-align: center; max-width: 500px; width: 100%;
             box-shadow: 0 40px 80px rgba(0, 0, 0, 0.7); animation: scaleUp 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
             overflow: hidden;
-            z-index: 99999;
+            z-index: 9999;
         }
         .overlay-canvas {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none !important; z-index: 1;
         }
         .overlay-inner-content {
-            position: relative; z-index: 5; pointer-events: auto;
+            position: relative; z-index: 5;
         }
         .checkmark-circle { width: 90px; height: 90px; border-radius: 50%; background: #10b981; display: flex; align-items: center; justify-content: center; margin: 0 auto; box-shadow: 0 0 40px rgba(16, 185, 129, 0.5); }
         .checkmark { width: 42px; height: 22px; border-left: 6px solid #fff; border-bottom: 6px solid #fff; transform: rotate(-45deg); margin-top: -8px; }
@@ -233,9 +235,9 @@
                 <div class="final-score-box">
                     YOUR CGPA IS <span id="cgpa-score">0.00</span>
                 </div>
-                <button id="close-overlay-btn" class="btn btn-close">Calculate Again</button>
             </div>
         </div>
+        <button id="close-overlay-btn" class="btn btn-close">Calculate Again</button>
     </div>
 
     <footer class="footer">
@@ -267,7 +269,7 @@
         let academicData = {};
         let animationFrameId = null;
 
-        // CRITICAL SECURE BINDING: Event Handling System
+        // Secure binding event system
         document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('semester-select').addEventListener('change', loadSemesterSubjects);
             document.getElementById('calculate-btn').addEventListener('click', calculateCGPA);
