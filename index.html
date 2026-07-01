@@ -5,18 +5,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>UET CGPA Calculator</title>
     <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 </head>
 <body>
 
     <nav class="navbar">
         <div class="logo">UET CGPA <span class="highlight">Calculator</span></div>
-        <div class="nav-links"><span class="domain-tag">cgpacalculator.engineer</span></div>
     </nav>
 
     <div class="container">
-        <div class="card-panel">
+        <div class="glass-card">
             <h2 class="section-title">Calculate Your GPA / CGPA</h2>
             
             <div class="form-group">
@@ -31,14 +30,29 @@
                 </select>
             </div>
 
+            <div id="table-header" class="subject-header hidden">
+                <div class="col-sub">Subject Name</div>
+                <div class="col-pts">Grade Points</div>
+                <div class="col-grd">Select Grade</div>
+            </div>
+
             <div id="subjects-container" class="subjects-list"></div>
 
-            <button id="calculate-btn" class="btn btn-primary" onclick="calculateCGPA()" style="display: none;">Calculate CGPA</button>
+            <button id="calculate-btn" class="btn btn-primary main-calc-btn" onclick="calculateCGPA()" style="display: none;">Calculate CGPA</button>
+        </div>
+    </div>
 
-            <div id="result-box" class="result-card hidden">
-                <h3 id="result-message"></h3>
-                <div class="gpa-display">YOUR CGPA IS: <span id="cgpa-score">0.00</span></div>
+    <div id="success-overlay" class="overlay hidden">
+        <div class="overlay-content">
+            <div class="checkmark-circle">
+                <div class="checkmark draw"></div>
             </div>
+            <h1 class="overlay-title">CALCULATION COMPLETED</h1>
+            <p id="result-message" class="overlay-msg"></p>
+            <div class="final-score-box">
+                YOUR CGPA IS: <span id="cgpa-score">0.00</span>
+            </div>
+            <button class="btn btn-close" onclick="closeOverlay()">Calculate Again</button>
         </div>
     </div>
 
@@ -46,7 +60,6 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getDatabase, ref, get, child, push } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
-        // Config Auto-Injected
         const firebaseConfig = {
             apiKey: "AIzaSyCRximbg48XT2HxpQoRdyp137soJwcEWqw",
             authDomain: "cpga-calculator-72d01.firebaseapp.com",
@@ -93,28 +106,45 @@
         window.loadSemesterSubjects = function() {
             const sem = document.getElementById('semester-select').value;
             const container = document.getElementById('subjects-container');
+            const tableHeader = document.getElementById('table-header');
             const calcBtn = document.getElementById('calculate-btn');
             container.innerHTML = '';
 
             if(!sem || !academicData[sem]) {
                 calcBtn.style.display = 'none';
+                tableHeader.classList.add('hidden');
                 return;
             }
+
+            tableHeader.classList.remove('hidden');
 
             academicData[sem].forEach((sub, index) => {
                 let row = document.createElement('div');
                 row.className = 'subject-row';
                 row.innerHTML = `
-                    <input type="checkbox" id="chk-${index}" checked data-ch="${sub.ch}">
-                    <div class="sub-details">${sub.name}</div>
-                    <div class="sub-ch">${sub.ch} CH</div>
-                    <select class="sub-grade" id="grade-${index}">
-                        ${Object.keys(gradePoints).map(g => `<option value="${g}">${g}</option>`).join('')}
-                    </select>
+                    <div class="col-sub sub-info-wrapper">
+                        <input type="checkbox" id="chk-${index}" checked data-ch="${sub.ch}">
+                        <div class="sub-name-text">${sub.name} <span class="ch-badge">${sub.ch} CH</span></div>
+                    </div>
+                    <div class="col-pts live-points" id="pts-${index}">4.00</div>
+                    <div class="col-grd">
+                        <select class="sub-grade" id="grade-${index}" onchange="updateLivePoints(${index})">
+                            <option value="" disabled>Choose Grade</option>
+                            ${Object.keys(gradePoints).map(g => `<option value="${g}">${g}</option>`).join('')}
+                        </select>
+                    </div>
                 `;
                 container.appendChild(row);
             });
             calcBtn.style.display = 'block';
+        }
+
+        window.updateLivePoints = function(index) {
+            const grade = document.getElementById(`grade-${index}`).value;
+            const ptsDiv = document.getElementById(`pts-${index}`);
+            if(gradePoints[grade] !== undefined) {
+                ptsDiv.innerText = gradePoints[grade].toFixed(2);
+            }
         }
 
         window.calculateCGPA = async function() {
@@ -149,30 +179,36 @@
                 console.error("Error saving log: ", e);
             }
 
-            displayResult(cgpa, studentName);
+            displayStoreStyleOverlay(cgpa, studentName);
         }
 
-        function displayResult(cgpa, name) {
-            const resultBox = document.getElementById('result-box');
+        function displayStoreStyleOverlay(cgpa, name) {
+            const overlay = document.getElementById('success-overlay');
             const scoreSpan = document.getElementById('cgpa-score');
-            const msgH3 = document.getElementById('result-message');
+            const msgP = document.getElementById('result-message');
 
             scoreSpan.innerText = cgpa;
-            resultBox.classList.remove('hidden');
+            
+            if (cgpa >= 3.90) msgP.innerText = `👑 Outstanding, ${name}! Absolute top tier of engineering!`;
+            else if (cgpa >= 3.70) msgP.innerText = `🌟 Exceptional Work, ${name}! Brilliant execution!`;
+            else if (cgpa >= 3.30) msgP.innerText = `✨ Brilliant, ${name}! Pushing boundaries successfully!`;
+            else if (cgpa >= 3.00) msgP.innerText = `👍 Good Job, ${name}! Solid performance!`;
+            else msgP.innerText = `🎯 Growth Mindset, ${name}! Keep grinding, next semester will be massive!`;
 
-            if (cgpa >= 3.90) msgH3.innerText = `👑 Outstanding, ${name}! You are at the absolute top tier of engineering!`;
-            else if (cgpa >= 3.70) msgH3.innerText = `🌟 Exceptional Work, ${name}! Brilliant performance!`;
-            else if (cgpa >= 3.30) msgH3.innerText = `✨ Brilliant, ${name}! Pushing boundaries successfully!`;
-            else if (cgpa >= 3.00) msgH3.innerText = `👍 Good Job, ${name}! Solid engineering performance!`;
-            else msgH3.innerText = `🎯 Growth Mindset, ${name}! Keep grinding, next semester will be massive!`;
+            overlay.classList.remove('hidden');
 
-            let duration = 4 * 1000;
+            // Burst Infinite Fireworks style confetti
+            let duration = 5 * 1000;
             let end = Date.now() + duration;
             (function frame() {
-                confetti({ particleCount: 5, angle: 60, spread: 55, origin: { x: 0 } });
-                confetti({ particleCount: 5, angle: 120, spread: 55, origin: { x: 1 } });
+                confetti({ particleCount: 6, angle: 60, spread: 60, origin: { x: 0, y: 0.6 } });
+                confetti({ particleCount: 6, angle: 120, spread: 60, origin: { x: 1, y: 0.6 } });
                 if (Date.now() < end) { requestAnimationFrame(frame); }
             }());
+        }
+
+        window.closeOverlay = function() {
+            document.getElementById('success-overlay').classList.add('hidden');
         }
 
         fetchDatabase();
