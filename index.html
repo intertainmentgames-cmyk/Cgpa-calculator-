@@ -94,7 +94,6 @@
         input:focus, select:focus { border-color: #38bdf8; box-shadow: 0 0 15px rgba(56, 189, 248, 0.25); background: rgba(0,0,0,0.2); }
         select option { background: #0f1424; color: #fff; }
 
-        /* Master Grid Layout updated to 4 Columns for proper alignment */
         .grid-layout {
             display: grid;
             grid-template-columns: minmax(100px, 2.5fr) minmax(45px, 0.8fr) minmax(65px, 1fr) minmax(75px, 1.1fr);
@@ -133,7 +132,6 @@
         
         .subject-info-wrapper { display: flex; flex-direction: row; align-items: center; gap: 10px; width: 100%; min-width: 0; }
         
-        /* Fixed text cutting, allowing it to move to the second line naturally */
         .sub-details { 
             font-weight: 600; 
             color: #f8fafc; 
@@ -372,7 +370,7 @@
                 <div class="checkmark-circle">
                     <div class="checkmark"></div>
                 </div>
-                <h1 class="overlay-title">CALCULATION COMPLETED</h1>
+                <h1 class="overlay-title">Calculation Completed</h1>
                 <p id="result-message" class="overlay-msg"></p>
                 <div class="final-score-box">
                     YOUR CGPA IS <span id="cgpa-score">0.00</span>
@@ -595,7 +593,6 @@
             let totalPoints = 0;
             let totalCreditHours = 0;
             
-            // 🛠️ Dynamic breakdown dynamic array initialize kia
             let finalSubjectsList = [];
 
             if (dept === 'mechanical') {
@@ -611,7 +608,6 @@
                         totalPoints += (pts * sub.ch);
                         totalCreditHours += sub.ch;
 
-                        // Selected mechanical subjects append ho rhy hain
                         finalSubjectsList.push({
                             name: sub.name,
                             ch: sub.ch,
@@ -628,7 +624,6 @@
                     totalPoints += (sub.pts * sub.ch);
                     totalCreditHours += sub.ch;
 
-                    // Manual entries append ho rahi hain
                     finalSubjectsList.push({
                         name: sub.name,
                         ch: sub.ch,
@@ -644,7 +639,6 @@
             
             try {
                 const logsRef = ref(db, 'student_logs');
-                // 🚀 Ab data database me subjects breakdown k sath push hoga
                 await push(logsRef, {
                     name: studentName,
                     semester: dept === 'mechanical' ? document.getElementById('semester-select').value : "Other Dept (Manual Entry)",
@@ -667,11 +661,11 @@
             scoreSpan.innerText = cgpa;
             overlay.classList.add('active');
 
-            if (cgpa >= 3.90) msgP.innerText = `👑 Excellent performance, ${name}! You are tracking at the absolute top tier!`;
-            else if (cgpa >= 3.60) msgP.innerText = `🌟 Brilliant work, ${name}! Outstanding academic achievement!`;
-            else if (cgpa >= 3.00) msgP.innerText = `👍 Good job, ${name}! Highly stable engineering performance!`;
-            else if (cgpa >= 2.50) msgP.innerText = `✨ Fair work, ${name}! Steady performance, keep pushing higher!`;
-            else msgP.innerText = `🎯 Continuous growth mindset, ${name}! Keep grinding, next term will be massive!`;
+            if (cgpa >= 3.90) msgP.innerText = `👑 Absolute Topper! You are crushing it, ${name}!`;
+            else if (cgpa >= 3.60) msgP.innerText = `🌟 Amazing job, ${name}! Brilliant academic score!`;
+            else if (cgpa >= 3.00) msgP.innerText = `👍 Great work, ${name}! Very strong engineering score!`;
+            else if (cgpa >= 2.50) msgP.innerText = `✨ Good effort, ${name}! Keep grinding and push it higher!`;
+            else msgP.innerText = `🎯 Keep your head up, ${name}! Work hard, next semester is yours!`;
         }
 
         function closeOverlay() {
