@@ -36,14 +36,28 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            padding: 22px 40px;
+            padding: 22px 20px;
             background: rgba(11, 15, 25, 0.5);
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
             border-bottom: 1px solid var(--glass-border);
         }
 
-        .logo { font-size: 1.5rem; font-weight: 700; color: white; letter-spacing: 0.5px; }
+        .logo { 
+            display: flex; 
+            align-items: center; 
+            gap: 12px; 
+            font-size: 1.5rem; 
+            font-weight: 700; 
+            color: white; 
+            letter-spacing: 0.5px; 
+            white-space: nowrap; 
+        }
+        .logo img { 
+            height: 38px; 
+            width: auto; 
+            object-fit: contain; 
+        }
         .highlight { color: #34d399; text-shadow: 0 0 20px rgba(52, 211, 153, 0.4); }
 
         .container { max-width: 700px; margin: 40px auto; padding: 0 16px; }
@@ -270,6 +284,8 @@
         .hidden { display: none !important; }
 
         @media(max-width: 600px) {
+            .logo { font-size: 1.2rem; gap: 8px; }
+            .logo img { height: 30px; }
             .grid-layout { grid-template-columns: 2.2fr 1.2fr 1.2fr; gap: 8px; }
             .manual-mode { grid-template-columns: 1.8fr 0.9fr 0.9fr 1.1fr !important; gap: 6px !important; }
             .added-row { grid-template-columns: 2.2fr 1.2fr 1.2fr; font-size: 0.8rem; padding: 10px 4px; }
@@ -292,7 +308,10 @@
 <body>
 
     <nav class="navbar">
-        <div class="logo">UET CGPA <span class="highlight">Calculator</span></div>
+        <div class="logo">
+            <img src="https://i.ibb.co/HpDdTpdh/66705-removebg-preview.png" alt="UET Logo">
+            UET CGPA <span class="highlight">Calculator</span>
+        </div>
     </nav>
 
     <div class="container">
