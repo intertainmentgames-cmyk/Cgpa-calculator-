@@ -40,7 +40,7 @@
             <div class="card-panel" style="background: #ffffff;">
                 <h2 class="section-title" style="color: #ef4444;">📊 Live User Calculations</h2>
                 <div id="logs-container" style="max-height: 600px; overflow-y: auto;">
-                    Loading student calculation logs...
+                    Loading live logs from students...
                 </div>
             </div>
 
@@ -49,26 +49,30 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getFirestore, doc, getDoc, setDoc, collection, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getDatabase, ref, set, get, child, onValue } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
-        // TODO: Apni Firebase Config yahan paste karna
+        // Config Auto-Injected
         const firebaseConfig = {
-            apiKey: "YOUR_API_KEY",
-            authDomain: "YOUR_AUTH_DOMAIN",
-            projectId: "YOUR_PROJECT_ID",
-            storageBucket: "YOUR_STORAGE_BUCKET",
-            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-            appId: "YOUR_APP_ID"
+            apiKey: "AIzaSyCRximbg48XT2HxpQoRdyp137soJwcEWqw",
+            authDomain: "cpga-calculator-72d01.firebaseapp.com",
+            databaseURL: "https://cpga-calculator-72d01-default-rtdb.firebaseio.com",
+            projectId: "cpga-calculator-72d01",
+            storageBucket: "cpga-calculator-72d01.firebasestorage.app",
+            messagingSenderId: "1016677557350",
+            appId: "1:1016677557350:web:3f388011c0d298825079a7"
         };
 
         const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
+        const db = getDatabase(app);
 
         let academicData = {};
 
         async function loadInitialData() {
-            const docSnap = await getDoc(doc(db, "uet_config", "subjectsData"));
-            if(docSnap.exists()) academicData = docSnap.data();
+            const dbRef = ref(db);
+            const snapshot = await get(child(dbRef, "uet_config/subjectsData"));
+            if(snapshot.exists()) {
+                academicData = snapshot.val();
+            }
             renderAdminPanelList();
         }
 
@@ -77,12 +81,12 @@
             const name = document.getElementById('admin-sub-name').value.trim();
             const ch = parseInt(document.getElementById('admin-sub-ch').value);
 
-            if(!sem || !name || !ch) return alert("All fields are mandatory!");
+            if(!sem || !name || !ch) return alert("Saari fields fill krna lazmi hain!");
 
             if(!academicData[sem]) academicData[sem] = [];
             academicData[sem].push({ id: Date.now(), name, ch });
 
-            await setDoc(doc(db, "uet_config", "subjectsData"), academicData);
+            await set(ref(db, "uet_config/subjectsData"), academicData);
             document.getElementById('admin-sub-name').value = '';
             document.getElementById('admin-sub-ch').value = '';
             renderAdminPanelList();
@@ -91,7 +95,7 @@
         window.deleteSubject = async function(sem, id) {
             academicData[sem] = academicData[sem].filter(sub => sub.id !== id);
             if(academicData[sem].length === 0) delete academicData[sem];
-            await setDoc(doc(db, "uet_config", "subjectsData"), academicData);
+            await set(ref(db, "uet_config/subjectsData"), academicData);
             renderAdminPanelList();
         }
 
@@ -105,24 +109,29 @@
                     div.innerHTML += `
                         <div style="display:flex; justify-content:space-between; background:#f1f5f9; padding:8px; margin-bottom:4px; border-radius:4px;">
                             <span>${sub.name} (${sub.ch} CH)</span>
-                            <button onclick="deleteSubject('${sem}', ${sub.id})" style="color:red; border:none; background:none; cursor:pointer;">X</button>
+                            <button onclick="deleteSubject('${sem}', ${sub.id})" style="color:red; border:none; background:none; cursor:pointer; font-weight:bold;">X</button>
                         </div>`;
                 });
                 container.appendChild(div);
             }
         }
 
-        // Live calculation feeds listener
-        const q = query(collection(db, "student_logs"), orderBy("timestamp", "desc"));
-        onSnapshot(q, (snapshot) => {
+        // Realtime logs data sync listener
+        const logsRef = ref(db, 'student_logs');
+        onValue(logsRef, (snapshot) => {
             const container = document.getElementById('logs-container');
             container.innerHTML = '';
-            if(snapshot.empty) {
+            if(!snapshot.exists()) {
                 container.innerHTML = '<p>No calculations made yet.</p>';
                 return;
             }
-            snapshot.forEach((doc) => {
-                const data = doc.data();
+            
+            let logsArray = [];
+            snapshot.forEach((childSnapshot) => {
+                logsArray.push(childSnapshot.val());
+            });
+            
+            logsArray.reverse().forEach((data) => {
                 container.innerHTML += `
                     <div style="border-left: 4px solid #10b981; background: #f8fafc; padding: 12px; margin-bottom: 10px; border-radius:4px; box-shadow: 0 2px 4px rgba(0,0,0,0.02);">
                         <strong style="color:#1e293b; font-size:1.1rem;">${data.name}</strong> 
