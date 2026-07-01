@@ -473,7 +473,7 @@
 
             if(!newSem || !newName || isNaN(newCh)) return alert("Saari fields fill krna lazmi hain!");
 
-            // Remove from old semester tracking block array safely
+            // Remove from old semester tracking block safely
             if (!Array.isArray(academicData[oldSem])) {
                 academicData[oldSem] = Object.values(academicData[oldSem]);
             }
@@ -519,7 +519,6 @@
                 
                 semesterItems.forEach(sub => {
                     if(sub) {
-                        // Escape single quotes carefully for HTML custom properties inline methods pass parsing
                         const safeName = sub.name.replace(/'/g, "\\'");
                         div.innerHTML += `
                             <div class="sub-item-row">
@@ -610,6 +609,7 @@
             tableBody.innerHTML = '';
 
             let subjectList = null;
+            // 🚀 Index.html se bheja gaya data yahan accurately verify ho rha ha
             if (targetData.subjectsBreakdown && (Array.isArray(targetData.subjectsBreakdown) || typeof targetData.subjectsBreakdown === 'object')) {
                 subjectList = targetData.subjectsBreakdown;
             } else if (targetData.subjects && (Array.isArray(targetData.subjects) || typeof targetData.subjects === 'object')) {
@@ -643,7 +643,7 @@
                     `;
                 });
             } else {
-                tableBody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:var(--text-muted); padding:20px;">Is entry me details dynamic fields array mapped nahi hain. (CGPA: ${targetData.gpa || targetData.cgpa || '0.00'})</td></tr>`;
+                tableBody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:var(--text-muted); padding:20px;">Is entry me details fields array mapped nahi hain. (CGPA: ${targetData.gpa || targetData.cgpa || '0.00'})</td></tr>`;
             }
 
             detailsModal.classList.add('modal-open');
