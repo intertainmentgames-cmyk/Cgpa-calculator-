@@ -137,7 +137,18 @@
         .subject-row input[type="checkbox"] { width: 18px; height: 18px; accent-color: #38bdf8; cursor: pointer; flex-shrink: 0; }
         
         .subject-info-wrapper { display: flex; flex-direction: row; align-items: center; gap: 10px; width: 100%; min-width: 0; overflow: hidden; }
-        .sub-details { font-weight: 600; color: #f8fafc; font-size: 0.95rem; line-height: 1.4; white-space: nowrap; text-overflow: ellipsis; overflow: hidden; }
+        
+        /* Auto-adjust font sizes based on space availability or text volume */
+        .sub-details { 
+            font-weight: 600; 
+            color: #f8fafc; 
+            font-size: clamp(0.75rem, 2.2vw, 0.95rem); 
+            line-height: 1.4; 
+            white-space: nowrap; 
+            text-overflow: ellipsis; 
+            overflow: hidden; 
+            width: 100%;
+        }
         .sub-ch { font-weight: 400; color: #38bdf8; font-size: 0.8rem; margin-top: 1px; }
         
         .manual-input-name {
@@ -204,7 +215,7 @@
         }
         
         .auto-scale-text {
-            font-size: clamp(0.75rem, 2.5vw, 0.95rem);
+            font-size: clamp(0.7rem, 2.2vw, 0.95rem);
             white-space: nowrap;
             text-overflow: ellipsis;
             overflow: hidden;
@@ -296,7 +307,7 @@
             .subject-row { padding: 12px 6px; border-radius: 10px; }
             .manual-input-name { padding: 8px; font-size: 0.85rem; }
             .manual-select-ch { height: 34px; font-size: 0.8rem; }
-            .sub-details { font-size: 0.85rem; }
+            .sub-details { font-size: 0.82rem; }
             .live-points-col { font-size: 0.95rem; }
             .sub-grade { font-size: 0.8rem; padding: 4px; height: 34px; }
             .card-panel { padding: 25px 16px; }
@@ -429,6 +440,17 @@
             fetchDatabase();
         });
 
+        // Dynamic script to adjust text sizing natively if overflow remains pending
+        function autoShrinkText(element) {
+            const parent = element.parentElement;
+            if(!parent) return;
+            let currentSize = parseFloat(window.getComputedStyle(element).fontSize);
+            while (element.scrollWidth > parent.clientWidth && currentSize > 9) {
+                currentSize -= 0.5;
+                element.style.fontSize = currentSize + 'px';
+            }
+        }
+
         async function fetchDatabase() {
             const dbRef = ref(db);
             try {
@@ -547,6 +569,10 @@
                 <div style="text-align:right; font-weight:600; color:#38bdf8; padding-right:12px;">${grade}</div>
             `;
             previewContainer.appendChild(itemRow);
+            
+            // Auto calculate sizing scale for preview rows
+            const attachedTextElement = itemRow.querySelector('.auto-scale-text');
+            if(attachedTextElement) autoShrinkText(attachedTextElement);
 
             nameInput.value = '';
             document.getElementById('manual-sub-ch').value = '3';
@@ -587,6 +613,10 @@
                     </div>
                 `;
                 container.appendChild(row);
+                
+                // Shrink long text directly on render if space requires it
+                const targetLabel = row.querySelector('.sub-details');
+                if(targetLabel) autoShrinkText(targetLabel);
                 
                 const selectEl = document.getElementById(`grade-${index}`);
                 selectEl.value = "A";
