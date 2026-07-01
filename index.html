@@ -255,10 +255,13 @@
         let academicData = {};
         let animationFrameId = null;
 
-        // Event Listeners setup to replace messy inline html onclick hooks
-        document.getElementById('semester-select').addEventListener('change', loadSemesterSubjects);
-        document.getElementById('calculate-btn').addEventListener('click', calculateCGPA);
-        document.getElementById('close-overlay-btn').addEventListener('click', closeOverlay);
+        // CRITICAL FIX: Safe execution using DOMContentLoaded to guarantee listeners hook properly
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('semester-select').addEventListener('change', loadSemesterSubjects);
+            document.getElementById('calculate-btn').addEventListener('click', calculateCGPA);
+            document.getElementById('close-overlay-btn').addEventListener('click', closeOverlay);
+            fetchDatabase();
+        });
 
         async function fetchDatabase() {
             const dbRef = ref(db);
@@ -340,9 +343,11 @@
             let totalPoints = 0;
             let totalCreditHours = 0;
 
+            if(!sem || !academicData[sem]) return;
+
             academicData[sem].forEach((sub, index) => {
-                const isChecked = document.getElementById(`chk-${index}`).checked;
-                if(isChecked) {
+                const chkBox = document.getElementById(`chk-${index}`);
+                if(chkBox && chkBox.checked) {
                     const grade = document.getElementById(`grade-${index}`).value;
                     const points = gradePoints[grade];
                     totalPoints += (points * sub.ch);
@@ -413,8 +418,6 @@
             
             document.getElementById('success-overlay').classList.add('hidden');
         }
-
-        fetchDatabase();
     </script>
 </body>
 </html>
