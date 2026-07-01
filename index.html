@@ -231,40 +231,39 @@
         }
         .btn-secondary:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(16, 185, 129, 0.3); }
 
+        /* Smooth Transition Overlay Structure */
         .overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(7, 10, 19, 0.85); backdrop-filter: blur(30px); -webkit-backdrop-filter: blur(30px);
             z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 24px;
+            opacity: 0; pointer-events: none; transition: opacity 0.4s ease;
+        }
+        .overlay.active {
+            opacity: 1; pointer-events: auto;
         }
         .overlay-content {
             position: relative; background: rgba(255, 255, 255, 0.04); border: 1px solid var(--glass-border);
-            padding: 50px 30px 40px 30px; border-radius: 32px; text-align: center; max-width: 500px; width: 100%;
-            box-shadow: 0 40px 80px rgba(0, 0, 0, 0.7); animation: scaleUp 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+            padding: 40px 30px; border-radius: 32px; text-align: center; max-width: 500px; width: 100%;
+            box-shadow: 0 40px 80px rgba(0, 0, 0, 0.7); 
+            transform: scale(0.85); transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             overflow: hidden;
             z-index: 10000;
         }
+        .overlay.active .overlay-content {
+            transform: scale(1);
+        }
         
-        .btn-back-arrow {
-            position: absolute;
-            top: 20px;
-            left: 20px;
+        /* New Glassmorphic Calculate Again Button Style inside section */
+        .btn-calculate-again {
             background: rgba(255, 255, 255, 0.08);
             border: 1px solid var(--glass-border);
             color: #fff;
-            width: 42px;
-            height: 42px;
-            border-radius: 50%;
-            font-size: 1.3rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            z-index: 10005;
+            margin-top: 30px;
         }
-        .btn-back-arrow:hover {
-            background: rgba(255, 255, 255, 0.2);
-            transform: scale(1.05);
+        .btn-calculate-again:hover {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
         }
 
         .overlay-inner-content { position: relative; z-index: 10001; }
@@ -300,13 +299,11 @@
             .live-points-col { font-size: 0.95rem; }
             .sub-grade { font-size: 0.8rem; padding: 4px; height: 34px; }
             .card-panel { padding: 25px 16px; }
-            .overlay-content { padding: 45px 20px 30px 20px; }
-            .btn-back-arrow { top: 15px; left: 15px; width: 36px; height: 36px; font-size: 1.1rem; }
+            .overlay-content { padding: 35px 20px 30px 20px; }
             #cgpa-score { font-size: 2.6rem; }
         }
         
         @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-        @keyframes scaleUp { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
     </style>
 </head>
 <body>
@@ -375,9 +372,8 @@
         </div>
     </div>
 
-    <div id="success-overlay" class="overlay hidden">
+    <div id="success-overlay" class="overlay">
         <div class="overlay-content">
-            <button id="close-overlay-btn" class="btn-back-arrow" title="Go Back">&#8592;</button>
             <div class="overlay-inner-content">
                 <div class="checkmark-circle">
                     <div class="checkmark"></div>
@@ -387,6 +383,7 @@
                 <div class="final-score-box">
                     YOUR CGPA IS <span id="cgpa-score">0.00</span>
                 </div>
+                <button id="close-overlay-btn" class="btn btn-calculate-again">Calculate Again</button>
             </div>
         </div>
     </div>
@@ -653,7 +650,7 @@
             const msgP = document.getElementById('result-message');
 
             scoreSpan.innerText = cgpa;
-            overlay.classList.remove('hidden');
+            overlay.classList.add('active');
 
             if (cgpa >= 3.90) msgP.innerText = `👑 Excellent performance, ${name}! You are tracking at the absolute top tier!`;
             else if (cgpa >= 3.60) msgP.innerText = `🌟 Brilliant work, ${name}! Outstanding academic achievement!`;
@@ -663,7 +660,7 @@
         }
 
         function closeOverlay() {
-            document.getElementById('success-overlay').classList.add('hidden');
+            document.getElementById('success-overlay').classList.remove('active');
             
             document.getElementById('student-name').value = '';
             document.getElementById('department-select').selectedIndex = 0;
