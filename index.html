@@ -44,20 +44,21 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getFirestore, doc, getDoc, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getDatabase, ref, get, child, push } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
-        // TODO: Apni Firebase Config yahan paste karna replace karke
+        // Config Auto-Injected
         const firebaseConfig = {
-            apiKey: "YOUR_API_KEY",
-            authDomain: "YOUR_AUTH_DOMAIN",
-            projectId: "YOUR_PROJECT_ID",
-            storageBucket: "YOUR_STORAGE_BUCKET",
-            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-            appId: "YOUR_APP_ID"
+            apiKey: "AIzaSyCRximbg48XT2HxpQoRdyp137soJwcEWqw",
+            authDomain: "cpga-calculator-72d01.firebaseapp.com",
+            databaseURL: "https://cpga-calculator-72d01-default-rtdb.firebaseio.com",
+            projectId: "cpga-calculator-72d01",
+            storageBucket: "cpga-calculator-72d01.firebasestorage.app",
+            messagingSenderId: "1016677557350",
+            appId: "1:1016677557350:web:3f388011c0d298825079a7"
         };
 
         const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
+        const db = getDatabase(app);
 
         const gradePoints = {
             'A': 4.00, 'A-': 3.70, 'B+': 3.30, 'B': 3.00, 'B-': 2.70,
@@ -67,13 +68,17 @@
         let academicData = {};
 
         async function fetchDatabase() {
-            const docRef = doc(db, "uet_config", "subjectsData");
-            const docSnap = await getDoc(docRef);
-            if (docSnap.exists()) {
-                academicData = docSnap.data();
-                populateSemesterDropdown();
-            } else {
-                document.getElementById('semester-select').innerHTML = '<option value="">No data found in Admin</option>';
+            const dbRef = ref(db);
+            try {
+                const snapshot = await get(child(dbRef, "uet_config/subjectsData"));
+                if (snapshot.exists()) {
+                    academicData = snapshot.val();
+                    populateSemesterDropdown();
+                } else {
+                    document.getElementById('semester-select').innerHTML = '<option value="">No data found in Admin Panel</option>';
+                }
+            } catch (error) {
+                console.error(error);
             }
         }
 
@@ -132,9 +137,9 @@
 
             const cgpa = (totalPoints / totalCreditHours).toFixed(2);
             
-            // Send student calculation log to Firebase
             try {
-                await addDoc(collection(db, "student_logs"), {
+                const logsRef = ref(db, 'student_logs');
+                await push(logsRef, {
                     name: studentName,
                     semester: sem,
                     gpa: cgpa,
@@ -155,13 +160,13 @@
             scoreSpan.innerText = cgpa;
             resultBox.classList.remove('hidden');
 
-            if (cgpa >= 3.90) msgH3.innerText = `👑 Outstanding, ${name}! Top of the tier!`;
-            else if (cgpa >= 3.70) msgH3.innerText = `🌟 Exceptional Work, ${name}! Brilliant execution!`;
-            else if (cgpa >= 3.30) msgH3.innerText = `✨ Brilliant, ${name}! Pushing boundaries!`;
+            if (cgpa >= 3.90) msgH3.innerText = `👑 Outstanding, ${name}! You are at the absolute top tier of engineering!`;
+            else if (cgpa >= 3.70) msgH3.innerText = `🌟 Exceptional Work, ${name}! Brilliant performance!`;
+            else if (cgpa >= 3.30) msgH3.innerText = `✨ Brilliant, ${name}! Pushing boundaries successfully!`;
             else if (cgpa >= 3.00) msgH3.innerText = `👍 Good Job, ${name}! Solid engineering performance!`;
             else msgH3.innerText = `🎯 Growth Mindset, ${name}! Keep grinding, next semester will be massive!`;
 
-            let duration = 3 * 1000;
+            let duration = 4 * 1000;
             let end = Date.now() + duration;
             (function frame() {
                 confetti({ particleCount: 5, angle: 60, spread: 55, origin: { x: 0 } });
@@ -170,7 +175,6 @@
             }());
         }
 
-        // Initialize loading
         fetchDatabase();
     </script>
 </body>
