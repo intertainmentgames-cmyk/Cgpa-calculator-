@@ -123,7 +123,7 @@
         .btn-primary { background: linear-gradient(135deg, #4f46e5 0%, #3b82f6 100%); color: white; box-shadow: 0 10px 25px rgba(59, 130, 246, 0.25); margin-top: 20px; }
         .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 15px 30px rgba(59, 130, 246, 0.4); }
         
-        .btn-close { background: rgba(255, 255, 255, 0.08); border: 1px solid var(--glass-border); color: #fff; margin-top: 25px; font-size: 1rem; }
+        .btn-close { background: rgba(255, 255, 255, 0.08); border: 1px solid var(--glass-border); color: #fff; margin-top: 25px; font-size: 1rem; z-index: 10; position: relative; }
         .btn-close:hover { background: rgba(255, 255, 255, 0.15); }
 
         /* Store-Style Full Screen Confirmation Overlay Overlay System */
@@ -133,9 +133,16 @@
             z-index: 9999; display: flex; align-items: center; justify-content: center; padding: 24px;
         }
         .overlay-content {
-            background: rgba(255, 255, 255, 0.04); border: 1px solid var(--glass-border);
+            position: relative; background: rgba(255, 255, 255, 0.04); border: 1px solid var(--glass-border);
             padding: 45px 35px; border-radius: 32px; text-align: center; max-width: 500px; width: 100%;
             box-shadow: 0 40px 80px rgba(0, 0, 0, 0.7); animation: scaleUp 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+            overflow: hidden;
+        }
+        .overlay-canvas {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1;
+        }
+        .overlay-inner-content {
+            position: relative; z-index: 2; pointer-events: auto;
         }
         .checkmark-circle { width: 90px; height: 90px; border-radius: 50%; background: #10b981; display: flex; align-items: center; justify-content: center; margin: 0 auto; box-shadow: 0 0 40px rgba(16, 185, 129, 0.5); }
         .checkmark { width: 42px; height: 22px; border-left: 6px solid #fff; border-bottom: 6px solid #fff; transform: rotate(-45deg); margin-top: -8px; }
@@ -210,15 +217,18 @@
 
     <div id="success-overlay" class="overlay hidden">
         <div class="overlay-content">
-            <div class="checkmark-circle">
-                <div class="checkmark"></div>
+            <canvas id="confetti-canvas" class="overlay-canvas"></canvas>
+            <div class="overlay-inner-content">
+                <div class="checkmark-circle">
+                    <div class="checkmark"></div>
+                </div>
+                <h1 class="overlay-title">CALCULATION COMPLETED</h1>
+                <p id="result-message" class="overlay-msg"></p>
+                <div class="final-score-box">
+                    YOUR CGPA IS <span id="cgpa-score">0.00</span>
+                </div>
+                <button class="btn btn-close" onclick="closeOverlay()">Calculate Again</button>
             </div>
-            <h1 class="overlay-title">CALCULATION COMPLETED</h1>
-            <p id="result-message" class="overlay-msg"></p>
-            <div class="final-score-box">
-                YOUR CGPA IS <span id="cgpa-score">0.00</span>
-            </div>
-            <button class="btn btn-close" onclick="closeOverlay()">Calculate Again</button>
         </div>
     </div>
 
@@ -249,6 +259,7 @@
         };
 
         let academicData = {};
+        let animationFrameId = null;
 
         async function fetchDatabase() {
             const dbRef = ref(db);
@@ -360,28 +371,45 @@
             const overlay = document.getElementById('success-overlay');
             const scoreSpan = document.getElementById('cgpa-score');
             const msgP = document.getElementById('result-message');
+            const myCanvas = document.getElementById('confetti-canvas');
 
             scoreSpan.innerText = cgpa;
             overlay.classList.remove('hidden');
 
-            // Grade Message Matrix Configurations
             if (cgpa >= 3.90) msgP.innerText = `👑 Excellent performance, ${name}! You are tracking at the absolute top tier!`;
             else if (cgpa >= 3.60) msgP.innerText = `🌟 Brilliant work, ${name}! Outstanding academic achievement!`;
             else if (cgpa >= 3.00) msgP.innerText = `👍 Good job, ${name}! Highly stable engineering performance!`;
             else if (cgpa >= 2.50) msgP.innerText = `✨ Fair work, ${name}! Steady performance, keep pushing higher!`;
             else msgP.innerText = `🎯 Continuous growth mindset, ${name}! Keep grinding, next term will be massive!`;
 
-            // Seamless Continuous Firework Loop Execution Launched Instantly
+            // Custom instance binding to target overlay canvas element precisely
+            const localConfetti = confetti.create(myCanvas, {
+                resize: true,
+                useWorker: true
+            });
+
             let duration = 4 * 1000;
             let end = Date.now() + duration;
-            (function frame() {
-                confetti({ particleCount: 7, angle: 60, spread: 60, origin: { x: 0, y: 0.6 } });
-                confetti({ particleCount: 7, angle: 120, spread: 60, origin: { x: 1, y: 0.6 } });
-                if (Date.now() < end) { requestAnimationFrame(frame); }
-            }());
+
+            function frame() {
+                localConfetti({ particleCount: 5, angle: 60, spread: 55, origin: { x: 0, y: 0.8 } });
+                localConfetti({ particleCount: 5, angle: 120, spread: 55, origin: { x: 1, y: 0.8 } });
+                
+                if (Date.now() < end) {
+                    animationFrameId = requestAnimationFrame(frame);
+                }
+            }
+            frame();
         }
 
         window.closeOverlay = function() {
+            if (animationFrameId) {
+                cancelAnimationFrame(animationFrameId);
+            }
+            const myCanvas = document.getElementById('confetti-canvas');
+            const ctx = myCanvas.getContext('2d');
+            ctx.clearRect(0, 0, myCanvas.width, myCanvas.height);
+            
             document.getElementById('success-overlay').classList.add('hidden');
         }
 
