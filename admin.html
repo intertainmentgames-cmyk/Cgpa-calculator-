@@ -134,7 +134,7 @@
             margin-bottom: 5px;
         }
 
-        /* PREMIUM REALTIME LIVE TRAFFIC STYLING MAP (Matches 67203.jpg & 67204.jpg) */
+        /* PREMIUM REALTIME LIVE TRAFFIC STYLING MAP */
         .card-live { border-left: 4px solid #ef4444; }
         .card-traffic { border-left: 4px solid #a855f7; }
 
@@ -387,8 +387,7 @@
 
             <div class="card-panel">
                 <h3 class="section-title" style="font-size: 0.95rem; color: var(--text-muted); text-transform: uppercase; margin-bottom: 15px;"><i class="fa-solid fa-clock-rotate-left"></i> Traffic History Trend</h3>
-                <div class="trend-list" id="history-trend-list">
-                    </div>
+                <div class="trend-list" id="history-trend-list"></div>
             </div>
 
             <div class="card-panel">
@@ -478,8 +477,7 @@
                             <th>Grade</th>
                         </tr>
                     </thead>
-                    <tbody id="modal-table-rows">
-                    </tbody>
+                    <tbody id="modal-table-rows"></tbody>
                 </table>
             </div>
 
@@ -619,7 +617,7 @@
             alert("Subject successfully saved!");
         });
 
-        // Global functions map to window context cleanly
+        // 🟢 EXPOSE MODULE FUNCTIONS GLOBALLY TO WINDOW OBJECT SO INLINE ONCLICK WORKS
         window.deleteSubject = async function(sem, id) {
             if (!confirm("Kia aap waqai is subject ko delete krna chahty hain?")) return;
             if (!Array.isArray(academicData[sem])) {
@@ -629,7 +627,7 @@
             if(academicData[sem].length === 0) delete academicData[sem];
             await set(ref(db, "uet_config/subjectsData"), academicData);
             renderAdminPanelList();
-        }
+        };
 
         window.toggleDropdown = function(event, id) {
             event.stopPropagation();
@@ -637,7 +635,7 @@
                 if(el.id !== 'dropdown-' + id) el.classList.remove('show');
             });
             document.getElementById('dropdown-' + id).classList.toggle('show');
-        }
+        };
 
         window.openEditSubjectModal = function(sem, id, name, ch) {
             document.getElementById('edit-old-sem').value = sem;
@@ -647,7 +645,70 @@
             document.getElementById('edit-sub-ch').value = ch;
             
             document.getElementById('edit-subject-modal').classList.add('modal-open');
-        }
+        };
+
+        window.deleteUserLogRecord = async function(event, nodeKey) {
+            event.stopPropagation(); 
+            if(confirm("Kia aap waqai is bachy ka data Firebase sy hamesha kalia delete krna chahty hain?")) {
+                try {
+                    await remove(ref(db, `student_logs/${nodeKey}`));
+                    alert("User log successfully dropped from Database nodes.");
+                } catch(err) {
+                    alert("Error processing deletion sequence: " + err.message);
+                }
+            }
+        };
+
+        window.openUserDetailedTranscript = function(nodeKey) {
+            const targetData = activeLogsData[nodeKey];
+            if(!targetData) return;
+
+            document.getElementById('modal-user-title').innerText = targetData.name || 'Student Sheet';
+            document.getElementById('modal-timestamp').innerText = `Submitted on: ${targetData.timestamp || 'Unknown Time'} (Semester: ${targetData.semester || 'N/A'})`;
+            document.getElementById('modal-gpa-badge').innerText = targetData.gpa || targetData.cgpa || '0.00';
+
+            const tableBody = document.getElementById('modal-table-rows');
+            tableBody.innerHTML = '';
+
+            let subjectList = null;
+            if (targetData.subjectsBreakdown && (Array.isArray(targetData.subjectsBreakdown) || typeof targetData.subjectsBreakdown === 'object')) {
+                subjectList = targetData.subjectsBreakdown;
+            } else if (targetData.subjects && (Array.isArray(targetData.subjects) || typeof targetData.subjects === 'object')) {
+                subjectList = targetData.subjects;
+            } else if (targetData.details && (Array.isArray(targetData.details) || typeof targetData.details === 'object')) {
+                subjectList = targetData.details;
+            } else {
+                for (let key in targetData) {
+                    if (!['name', 'timestamp', 'gpa', 'cgpa', 'semester'].includes(key) && typeof targetData[key] === 'object') {
+                        subjectList = targetData[key];
+                        break;
+                    }
+                }
+            }
+
+            if (subjectList) {
+                const items = Array.isArray(subjectList) ? subjectList : Object.values(subjectList);
+                items.forEach(item => {
+                    const sName = item.name || item.subject || item.subjectName || 'N/A';
+                    const sCh = item.ch || item.creditHours || item.credit_hours || item.credits || '0';
+                    const sGp = item.gp || item.gradePoints || item.gradePoint || item.points || '0';
+                    const sGrade = item.grade || item.letterGrade || '-';
+
+                    tableBody.innerHTML += `
+                        <tr>
+                            <td style="color:#fff; font-weight:500;">${sName}</td>
+                            <td>${sCh}</td>
+                            <td>${sGp}</td>
+                            <td><span style="background:rgba(255,255,255,0.06); padding:4px 8px; border-radius:6px; font-weight:600; color:#fbbf24;">${sGrade}</span></td>
+                        </tr>
+                    `;
+                });
+            } else {
+                tableBody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:var(--text-muted); padding:20px;">Is entry me details fields array mapped nahi hain. (CGPA: ${targetData.gpa || targetData.cgpa || '0.00'})</td></tr>`;
+            }
+
+            detailsModal.classList.add('modal-open');
+        };
 
         // Window interaction click closer
         window.addEventListener('click', () => {
@@ -710,6 +771,7 @@
                 semesterItems.forEach(sub => {
                     if(sub) {
                         const safeName = sub.name.replace(/'/g, "\\'");
+                        const safeSem = sem.replace(/'/g, "\\'");
                         div.innerHTML += `
                             <div class="sub-item-row">
                                 <span>${sub.name} <b style="color:var(--text-muted); margin-left:8px;">(${sub.ch} CH)</b></span>
@@ -719,10 +781,10 @@
                                             <i class="fa-solid fa-ellipsis-vertical"></i>
                                         </button>
                                         <div class="dropdown-menu" id="dropdown-${sub.id}">
-                                            <div class="dropdown-item" onclick="openEditSubjectModal('${sem}', ${sub.id}, '${safeName}', ${sub.ch})">
+                                            <div class="dropdown-item" onclick="openEditSubjectModal('${safeSem}', ${sub.id}, '${safeName}', ${sub.ch})">
                                                 <i class="fa-solid fa-pen-to-square" style="color:var(--warning)"></i> Edit Subject
                                             </div>
-                                            <div class="dropdown-item del-btn" onclick="deleteSubject('${sem}', ${sub.id})">
+                                            <div class="dropdown-item del-btn" onclick="deleteSubject('${safeSem}', ${sub.id})">
                                                 <i class="fa-regular fa-trash-can"></i> Delete
                                             </div>
                                         </div>
@@ -789,58 +851,16 @@
             }
         });
 
-        window.deleteUserLogRecord = async function(event, nodeKey) {
-            event.stopPropagation(); 
-            if(confirm("Kia aap waqai is bachy ka data Firebase sy hamesha kalia delete krna chahty hain?")) {
-                try {
-                    await remove(ref(db, `student_logs/${nodeKey}`));
-                    alert("User log successfully dropped from Database nodes.");
-                } catch(err) {
-                    alert("Error processing deletion sequence: " + err.message);
-                }
-            }
-        }
-
         const detailsModal = document.getElementById('details-modal');
-        
-        window.openUserDetailedTranscript = function(nodeKey) {
-            const targetData = activeLogsData[nodeKey];
-            if(!targetData) return;
 
-            document.getElementById('modal-user-title').innerText = targetData.name || 'Student Sheet';
-            document.getElementById('modal-timestamp').innerText = `Submitted on: ${targetData.timestamp || 'Unknown Time'} (Semester: ${targetData.semester || 'N/A'})`;
-            document.getElementById('modal-gpa-badge').innerText = targetData.gpa || targetData.cgpa || '0.00';
+        document.getElementById('modal-close-btn').addEventListener('click', () => {
+            detailsModal.classList.remove('modal-open');
+        });
+        detailsModal.addEventListener('click', (e) => {
+            if(e.target === detailsModal) detailsModal.classList.remove('modal-open');
+        });
 
-            const tableBody = document.getElementById('modal-table-rows');
-            tableBody.innerHTML = '';
-
-            let subjectList = null;
-            if (targetData.subjectsBreakdown && (Array.isArray(targetData.subjectsBreakdown) || typeof targetData.subjectsBreakdown === 'object')) {
-                subjectList = targetData.subjectsBreakdown;
-            } else if (targetData.subjects && (Array.isArray(targetData.subjects) || typeof targetData.subjects === 'object')) {
-                subjectList = targetData.subjects;
-            } else if (targetData.details && (Array.isArray(targetData.details) || typeof targetData.details === 'object')) {
-                subjectList = targetData.details;
-            } else {
-                for (let key in targetData) {
-                    if (!['name', 'timestamp', 'gpa', 'cgpa', 'semester'].includes(key) && typeof targetData[key] === 'object') {
-                        subjectList = targetData[key];
-                        break;
-                    }
-                }
-            }
-
-            if (subjectList) {
-                const items = Array.isArray(subjectList) ? subjectList : Object.values(subjectList);
-                items.forEach(item => {
-                    const sName = item.name || item.subject || item.subjectName || 'N/A';
-                    const sCh = item.ch || item.creditHours || item.credit_hours || item.credits || '0';
-                    const sGp = item.gp || item.gradePoints || item.gradePoint || item.points || '0';
-                    const sGrade = item.grade || item.letterGrade || '-';
-
-                    tableBody.innerHTML += `
-                        <tr>
-                            <td style="color:#fff; font-weight:500;">${sName}</td>
-                            <td>${sCh}</td>
-                            <td>${sGp}</td>
-                            <td><span style="background:rgba(255,255,255,0.06); padding:4px 8px; border-radius:6px;
+        loadInitialData();
+    </script>
+</body>
+</html>
