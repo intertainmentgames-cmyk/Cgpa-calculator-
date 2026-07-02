@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Panel - Control Center</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
@@ -121,7 +121,7 @@
         .app-section { display: none; }
         .app-section.active-view { display: block; }
 
-        .container { max-width: 900px; margin: 30px auto; padding: 0 20px; }
+        .container { max-width: 650px; margin: 30px auto; padding: 0 20px; display: flex; flex-direction: column; gap: 20px; }
 
         .card-panel {
             background: rgba(17, 24, 39, 0.6);
@@ -131,9 +131,108 @@
             border-radius: 20px;
             padding: 30px;
             box-shadow: 0 15px 35px rgba(0,0,0,0.3);
-            margin-bottom: 25px;
+            margin-bottom: 5px;
         }
 
+        /* PREMIUM REALTIME LIVE TRAFFIC STYLING MAP (Matches 67203.jpg & 67204.jpg) */
+        .card-live { border-left: 4px solid #ef4444; }
+        .card-traffic { border-left: 4px solid #a855f7; }
+
+        .card-header-flex {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .card-title-lbl {
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 600;
+            color: var(--text-muted);
+        }
+
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            background-color: #ef4444;
+            border-radius: 50%;
+            box-shadow: 0 0 10px #ef4444;
+            animation: pulse 1.5s infinite;
+        }
+
+        .big-stat {
+            font-size: 3.2rem;
+            font-weight: 700;
+            line-height: 1;
+            margin-bottom: 15px;
+        }
+        .text-live-neon { color: #ef4444; text-shadow: 0 0 20px rgba(239, 68, 68, 0.3); }
+        .text-traffic-neon { color: #c084fc; text-shadow: 0 0 20px rgba(192, 132, 252, 0.3); }
+
+        .card-footer-text {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .trend-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            max-height: 250px;
+            overflow-y: auto;
+            padding-right: 5px;
+        }
+        .trend-list::-webkit-scrollbar { width: 4px; }
+        .trend-list::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
+
+        .trend-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            padding: 12px 16px;
+            border-radius: 14px;
+        }
+
+        .timestamp-item {
+            font-size: 0.85rem;
+            color: #cbd5e1;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .page-badge {
+            background: rgba(168, 85, 247, 0.15);
+            color: #c084fc;
+            padding: 4px 10px;
+            border-radius: 8px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            border: 1px solid rgba(168, 85, 247, 0.2);
+        }
+
+        .browsing-status-container {
+            text-align: center;
+            padding: 20px 10px 5px 10px;
+            font-size: 0.95rem;
+            color: var(--text-muted);
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.5); }
+            70% { transform: scale(1); box-shadow: 0 0 0 8px rgba(239, 68, 68, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+        }
+
+        /* Core Structure layout specs */
         .section-title { margin-bottom: 25px; font-weight: 700; font-size: 1.4rem; display: flex; align-items: center; gap: 10px; }
         .live-users-header-wrapper { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; gap: 15px; flex-wrap: wrap; }
         .live-users-header-wrapper .section-title { margin-bottom: 0; }
@@ -255,7 +354,10 @@
         <button class="close-sidebar-btn" id="sidebar-close"><i class="fa-solid fa-xmark"></i></button>
         <h3 style="margin-bottom: 25px; font-weight:700; color: white;">Navigation</h3>
         
-        <div class="sidebar-nav-item active" data-target="subject-section">
+        <div class="sidebar-nav-item active" data-target="live-traffic-dashboard-section">
+            <i class="fa-solid fa-tower-broadcast"></i> Live Traffic System
+        </div>
+        <div class="sidebar-nav-item" data-target="subject-section">
             <i class="fa-solid fa-book-bookmark"></i> Manage Subjects
         </div>
         <div class="sidebar-nav-item" data-target="live-users-section">
@@ -265,7 +367,39 @@
 
     <div class="container">
         
-        <div id="subject-section" class="app-section active-view">
+        <div id="live-traffic-dashboard-section" class="app-section active-view">
+            <div class="card-panel card-live">
+                <div class="card-header-flex">
+                    <div class="card-title-lbl">Live Traffic Now</div>
+                    <div class="status-dot"></div>
+                </div>
+                <div class="big-stat text-live-neon" id="live-users-count">0</div>
+                <div class="card-footer-text">👥 Browsing website in real-time</div>
+            </div>
+
+            <div class="card-panel card-traffic">
+                <div class="card-header-flex">
+                    <div class="card-title-lbl">Total Page Traffic</div>
+                </div>
+                <div class="big-stat text-traffic-neon" id="total-traffic-count">0</div>
+                <div class="card-footer-text">📈 Page view counters tracked</div>
+            </div>
+
+            <div class="card-panel">
+                <h3 class="section-title" style="font-size: 0.95rem; color: var(--text-muted); text-transform: uppercase; margin-bottom: 15px;"><i class="fa-solid fa-clock-rotate-left"></i> Traffic History Trend</h3>
+                <div class="trend-list" id="history-trend-list">
+                    </div>
+            </div>
+
+            <div class="card-panel">
+                <h3 class="section-title" style="font-size: 0.95rem; color: var(--text-muted); text-transform: uppercase; margin-bottom: 15px;"><i class="fa-solid fa-circle-dot" style="color: #ef4444;"></i> Who is Browsing Now?</h3>
+                <div class="browsing-status-container" id="browsing-now-status">
+                    Zero user online right now.
+                </div>
+            </div>
+        </div>
+        
+        <div id="subject-section" class="app-section">
             <div class="card-panel">
                 <h2 class="section-title"><i class="fa-solid fa-folder-plus" style="color: var(--primary);"></i> Manage Subjects Structure</h2>
                 <div class="form-group">
@@ -402,6 +536,49 @@
                 document.getElementById(targetView).classList.add('active-view');
                 toggleSidebar();
             });
+        });
+
+        // 🟢 REALTIME DATABASE ACTIVE LIVE TRACKING SUITE LISTENERS
+        const liveTrafficRef = ref(db, 'live_traffic_now');
+        onValue(liveTrafficRef, (snapshot) => {
+            const data = snapshot.val();
+            let count = 0;
+            if (data) {
+                count = Object.keys(data).length;
+            }
+            document.getElementById('live-users-count').innerText = count;
+            
+            const statusBox = document.getElementById('browsing-now-status');
+            if (count > 0) {
+                statusBox.innerHTML = `🔥 <span style="color:#ef4444; font-weight:600;">${count} User(s)</span> actively interacting with the calculator dashboard right now.`;
+            } else {
+                statusBox.innerText = "Zero user online right now.";
+            }
+        });
+
+        const historyTrendRef = ref(db, 'traffic_history_trend');
+        onValue(historyTrendRef, (snapshot) => {
+            const data = snapshot.val();
+            const listContainer = document.getElementById('history-trend-list');
+            listContainer.innerHTML = '';
+            
+            if (data) {
+                const historyArray = Object.values(data);
+                document.getElementById('total-traffic-count').innerText = historyArray.length;
+                
+                historyArray.reverse().forEach(entry => {
+                    const row = document.createElement('div');
+                    row.className = 'trend-row';
+                    row.innerHTML = `
+                        <div class="timestamp-item">🕒 ${entry.timestamp}</div>
+                        <div class="page-badge">${entry.page || 'HOME PAGE'}</div>
+                    `;
+                    listContainer.appendChild(row);
+                });
+            } else {
+                document.getElementById('total-traffic-count').innerText = '0';
+                listContainer.innerHTML = '<div style="text-align:center; padding:15px; color:#64748b;">No traffic history recorded yet.</div>';
+            }
         });
 
         // Load Subject Configurations Architecture
@@ -596,7 +773,7 @@
             });
         });
 
-        // 🚀 DELETE ALL LOGS FUNCTIONALITY
+        // DELETE ALL LOGS FUNCTIONALITY
         document.getElementById('delete-all-logs-btn').addEventListener('click', async () => {
             if (Object.keys(activeLogsData).length === 0) {
                 return alert("Delete krne k liye koi data majood nahi hai!");
@@ -666,25 +843,4 @@
                             <td style="color:#fff; font-weight:500;">${sName}</td>
                             <td>${sCh}</td>
                             <td>${sGp}</td>
-                            <td><span style="background:rgba(255,255,255,0.06); padding:4px 8px; border-radius:6px; font-weight:600; color:#fbbf24;">${sGrade}</span></td>
-                        </tr>
-                    `;
-                });
-            } else {
-                tableBody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:var(--text-muted); padding:20px;">Is entry me details fields array mapped nahi hain. (CGPA: ${targetData.gpa || targetData.cgpa || '0.00'})</td></tr>`;
-            }
-
-            detailsModal.classList.add('modal-open');
-        }
-
-        document.getElementById('modal-close-btn').addEventListener('click', () => {
-            detailsModal.classList.remove('modal-open');
-        });
-        detailsModal.addEventListener('click', (e) => {
-            if(e.target === detailsModal) detailsModal.classList.remove('modal-open');
-        });
-
-        loadInitialData();
-    </script>
-</body>
-</html>
+                            <td><span style="background:rgba(255,255,255,0.06); padding:4px 8px; border-radius:6px;
