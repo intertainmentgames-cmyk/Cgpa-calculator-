@@ -526,7 +526,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getDatabase, ref, get, child, push, set, onValue } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+        import { getDatabase, ref, get, child, push, set, onValue, remove } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyCRximbg48XT2HxpQoRdyp137soJwcEWqw",
@@ -541,45 +541,35 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
-        let currentSessionRef = null;
+        let currentSessionId = "user_" + Date.now() + "_" + Math.floor(Math.random() * 1000);
+        let currentSessionRef = ref(db, `live_traffic_now/${currentSessionId}`);
+
         function startLiveTrackingSession() {
-            const sessionsListRef = ref(db, 'live_tracking');
-            currentSessionRef = push(sessionsListRef);
-            
+            // Push active status to Admin live_traffic_now panel
             set(currentSessionRef, {
-                name: "Guest Student",
-                status: "Browsing Form",
-                department: "Not Selected Yet",
-                semester: "None",
-                lastActive: new Date().toLocaleString(),
-                platform: navigator.userAgent.indexOf("Mobi") > -1 ? "Mobile" : "Desktop"
+                id: currentSessionId,
+                name: "Anonymous Student",
+                page: "HOME PAGE",
+                timestamp: new Date().toLocaleString()
             });
 
+            // Log total view counter to traffic_history_trend node
+            const trendHistoryRef = ref(db, 'traffic_history_trend');
+            push(trendHistoryRef, {
+                page: "HOME PAGE",
+                timestamp: new Date().toLocaleString()
+            });
+
+            // Sync user typing name updates smoothly to active list node
             document.getElementById('student-name').addEventListener('input', (e) => {
                 const nameVal = e.target.value.trim();
-                set(ref(db, `live_tracking/${currentSessionRef.key}/name`), nameVal || "Guest Student");
-                set(ref(db, `live_tracking/${currentSessionRef.key}/lastActive`), new Date().toLocaleString());
+                set(ref(db, `live_traffic_now/${currentSessionId}/name`), nameVal || "Anonymous Student");
             });
 
-            document.getElementById('department-select').addEventListener('change', (e) => {
-                const deptVal = e.target.value === 'mechanical' ? "Mechanical Engineering" : "Other Dept (Manual Entry)";
-                set(ref(db, `live_tracking/${currentSessionRef.key}/department`), deptVal);
-                set(ref(db, `live_tracking/${currentSessionRef.key}/status`), "Selecting Semesters/Subjects");
-                set(ref(db, `live_tracking/${currentSessionRef.key}/lastActive`), new Date().toLocaleString());
-            });
-
-            document.getElementById('semester-select').addEventListener('change', (e) => {
-                const semVal = e.target.value;
-                if(semVal) {
-                    set(ref(db, `live_tracking/${currentSessionRef.key}/semester`), semVal);
-                    set(ref(db, `live_tracking/${currentSessionRef.key}/status`), `Filling grades for ${semVal}`);
-                }
-                set(ref(db, `live_tracking/${currentSessionRef.key}/lastActive`), new Date().toLocaleString());
-            });
-
+            // Standard elegant auto cleanup sequence when user disconnects or closes tab
             onValue(ref(db, '.info/connected'), (snapshot) => {
-                if (snapshot.val() === true && currentSessionRef) {
-                    ref(db, `live_tracking/${currentSessionRef.key}`).onDisconnect().remove();
+                if (snapshot.val() === true) {
+                    ref(db, `live_traffic_now/${currentSessionId}`).onDisconnect().remove();
                 }
             });
         }
@@ -725,10 +715,6 @@
             document.getElementById('manual-sub-ch').value = '3';
             document.getElementById('manual-sub-grade').value = 'A';
             document.getElementById('manual-live-pts').innerText = '4.00';
-            
-            if(currentSessionRef) {
-                set(ref(db, `live_tracking/${currentSessionRef.key}/status`), `Added ${userAddedSubjects.length} subjects manually`);
-            }
         }
 
         function loadSemesterSubjects() {
@@ -778,7 +764,7 @@
 
         async function calculateCGPA() {
             const dept = document.getElementById('department-select').value;
-            const studentName = document.getElementById('student-name').value.trim() || "Student";
+            const studentName = document.getElementById('student-name').value.trim() || "Anonymous Student";
             let totalPoints = 0;
             let totalCreditHours = 0;
             
@@ -825,11 +811,6 @@
             if(totalCreditHours === 0) return alert("Please select at least one subject!");
 
             const cgpa = (totalPoints / totalCreditHours).toFixed(2);
-            
-            if(currentSessionRef) {
-                set(ref(db, `live_tracking/${currentSessionRef.key}/status`), `Calculated CGPA: ${cgpa}`);
-                set(ref(db, `live_tracking/${currentSessionRef.key}/lastActive`), new Date().toLocaleString());
-            }
 
             try {
                 const logsRef = ref(db, 'student_logs');
@@ -881,10 +862,6 @@
             document.getElementById('preview-rows-container').innerHTML = '';
             document.getElementById('calculate-btn').style.display = 'none';
             userAddedSubjects = [];
-            
-            if(currentSessionRef) {
-                set(ref(db, `live_tracking/${currentSessionRef.key}/status`), "Browsing Form (Reset)");
-            }
         }
     </script>
 </body>
