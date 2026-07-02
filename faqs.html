@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FAQs - UET CGPA Calculator</title>
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #0f172a, #1e1e38);
+            color: #ffffff;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 600px;
+            width: 100%;
+            background: rgba(30, 41, 59, 0.7);
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+        }
+        h1 {
+            text-align: center;
+            font-size: 24px;
+            margin-bottom: 25px;
+            color: #00f2fe;
+        }
+        .faq-item {
+            margin-bottom: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding-bottom: 15px;
+        }
+        .faq-item:last-child {
+            border-bottom: none;
+        }
+        .question {
+            font-size: 16px;
+            font-weight: 600;
+            color: #4facfe;
+            margin-bottom: 8px;
+        }
+        .answer {
+            font-size: 14px;
+            color: #cbd5e1;
+            line-height: 1.6;
+        }
+        .back-btn {
+            display: block;
+            text-align: center;
+            margin-top: 25px;
+            color: #00f2fe;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: bold;
+            transition: 0.3s;
+        }
+        .back-btn:hover {
+            text-shadow: 0 0 8px #00f2fe;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Frequently Asked Questions (FAQs)</h1>
+        
+        <div class="faq-item">
+            <div class="question">Q1: How is GPA calculated at UET?</div>
+            <div class="answer">Your GPA is calculated by multiplying the grade points of each subject by its credit hours, adding them up, and then dividing the total by the sum of all credit hours for that semester.</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question">Q2: What is the difference between GPA and CGPA?</div>
+            <div class="answer">GPA is for a single semester, whereas CGPA (Cumulative Grade Point Average) is the combined average of all the semesters you have completed so far.</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question">Q3: Do Mechanical Engineering students need to type subjects manually?</div>
+            <div class="answer">No! For Mechanical Engineering, the subjects and their credit hours are already pre-loaded according to the official UET curriculum. You just need to select your grades.</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="question">Q4: Can students from other departments use this calculator?</div>
+            <div class="answer">Yes, absolutely! Just choose the "Custom / Other Department" option to manually enter your subjects, credit hours, and grades to get instant results.</div>
+        </div>
+
+        <a href="index.html" class="back-btn">← Back to Calculator</a>
+    </div>
+</body>
+</html>
