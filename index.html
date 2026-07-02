@@ -66,7 +66,6 @@
             z-index: 100;
         }
 
-        /* Hamburger Menu Icon Styling */
         .menu-toggle {
             display: flex;
             flex-direction: column;
@@ -88,7 +87,6 @@
             transition: all 0.3s ease;
         }
 
-        /* Sidebar / Drawer Navigation */
         .sidebar-nav {
             position: fixed;
             top: 0;
@@ -135,7 +133,6 @@
             padding-left: 14px;
         }
 
-        /* Menu Overlay background when opened */
         .nav-overlay {
             position: fixed;
             top: 0;
@@ -544,13 +541,11 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
-        // --- LIVE SESSION TRACKING ---
         let currentSessionRef = null;
         function startLiveTrackingSession() {
             const sessionsListRef = ref(db, 'live_tracking');
             currentSessionRef = push(sessionsListRef);
             
-            // Set initial parameters for the visitor
             set(currentSessionRef, {
                 name: "Guest Student",
                 status: "Browsing Form",
@@ -560,7 +555,6 @@
                 platform: navigator.userAgent.indexOf("Mobi") > -1 ? "Mobile" : "Desktop"
             });
 
-            // Update session status dynamically based on user input
             document.getElementById('student-name').addEventListener('input', (e) => {
                 const nameVal = e.target.value.trim();
                 set(ref(db, `live_tracking/${currentSessionRef.key}/name`), nameVal || "Guest Student");
@@ -583,7 +577,6 @@
                 set(ref(db, `live_tracking/${currentSessionRef.key}/lastActive`), new Date().toLocaleString());
             });
 
-            // Disconnect system setup to clear entry when user leaves or closes tab
             onValue(ref(db, '.info/connected'), (snapshot) => {
                 if (snapshot.val() === true && currentSessionRef) {
                     ref(db, `live_tracking/${currentSessionRef.key}`).onDisconnect().remove();
@@ -607,8 +600,9 @@
             document.getElementById('add-subject-btn').addEventListener('click', moveRowToTableSection);
             document.getElementById('calculate-btn').addEventListener('click', calculateCGPA);
             document.getElementById('close-overlay-btn').addEventListener('click', closeOverlay);
+            
             fetchDatabase();
-            startLiveTrackingSession(); // Fire tracking on boot
+            startLiveTrackingSession();
         });
 
         async function fetchDatabase() {
