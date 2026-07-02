@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculation Guide - UET CGPA Calculator</title>
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #0f172a, #1e1e38);
+            color: #ffffff;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 650px;
+            width: 100%;
+            background: rgba(30, 41, 59, 0.7);
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+        }
+        h1 {
+            text-align: center;
+            font-size: 24px;
+            margin-bottom: 20px;
+            color: #00f2fe;
+        }
+        h2 {
+            font-size: 16px;
+            color: #4facfe;
+            margin-top: 20px;
+            margin-bottom: 10px;
+        }
+        p {
+            font-size: 14px;
+            color: #cbd5e1;
+            line-height: 1.6;
+            margin: 8px 0;
+        }
+        .formula {
+            background: rgba(15, 23, 42, 0.6);
+            padding: 12px;
+            border-radius: 8px;
+            text-align: center;
+            font-family: 'Courier New', monospace;
+            color: #00f2fe;
+            font-weight: bold;
+            margin: 15px 0;
+            border: 1px solid rgba(0, 242, 254, 0.2);
+        }
+        .back-btn {
+            display: block;
+            text-align: center;
+            margin-top: 25px;
+            color: #00f2fe;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: bold;
+            transition: 0.3s;
+        }
+        .back-btn:hover {
+            text-shadow: 0 0 8px #00f2fe;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>How to Calculate UET GPA & CGPA</h1>
+        
+        <p>Calculating your GPA manually can be complex. Here is the official method used by UET to determine your academic standings:</p>
+        
+        <h2>1. Understand the UET Grade Points</h2>
+        <p>Every letter grade you earn carries specific weightage points defined by UET policy (e.g., A = 4.00, A- = 3.70, B+ = 3.30, B = 3.00, B- = 2.70, etc.).</p>
+        
+        <h2>2. Calculate Quality Points</h2>
+        <p>Multiply the Credit Hours (CH) of a particular subject by the Grade Points earned in that subject.</p>
+        <p><em>Example:</em> If a course is 3 Credit Hours and you score a B+ (3.30), the Quality Points for this course = 3 × 3.30 = 9.9.</p>
+        
+        <h2>3. Semester GPA Formula</h2>
+        <p>Sum up all the Quality Points earned in that semester and divide them by the Total Credit Hours registered.</p>
+        <div class="formula">GPA = Total Quality Points / Total Credit Hours</div>
+        
+        <h2>4. Cumulative CGPA Formula</h2>
+        <p>To find your cumulative score, add up the total quality points across all completed semesters and divide by the total accumulated credit hours of your entire degree.</p>
+        <div class="formula">CGPA = Sum of All Quality Points / Total Cumulative Credit Hours</div>
+
+        <a href="index.html" class="back-btn">← Back to Calculator</a>
+    </div>
+</body>
+</html>
