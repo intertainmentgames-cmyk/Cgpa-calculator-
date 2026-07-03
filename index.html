@@ -12,7 +12,7 @@
     <meta name="keywords" content="uet cgpa calculator, gpa calculator, uet faisalabad, nfc institute, engineering gpa calculator, cgpa calculator engineer, calculate cgpa uet">
     <meta name="robots" content="index, follow">
     <meta name="language" content="English">
-    <meta name="author" content="Muhammad Aitezaz Tariq">
+    <meta name="author" content="Waleed Ahmad">
 
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://cgpacalculator.engineer/">
@@ -27,6 +27,8 @@
     <meta property="twitter:image" content="https://i.ibb.co/N6rtZLj4/518e5401-2240-4b58-9f46-53e0673b81de-removalai-preview.png">
 
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     
     <style>
         :root {
@@ -853,7 +855,7 @@
             displayOverlayResult(parseFloat(cgpa), studentName);
         }
 
-        // Fully Dynamic Premium Web-Print Template Render & Core API Connector
+        // Fully Dynamic Premium Sandbox PDF Generator (100% Free & Fast)
         async function triggerLivePDFGeneration() {
             if (!latestCalculatedSession) {
                 alert("No live active calculations found to download.");
@@ -868,122 +870,90 @@
             // Generate subject rows dynamically matching exactly what was evaluated on screen
             let dynamicRowsHTML = latestCalculatedSession.subjects.map(sub => `
                 <tr>
-                    <td>${sub.name}</td>
-                    <td style="text-align: center; font-weight: 500;">${sub.ch}</td>
-                    <td style="text-align: center; font-weight: 600; color: #10b981;">${sub.gp}</td>
-                    <td style="text-align: center; font-weight: bold; color: #1a365d;">${sub.grade}</td>
+                    <td style="padding: 14px 12px; border-bottom: 1px solid #e2e8f0; font-size: 11pt; color: #2d3748;">${sub.name}</td>
+                    <td style="padding: 14px 12px; border-bottom: 1px solid #e2e8f0; font-size: 11pt; text-align: center; font-weight: 500;">${sub.ch}</td>
+                    <td style="padding: 14px 12px; border-bottom: 1px solid #e2e8f0; font-size: 11pt; text-align: center; font-weight: 600; color: #10b981;">${sub.gp}</td>
+                    <td style="padding: 14px 12px; border-bottom: 1px solid #e2e8f0; font-size: 11pt; text-align: center; font-weight: bold; color: #1a365d;">${sub.grade}</td>
                 </tr>
             `).join('');
 
+            // Container element for off-screen sandbox rendering
+            const tempInvoiceWrapper = document.createElement('div');
+            tempInvoiceWrapper.style.position = 'absolute';
+            tempInvoiceWrapper.style.left = '-9999px';
+            tempInvoiceWrapper.style.top = '-9999px';
+
             // Premium A4 Standard Hardcopy Engine Marksheet Template Design
-            const structureTemplateHTML = `
-            <!DOCTYPE html>
-            <html>
-            <head>
-                <meta charset="UTF-8">
-                <style>
-                    @page { size: A4; margin: 20mm; }
-                    body { font-family: 'Helvetica Neue', Arial, sans-serif; color: #2d3748; margin: 0; padding: 0; background-color: #fff; -webkit-print-color-adjust: exact; }
-                    .report-wrapper { border: 2px solid #1a365d; padding: 40px; border-radius: 12px; position: relative; min-height: 240mm; box-sizing: border-box; }
-                    .main-header { text-align: center; border-bottom: 4px double #1a365d; padding-bottom: 24px; margin-bottom: 35px; }
-                    .main-header h1 { margin: 0; color: #1a365d; font-size: 26pt; font-weight: 800; text-transform: uppercase; letter-spacing: 1.5px; }
-                    .main-header p { margin: 6px 0 0 0; color: #718096; font-size: 11pt; letter-spacing: 0.5px; }
-                    .meta-info-grid { width: 100%; border-collapse: collapse; margin-bottom: 35px; }
-                    .meta-info-grid td { padding: 8px 0; font-size: 11pt; vertical-align: top; }
-                    .meta-info-grid td.field-label { font-weight: 700; color: #4a5568; width: 18%; }
-                    .meta-info-grid td.field-value { color: #1a202c; width: 32%; }
-                    .data-table { width: 100%; border-collapse: collapse; margin-top: 10px; margin-bottom: 45px; }
-                    .data-table th { background-color: #1a365d; color: white; padding: 14px 12px; font-size: 11pt; text-align: left; text-transform: uppercase; letter-spacing: 0.5px; }
-                    .data-table td { padding: 14px 12px; border-bottom: 1px solid #e2e8f0; font-size: 11pt; color: #2d3748; }
-                    .data-table tr:nth-child(even) { background-color: #f7fafc; }
-                    .summary-box-wrapper { text-align: right; margin-top: 30px; }
-                    .score-badge { display: inline-block; background-color: #1a365d; color: white; padding: 18px 40px; border-radius: 6px; font-size: 20pt; font-weight: 800; text-align: center; }
-                    .score-badge span { font-size: 10pt; display: block; font-weight: 500; color: #cbd5e1; margin-bottom: 4px; letter-spacing: 1px; }
-                    .footer-watermark { position: absolute; bottom: 20px; left: 0; right: 0; text-align: center; font-size: 10pt; color: #a0aec0; border-top: 1px solid #e2e8f0; padding-top: 15px; }
-                    .footer-watermark a { color: #3182ce; text-decoration: none; font-weight: 700; }
-                </style>
-            </head>
-            <body>
-                <div class="report-wrapper">
-                    <div class="main-header">
-                        <h1>Academic Performance Report</h1>
-                        <p>Verified Grade Point Average Summary Statement</p>
-                    </div>
-                    
-                    <table class="meta-info-grid">
-                        <tr>
-                            <td class="field-label">Student Name:</td>
-                            <td class="field-value">${latestCalculatedSession.name}</td>
-                            <td class="field-label">Semester:</td>
-                            <td class="field-value">${latestCalculatedSession.semesterDetails}</td>
-                        </tr>
-                        <tr>
-                            <td class="field-label">Department:</td>
-                            <td class="field-value">${latestCalculatedSession.department}</td>
-                            <td class="field-label">Date Issues:</td>
-                            <td class="field-value">${new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</td>
-                        </tr>
-                    </table>
-
-                    <table class="data-table">
-                        <thead>
+            tempInvoiceWrapper.innerHTML = `
+                <div style="font-family: 'Helvetica Neue', Arial, sans-serif; color: #2d3748; background-color: #fff; width: 210mm; min-height: 297mm; padding: 20mm; box-sizing: border-box;">
+                    <div style="border: 2px solid #1a365d; padding: 40px; border-radius: 12px; min-height: 245mm; position: relative; box-sizing: border-box; background: #ffffff;">
+                        <div style="text-align: center; border-bottom: 4px double #1a365d; padding-bottom: 24px; margin-bottom: 35px;">
+                            <h1 style="margin: 0; color: #1a365d; font-size: 26pt; font-weight: 800; text-transform: uppercase; letter-spacing: 1.5px;">Academic Performance Report</h1>
+                            <p style="margin: 6px 0 0 0; color: #718096; font-size: 11pt; letter-spacing: 0.5px;">Verified Grade Point Average Summary Statement</p>
+                        </div>
+                        
+                        <table style="width: 100%; border-collapse: collapse; margin-bottom: 35px;">
                             <tr>
-                                <th style="width: 50%;">Course / Subject Description</th>
-                                <th style="text-align: center; width: 15%;">Credit Hours</th>
-                                <th style="text-align: center; width: 20%;">Grade Points</th>
-                                <th style="text-align: center; width: 15%;">Letter Grade</th>
+                                <td style="padding: 8px 0; font-size: 11pt; font-weight: 700; color: #4a5568; width: 18%;">Student Name:</td>
+                                <td style="padding: 8px 0; font-size: 11pt; color: #1a202c; width: 32%;">${latestCalculatedSession.name}</td>
+                                <td style="padding: 8px 0; font-size: 11pt; font-weight: 700; color: #4a5568; width: 18%;">Semester:</td>
+                                <td style="padding: 8px 0; font-size: 11pt; color: #1a202c; width: 32%;">${latestCalculatedSession.semesterDetails}</td>
                             </tr>
-                        </thead>
-                        <tbody>
-                            ${dynamicRowsHTML}
-                        </tbody>
-                    </table>
+                            <tr>
+                                <td style="padding: 8px 0; font-size: 11pt; font-weight: 700; color: #4a5568; width: 18%;">Department:</td>
+                                <td style="padding: 8px 0; font-size: 11pt; color: #1a202c; width: 32%;">${latestCalculatedSession.department}</td>
+                                <td style="padding: 8px 0; font-size: 11pt; font-weight: 700; color: #4a5568; width: 18%;">Date Issued:</td>
+                                <td style="padding: 8px 0; font-size: 11pt; color: #1a202c; width: 32%;">${new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</td>
+                            </tr>
+                        </table>
 
-                    <div class="summary-box-wrapper">
-                        <div class="score-badge">
-                            <span>FINAL SEMESTER CGPA</span>
-                            ${latestCalculatedSession.finalCGPA}
+                        <table style="width: 100%; border-collapse: collapse; margin-top: 10px; margin-bottom: 45px;">
+                            <thead>
+                                <tr>
+                                    <th style="background-color: #1a365d; color: white; padding: 14px 12px; font-size: 11pt; text-align: left; text-transform: uppercase; letter-spacing: 0.5px; width: 50%;">Course / Subject Description</th>
+                                    <th style="background-color: #1a365d; color: white; padding: 14px 12px; font-size: 11pt; text-align: center; text-transform: uppercase; letter-spacing: 0.5px; width: 15%;">Credit Hours</th>
+                                    <th style="background-color: #1a365d; color: white; padding: 14px 12px; font-size: 11pt; text-align: center; text-transform: uppercase; letter-spacing: 0.5px; width: 20%;">Grade Points</th>
+                                    <th style="background-color: #1a365d; color: white; padding: 14px 12px; font-size: 11pt; text-align: center; text-transform: uppercase; letter-spacing: 0.5px; width: 15%;">Letter Grade</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${dynamicRowsHTML}
+                            </tbody>
+                        </table>
+
+                        <div style="text-align: right; margin-top: 30px;">
+                            <div style="display: inline-block; background-color: #1a365d; color: white; padding: 18px 40px; border-radius: 6px; font-size: 20pt; font-weight: 800; text-align: center;">
+                                <span style="font-size: 10pt; display: block; font-weight: 500; color: #cbd5e1; margin-bottom: 4px; letter-spacing: 1px;">FINAL SEMESTER CGPA</span>
+                                ${latestCalculatedSession.finalCGPA}
+                            </div>
+                        </div>
+
+                        <div style="position: absolute; bottom: 20px; left: 40px; right: 40px; text-align: center; font-size: 10pt; color: #a0aec0; border-top: 1px solid #e2e8f0; padding-top: 15px;">
+                            Generated Via: <a href="https://cgpacalculator.engineer" style="color: #3182ce; text-decoration: none; font-weight: 700;" target="_blank">cgpacalculator.engineer</a>
                         </div>
                     </div>
-
-                    <div class="footer-watermark">
-                        Generated Via: <a href="https://cgpacalculator.engineer" target="_blank">cgpacalculator.engineer</a>
-                    </div>
                 </div>
-            </body>
-            </html>
             `;
 
-            // Active Platform Credentials Routing
-            const browserlessToken = "2Uoiaru0XydLs6H6df4a814c12e61e12aaceeecb7d6cc8090";
-            const endpointRequestURL = `https://production-sfo.browserless.io/pdf?token=${browserlessToken}`;
+            document.body.appendChild(tempInvoiceWrapper);
+
+            // html2pdf Engine Options Configuration
+            const pdfOptions = {
+                margin: 0,
+                filename: `${latestCalculatedSession.name.replace(/\s+/g, '_')}_Academic_Report.pdf`,
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2, useCORS: true, logging: false },
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
 
             try {
-                const apiResponse = await fetch(endpointRequestURL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        html: structureTemplateHTML,
-                        options: {
-                            printBackground: true,
-                            format: 'A4',
-                            preferCSSPageSize: true
-                        }
-                    })
-                });
-
-                if (!apiResponse.ok) throw new Error("Cloud Render Error");
-
-                const pdfBlobObject = await apiResponse.blob();
-                const clientDownloadAnchor = document.createElement('a');
-                clientDownloadAnchor.href = window.URL.createObjectURL(pdfBlobObject);
-                clientDownloadAnchor.download = `${latestCalculatedSession.name.replace(/\s+/g, '_')}_Academic_Report.pdf`;
-                clientDownloadAnchor.click();
-
+                // Generate and download client-side instantly
+                await html2pdf().set(pdfOptions).from(tempInvoiceWrapper).save();
             } catch (err) {
-                console.error("PDF Engine Exception:", err);
-                alert("Failed to render PDF report card via browserless cloud stream.");
+                console.error("Local PDF Engine Exception:", err);
+                alert("Failed to render PDF report card locally.");
             } finally {
+                document.body.removeChild(tempInvoiceWrapper);
                 downloadBtn.innerHTML = originalText;
                 downloadBtn.disabled = false;
             }
