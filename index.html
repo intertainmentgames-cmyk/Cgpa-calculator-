@@ -560,7 +560,6 @@
         let currentSessionId = "user_" + Date.now() + "_" + Math.floor(Math.random() * 1000);
         let currentSessionRef = ref(db, `live_traffic_now/${currentSessionId}`);
 
-        // Global Variable to capture current active data session for PDF engine
         let latestCalculatedSession = null;
 
         function startLiveTrackingSession() {
@@ -849,14 +848,13 @@
             displayOverlayResult(parseFloat(cgpa), studentName);
         }
 
-        // Fixed Sandbox PDF Engine Configuration
+        // FIXED ENGINE FUNCTION
         async function triggerLivePDFGeneration() {
             if (!latestCalculatedSession) {
                 alert("No live active calculations found to download.");
                 return;
             }
 
-            // Fallback scope handler to resolve local library reference accurately
             const pdfEngine = window.html2pdf || html2pdf;
             if (!pdfEngine) {
                 alert("PDF engine library resource missing. Please verify your script imports.");
@@ -869,49 +867,48 @@
             downloadBtn.disabled = true;
 
             let dynamicRowsHTML = latestCalculatedSession.subjects.map(sub => `
-                <tr>
-                    <td style="padding: 14px 12px; border-bottom: 1px solid #e2e8f0; font-size: 11pt; color: #2d3748;">${sub.name}</td>
-                    <td style="padding: 14px 12px; border-bottom: 1px solid #e2e8f0; font-size: 11pt; text-align: center; font-weight: 500;">${sub.ch}</td>
+                <tr style="background: #ffffff;">
+                    <td style="padding: 14px 12px; border-bottom: 1px solid #e2e8f0; font-size: 11pt; color: #2d3748; text-align: left;">${sub.name}</td>
+                    <td style="padding: 14px 12px; border-bottom: 1px solid #e2e8f0; font-size: 11pt; text-align: center; font-weight: 500; color: #2d3748;">${sub.ch}</td>
                     <td style="padding: 14px 12px; border-bottom: 1px solid #e2e8f0; font-size: 11pt; text-align: center; font-weight: 600; color: #10b981;">${sub.gp}</td>
                     <td style="padding: 14px 12px; border-bottom: 1px solid #e2e8f0; font-size: 11pt; text-align: center; font-weight: bold; color: #1a365d;">${sub.grade}</td>
                 </tr>
             `).join('');
 
-            // Off-screen safe rendering sandbox layout (Fixes Mobile Canvas White Page Glitch)
             const tempInvoiceWrapper = document.createElement('div');
-            tempInvoiceWrapper.style.position = 'fixed';
+            // Z-index aur position ko update kiya taake browser isko blank na smjhe aur DOM tree me parse kre safely
+            tempInvoiceWrapper.style.position = 'absolute';
+            tempInvoiceWrapper.style.left = '-9999px';
             tempInvoiceWrapper.style.top = '0';
-            tempInvoiceWrapper.style.left = '0';
             tempInvoiceWrapper.style.width = '210mm';
-            tempInvoiceWrapper.style.zIndex = '-10000';
-            tempInvoiceWrapper.style.opacity = '0.01';
+            tempInvoiceWrapper.style.background = '#ffffff';
 
             tempInvoiceWrapper.innerHTML = `
-                <div style="font-family: 'Helvetica Neue', Arial, sans-serif; color: #2d3748; background-color: #fff; width: 210mm; min-height: 297mm; padding: 20mm; box-sizing: border-box;">
-                    <div style="border: 2px solid #1a365d; padding: 40px; border-radius: 12px; min-height: 245mm; position: relative; box-sizing: border-box; background: #ffffff;">
+                <div style="font-family: 'Helvetica Neue', Arial, sans-serif; color: #2d3748; background-color: #ffffff; width: 210mm; min-height: 297mm; padding: 20mm; box-sizing: border-box; display: block;">
+                    <div style="border: 2px solid #1a365d; padding: 40px; border-radius: 12px; min-height: 245mm; position: relative; box-sizing: border-box; background: #ffffff; display: block;">
                         <div style="text-align: center; border-bottom: 4px double #1a365d; padding-bottom: 24px; margin-bottom: 35px;">
                             <h1 style="margin: 0; color: #1a365d; font-size: 26pt; font-weight: 800; text-transform: uppercase; letter-spacing: 1.5px;">Academic Performance Report</h1>
                             <p style="margin: 6px 0 0 0; color: #718096; font-size: 11pt; letter-spacing: 0.5px;">Verified Grade Point Average Summary Statement</p>
                         </div>
                         
-                        <table style="width: 100%; border-collapse: collapse; margin-bottom: 35px;">
-                            <tr>
-                                <td style="padding: 8px 0; font-size: 11pt; font-weight: 700; color: #4a5568; width: 18%;">Student Name:</td>
-                                <td style="padding: 8px 0; font-size: 11pt; color: #1a202c; width: 32%;">${latestCalculatedSession.name}</td>
-                                <td style="padding: 8px 0; font-size: 11pt; font-weight: 700; color: #4a5568; width: 18%;">Semester:</td>
-                                <td style="padding: 8px 0; font-size: 11pt; color: #1a202c; width: 32%;">${latestCalculatedSession.semesterDetails}</td>
+                        <table style="width: 100%; border-collapse: collapse; margin-bottom: 35px; background: #ffffff;">
+                            <tr style="background: #ffffff;">
+                                <td style="padding: 8px 0; font-size: 11pt; font-weight: 700; color: #4a5568; width: 18%; text-align: left;">Student Name:</td>
+                                <td style="padding: 8px 0; font-size: 11pt; color: #1a202c; width: 32%; text-align: left;">${latestCalculatedSession.name}</td>
+                                <td style="padding: 8px 0; font-size: 11pt; font-weight: 700; color: #4a5568; width: 18%; text-align: left;">Semester:</td>
+                                <td style="padding: 8px 0; font-size: 11pt; color: #1a202c; width: 32%; text-align: left;">${latestCalculatedSession.semesterDetails}</td>
                             </tr>
-                            <tr>
-                                <td style="padding: 8px 0; font-size: 11pt; font-weight: 700; color: #4a5568; width: 18%;">Department:</td>
-                                <td style="padding: 8px 0; font-size: 11pt; color: #1a202c; width: 32%;">${latestCalculatedSession.department}</td>
-                                <td style="padding: 8px 0; font-size: 11pt; font-weight: 700; color: #4a5568; width: 18%;">Date Issued:</td>
-                                <td style="padding: 8px 0; font-size: 11pt; color: #1a202c; width: 32%;">${new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</td>
+                            <tr style="background: #ffffff;">
+                                <td style="padding: 8px 0; font-size: 11pt; font-weight: 700; color: #4a5568; width: 18%; text-align: left;">Department:</td>
+                                <td style="padding: 8px 0; font-size: 11pt; color: #1a202c; width: 32%; text-align: left;">${latestCalculatedSession.department}</td>
+                                <td style="padding: 8px 0; font-size: 11pt; font-weight: 700; color: #4a5568; width: 18%; text-align: left;">Date Issued:</td>
+                                <td style="padding: 8px 0; font-size: 11pt; color: #1a202c; width: 32%; text-align: left;">${new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</td>
                             </tr>
                         </table>
 
-                        <table style="width: 100%; border-collapse: collapse; margin-top: 10px; margin-bottom: 45px;">
+                        <table style="width: 100%; border-collapse: collapse; margin-top: 10px; margin-bottom: 45px; background: #ffffff;">
                             <thead>
-                                <tr>
+                                <tr style="background-color: #1a365d;">
                                     <th style="background-color: #1a365d; color: white; padding: 14px 12px; font-size: 11pt; text-align: left; text-transform: uppercase; letter-spacing: 0.5px; width: 50%;">Course / Subject Description</th>
                                     <th style="background-color: #1a365d; color: white; padding: 14px 12px; font-size: 11pt; text-align: center; text-transform: uppercase; letter-spacing: 0.5px; width: 15%;">Credit Hours</th>
                                     <th style="background-color: #1a365d; color: white; padding: 14px 12px; font-size: 11pt; text-align: center; text-transform: uppercase; letter-spacing: 0.5px; width: 20%;">Grade Points</th>
@@ -923,14 +920,14 @@
                             </tbody>
                         </table>
 
-                        <div style="text-align: right; margin-top: 30px;">
+                        <div style="text-align: right; margin-top: 30px; background: #ffffff;">
                             <div style="display: inline-block; background-color: #1a365d; color: white; padding: 18px 40px; border-radius: 6px; font-size: 20pt; font-weight: 800; text-align: center;">
                                 <span style="font-size: 10pt; display: block; font-weight: 500; color: #cbd5e1; margin-bottom: 4px; letter-spacing: 1px;">FINAL SEMESTER CGPA</span>
                                 ${latestCalculatedSession.finalCGPA}
                             </div>
                         </div>
 
-                        <div style="position: absolute; bottom: 20px; left: 40px; right: 40px; text-align: center; font-size: 10pt; color: #a0aec0; border-top: 1px solid #e2e8f0; padding-top: 15px;">
+                        <div style="position: absolute; bottom: 20px; left: 40px; right: 40px; text-align: center; font-size: 10pt; color: #a0aec0; border-top: 1px solid #e2e8f0; padding-top: 15px; background: #ffffff;">
                             Generated Via: <a href="https://cgpacalculator.engineer" style="color: #3182ce; text-decoration: none; font-weight: 700;" target="_blank">cgpacalculator.engineer</a>
                         </div>
                     </div>
@@ -943,20 +940,23 @@
                 margin: 0,
                 filename: `${latestCalculatedSession.name.replace(/\s+/g, '_')}_Academic_Report.pdf`,
                 image: { type: 'jpeg', quality: 0.98 },
-                html2canvas: { scale: 2, useCORS: true, logging: false },
+                html2canvas: { scale: 2, useCORS: true, logging: false, backgroundColor: '#ffffff' },
                 jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
             };
 
-            try {
-                await pdfEngine().set(pdfOptions).from(tempInvoiceWrapper).save();
-            } catch (err) {
-                console.error("Local PDF Engine Exception:", err);
-                alert("Failed to render PDF report card locally.");
-            } finally {
-                document.body.removeChild(tempInvoiceWrapper);
-                downloadBtn.innerHTML = originalText;
-                downloadBtn.disabled = false;
-            }
+            // 300ms ka timeout lagaya taake DOM dynamic data ko read karke layout prepare karle phir download ho
+            setTimeout(async () => {
+                try {
+                    await pdfEngine().set(pdfOptions).from(tempInvoiceWrapper).save();
+                } catch (err) {
+                    console.error("Local PDF Engine Exception:", err);
+                    alert("Failed to render PDF report card locally.");
+                } finally {
+                    document.body.removeChild(tempInvoiceWrapper);
+                    downloadBtn.innerHTML = originalText;
+                    downloadBtn.disabled = false;
+                }
+            }, 300);
         }
 
         function displayOverlayResult(cgpa, name) {
