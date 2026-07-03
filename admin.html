@@ -157,7 +157,7 @@
             background: rgba(255, 255, 255, 0.01); border: 1px solid rgba(255, 255, 255, 0.03);
             padding: 10px 12px; border-radius: 10px;
         }
-        .timestamp-item { font-size: 0.8 /rem; color: #cbd5e1; display: flex; align-items: center; gap: 6px; font-size: 0.8rem; }
+        .timestamp-item { font-size: 0.8rem; color: #cbd5e1; display: flex; align-items: center; gap: 6px; }
         .page-badge {
             background: rgba(168, 85, 247, 0.15); color: #c084fc; padding: 2px 8px;
             border-radius: 6px; font-size: 0.7rem; font-weight: 600; border: 1px solid rgba(168, 85, 247, 0.2);
@@ -170,9 +170,8 @@
             background: rgba(239, 68, 68, 0.03); border: 1px solid rgba(239, 68, 68, 0.12);
             padding: 10px 12px; border-radius: 10px;
         }
-        .user-meta-left { display: flex; flex-direction: column; gap: 2px; text-align: left; }
+        .user-meta-left { display: flex; align-items: center; gap: 8px; text-align: left; }
         .user-name-lbl { color: #fff; font-weight: 600; font-size: 0.85rem; }
-        .user-time-lbl { color: var(--text-muted); font-size: 0.7rem; }
         .user-page-status-badge {
             background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.2);
             padding: 3px 8px; border-radius: 6px; font-size: 0.7rem; font-weight: 600;
@@ -465,7 +464,7 @@
             });
         });
 
-        // 🟢 FIXED PERFECT MULTI-USER REALTIME TRAFFIC MONITOR
+        // 🟢 FIXED REALTIME TRAFFIC MONITOR (SHOWING ONLY USER : PAGE STATUS)
         const liveTrafficRef = ref(db, 'live_traffic_now');
         onValue(liveTrafficRef, (snapshot) => {
             const data = snapshot.val();
@@ -481,8 +480,7 @@
                     uRow.className = 'active-user-row';
                     uRow.innerHTML = `
                         <div class="user-meta-left">
-                            <span class="user-name-lbl">👤 ${user.name || 'Anonymous Student'}</span>
-                            <span class="user-time-lbl">Active: ${user.timestamp || 'N/A'}</span>
+                            <span class="user-name-lbl">👤 ${user.name || 'Anonymous Student'} :</span>
                         </div>
                         <div class="user-page-status-badge">${user.page || 'HOME PAGE'}</div>
                     `;
