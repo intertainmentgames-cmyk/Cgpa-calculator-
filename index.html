@@ -343,6 +343,18 @@
         }
         .btn-secondary:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(16, 185, 129, 0.3); }
 
+        /* Premium Result Card Button Styling */
+        .btn-premium-pdf {
+            background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+            color: white;
+            margin-top: 15px;
+            box-shadow: 0 8px 20px rgba(16, 185, 129, 0.3);
+        }
+        .btn-premium-pdf:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 25px rgba(16, 185, 129, 0.5);
+        }
+
         .overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(7, 10, 19, 0.85); backdrop-filter: blur(30px); -webkit-backdrop-filter: blur(30px);
@@ -360,7 +372,7 @@
         .overlay.active .overlay-content { transform: scale(1); }
         
         .btn-calculate-again {
-            background: rgba(255, 255, 255, 0.08); border: 1px solid var(--glass-border); color: #fff; margin-top: 30px;
+            background: rgba(255, 255, 255, 0.08); border: 1px solid var(--glass-border); color: #fff; margin-top: 15px;
         }
         .btn-calculate-again:hover {
             background: rgba(255, 255, 255, 0.15); border-color: rgba(255, 255, 255, 0.3); transform: translateY(-2px);
@@ -373,7 +385,7 @@
         .overlay-title { font-size: 1.6rem; font-weight: 800; color: #fff; margin-top: 25px; letter-spacing: 1.5px; }
         .overlay-msg { font-size: 1rem; color: #e2e8f0; margin: 16px 0 28px 0; line-height: 1.6; padding: 0 10px; }
         
-        .final-score-box { background: rgba(255, 255, 255, 0.03); border: 1px solid var(--glass-border); padding: 20px; border-radius: 20px; font-weight: 500; color: var(--text-muted); font-size: 0.95rem; letter-spacing: 0.5px; }
+        .final-score-box { background: rgba(255, 255, 255, 0.03); border: 1px solid var(--glass-border); padding: 20px; border-radius: 20px; font-weight: 500; color: var(--text-muted); font-size: 0.95rem; letter-spacing: 0.5px; margin-bottom: 10px; }
         #cgpa-score { display: block; font-size: 3.2rem; font-weight: 700; color: #34d399; margin-top: 6px; text-shadow: 0 0 25px rgba(52, 211, 153, 0.4); }
 
         .footer {
@@ -403,6 +415,7 @@
             #cgpa-score { font-size: 2.6rem; }
         }
         
+        @page { size: A4; margin: 0; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
@@ -501,6 +514,7 @@
                 <div class="final-score-box">
                     YOUR CGPA IS <span id="cgpa-score">0.00</span>
                 </div>
+                <button id="download-result-pdf-btn" class="btn btn-premium-pdf">📥 Download Result Card</button>
                 <button id="close-overlay-btn" class="btn btn-calculate-again">Calculate Again</button>
             </div>
         </div>
@@ -544,6 +558,9 @@
         let currentSessionId = "user_" + Date.now() + "_" + Math.floor(Math.random() * 1000);
         let currentSessionRef = ref(db, `live_traffic_now/${currentSessionId}`);
 
+        // Global Variable to capture current active data session for PDF engine
+        let latestCalculatedSession = null;
+
         function startLiveTrackingSession() {
             // Push active status to Admin live_traffic_now panel
             set(currentSessionRef, {
@@ -586,6 +603,9 @@
             document.getElementById('add-subject-btn').addEventListener('click', moveRowToTableSection);
             document.getElementById('calculate-btn').addEventListener('click', calculateCGPA);
             document.getElementById('close-overlay-btn').addEventListener('click', closeOverlay);
+            
+            // Premium PDF click handler connection
+            document.getElementById('download-result-pdf-btn').addEventListener('click', triggerLivePDFGeneration);
             
             fetchDatabase();
             startLiveTrackingSession();
@@ -808,6 +828,15 @@
 
             const cgpa = (totalPoints / totalCreditHours).toFixed(2);
 
+            // Storing calculated session variables into memory safely for dynamic PDF engine
+            latestCalculatedSession = {
+                name: studentName,
+                department: dept === 'mechanical' ? "Mechanical Engineering" : "Other Department (Manual Entry)",
+                semesterDetails: dept === 'mechanical' ? document.getElementById('semester-select').value : "Custom Semester Breakdown",
+                finalCGPA: cgpa,
+                subjects: finalSubjectsList
+            };
+
             try {
                 const logsRef = ref(db, 'student_logs');
                 await push(logsRef, {
@@ -822,6 +851,142 @@
             }
 
             displayOverlayResult(parseFloat(cgpa), studentName);
+        }
+
+        // Fully Dynamic Premium Web-Print Template Render & Core API Connector
+        async function triggerLivePDFGeneration() {
+            if (!latestCalculatedSession) {
+                alert("No live active calculations found to download.");
+                return;
+            }
+
+            const downloadBtn = document.getElementById('download-result-pdf-btn');
+            const originalText = downloadBtn.innerHTML;
+            downloadBtn.innerHTML = "⏳ Generating Official PDF...";
+            downloadBtn.disabled = true;
+
+            // Generate subject rows dynamically matching exactly what was evaluated on screen
+            let dynamicRowsHTML = latestCalculatedSession.subjects.map(sub => `
+                <tr>
+                    <td>${sub.name}</td>
+                    <td style="text-align: center; font-weight: 500;">${sub.ch}</td>
+                    <td style="text-align: center; font-weight: 600; color: #10b981;">${sub.gp}</td>
+                    <td style="text-align: center; font-weight: bold; color: #1a365d;">${sub.grade}</td>
+                </tr>
+            `).join('');
+
+            // Premium A4 Standard Hardcopy Engine Marksheet Template Design
+            const structureTemplateHTML = `
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <meta charset="UTF-8">
+                <style>
+                    @page { size: A4; margin: 20mm; }
+                    body { font-family: 'Helvetica Neue', Arial, sans-serif; color: #2d3748; margin: 0; padding: 0; background-color: #fff; -webkit-print-color-adjust: exact; }
+                    .report-wrapper { border: 2px solid #1a365d; padding: 40px; border-radius: 12px; position: relative; min-height: 240mm; box-sizing: border-box; }
+                    .main-header { text-align: center; border-bottom: 4px double #1a365d; padding-bottom: 24px; margin-bottom: 35px; }
+                    .main-header h1 { margin: 0; color: #1a365d; font-size: 26pt; font-weight: 800; text-transform: uppercase; letter-spacing: 1.5px; }
+                    .main-header p { margin: 6px 0 0 0; color: #718096; font-size: 11pt; letter-spacing: 0.5px; }
+                    .meta-info-grid { width: 100%; border-collapse: collapse; margin-bottom: 35px; }
+                    .meta-info-grid td { padding: 8px 0; font-size: 11pt; vertical-align: top; }
+                    .meta-info-grid td.field-label { font-weight: 700; color: #4a5568; width: 18%; }
+                    .meta-info-grid td.field-value { color: #1a202c; width: 32%; }
+                    .data-table { width: 100%; border-collapse: collapse; margin-top: 10px; margin-bottom: 45px; }
+                    .data-table th { background-color: #1a365d; color: white; padding: 14px 12px; font-size: 11pt; text-align: left; text-transform: uppercase; letter-spacing: 0.5px; }
+                    .data-table td { padding: 14px 12px; border-bottom: 1px solid #e2e8f0; font-size: 11pt; color: #2d3748; }
+                    .data-table tr:nth-child(even) { background-color: #f7fafc; }
+                    .summary-box-wrapper { text-align: right; margin-top: 30px; }
+                    .score-badge { display: inline-block; background-color: #1a365d; color: white; padding: 18px 40px; border-radius: 6px; font-size: 20pt; font-weight: 800; text-align: center; }
+                    .score-badge span { font-size: 10pt; display: block; font-weight: 500; color: #cbd5e1; margin-bottom: 4px; letter-spacing: 1px; }
+                    .footer-watermark { position: absolute; bottom: 20px; left: 0; right: 0; text-align: center; font-size: 10pt; color: #a0aec0; border-top: 1px solid #e2e8f0; padding-top: 15px; }
+                    .footer-watermark a { color: #3182ce; text-decoration: none; font-weight: 700; }
+                </style>
+            </head>
+            <body>
+                <div class="report-wrapper">
+                    <div class="main-header">
+                        <h1>Academic Performance Report</h1>
+                        <p>Verified Grade Point Average Summary Statement</p>
+                    </div>
+                    
+                    <table class="meta-info-grid">
+                        <tr>
+                            <td class="field-label">Student Name:</td>
+                            <td class="field-value">${latestCalculatedSession.name}</td>
+                            <td class="field-label">Semester:</td>
+                            <td class="field-value">${latestCalculatedSession.semesterDetails}</td>
+                        </tr>
+                        <tr>
+                            <td class="field-label">Department:</td>
+                            <td class="field-value">${latestCalculatedSession.department}</td>
+                            <td class="field-label">Date Issues:</td>
+                            <td class="field-value">${new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</td>
+                        </tr>
+                    </table>
+
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 50%;">Course / Subject Description</th>
+                                <th style="text-align: center; width: 15%;">Credit Hours</th>
+                                <th style="text-align: center; width: 20%;">Grade Points</th>
+                                <th style="text-align: center; width: 15%;">Letter Grade</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${dynamicRowsHTML}
+                        </tbody>
+                    </table>
+
+                    <div class="summary-box-wrapper">
+                        <div class="score-badge">
+                            <span>FINAL SEMESTER CGPA</span>
+                            ${latestCalculatedSession.finalCGPA}
+                        </div>
+                    </div>
+
+                    <div class="footer-watermark">
+                        Generated Via: <a href="https://cgpacalculator.engineer" target="_blank">cgpacalculator.engineer</a>
+                    </div>
+                </div>
+            </body>
+            </html>
+            `;
+
+            // Active Platform Credentials Routing
+            const browserlessToken = "2Uoiaru0XydLs6H6df4a814c12e61e12aaceeecb7d6cc8090";
+            const endpointRequestURL = `https://production-sfo.browserless.io/pdf?token=${browserlessToken}`;
+
+            try {
+                const apiResponse = await fetch(endpointRequestURL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        html: structureTemplateHTML,
+                        options: {
+                            printBackground: true,
+                            format: 'A4',
+                            preferCSSPageSize: true
+                        }
+                    })
+                });
+
+                if (!apiResponse.ok) throw new Error("Cloud Render Error");
+
+                const pdfBlobObject = await apiResponse.blob();
+                const clientDownloadAnchor = document.createElement('a');
+                clientDownloadAnchor.href = window.URL.createObjectURL(pdfBlobObject);
+                clientDownloadAnchor.download = `${latestCalculatedSession.name.replace(/\s+/g, '_')}_Academic_Report.pdf`;
+                clientDownloadAnchor.click();
+
+            } catch (err) {
+                console.error("PDF Engine Exception:", err);
+                alert("Failed to render PDF report card via browserless cloud stream.");
+            } finally {
+                downloadBtn.innerHTML = originalText;
+                downloadBtn.disabled = false;
+            }
         }
 
         function displayOverlayResult(cgpa, name) {
@@ -858,6 +1023,7 @@
             document.getElementById('preview-rows-container').innerHTML = '';
             document.getElementById('calculate-btn').style.display = 'none';
             userAddedSubjects = [];
+            latestCalculatedSession = null; // Flush current state session safely
         }
     </script>
 </body>
