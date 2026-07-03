@@ -13,7 +13,7 @@
             --success: #10b981;
             --danger: #ef4444;
             --warning: #fbbf24;
-            --glass-bg: rgba(255, 255, 255, 0.04);
+            --glass-bg: rgba(15, 23, 42, 0.4);
             --glass-border: rgba(255, 255, 255, 0.08);
             --text-main: #f8fafc;
             --text-muted: #94a3b8;
@@ -29,12 +29,11 @@
             overflow-x: hidden;
         }
 
-        /* Navbar Layout */
         .navbar {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 15px 30px;
+            padding: 12px 20px;
             background: rgba(11, 15, 25, 0.7);
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
@@ -48,29 +47,28 @@
             background: none;
             border: none;
             color: var(--text-main);
-            font-size: 1.5rem;
+            font-size: 1.3rem;
             cursor: pointer;
-            padding: 5px 10px;
-            border-radius: 8px;
+            padding: 4px 8px;
+            border-radius: 6px;
             transition: 0.3s;
         }
         .menu-dots-btn:hover { background: rgba(255, 255, 255, 0.1); }
-
-        .logo-title { font-size: 1.2rem; font-weight: 700; letter-spacing: 0.5px; }
+        .logo-title { font-size: 1.1rem; font-weight: 700; letter-spacing: 0.5px; }
         .highlight { color: #fbbf24; }
 
-        /* Left Side Drawer Sidebar Panel */
+        /* Left Sidebar drawer layout */
         .sidebar {
             position: fixed;
             top: 0;
-            left: -320px;
-            width: 320px;
+            left: -280px;
+            width: 280px;
             height: 100%;
             background: #0f172a;
             border-right: 1px solid var(--glass-border);
             z-index: 999;
             transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            padding: 30px 20px;
+            padding: 24px 16px;
             box-shadow: 10px 0 30px rgba(0,0,0,0.5);
             overflow-y: auto;
         }
@@ -93,162 +91,115 @@
             background: none;
             border: none;
             color: var(--text-muted);
-            font-size: 1.2rem;
+            font-size: 1.1rem;
             float: right;
             cursor: pointer;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
         }
 
         .sidebar-nav-item {
             display: flex;
             align-items: center;
-            gap: 12px;
-            padding: 14px 16px;
+            gap: 10px;
+            padding: 10px 14px;
             color: var(--text-muted);
             text-decoration: none;
-            border-radius: 12px;
-            margin-bottom: 8px;
+            border-radius: 10px;
+            margin-bottom: 6px;
             font-weight: 500;
             cursor: pointer;
             transition: 0.2s;
+            font-size: 0.9rem;
         }
         .sidebar-nav-item:hover, .sidebar-nav-item.active {
             background: var(--primary);
             color: white;
         }
 
-        /* App Sections Views */
         .app-section { display: none; }
         .app-section.active-view { display: block; }
 
-        .container { max-width: 650px; margin: 30px auto; padding: 0 20px; display: flex; flex-direction: column; gap: 20px; }
+        .container { max-width: 550px; margin: 20px auto; padding: 0 16px; display: flex; flex-direction: column; gap: 14px; }
 
         .card-panel {
-            background: rgba(17, 24, 39, 0.6);
+            background: var(--glass-bg);
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
             border: 1px solid var(--glass-border);
-            border-radius: 20px;
-            padding: 30px;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.3);
-            margin-bottom: 5px;
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
         }
 
-        /* PREMIUM REALTIME LIVE TRAFFIC STYLING MAP */
         .card-live { border-left: 4px solid #ef4444; }
         .card-traffic { border-left: 4px solid #a855f7; }
 
-        .card-header-flex {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 12px;
-        }
-
-        .card-title-lbl {
-            font-size: 0.85rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            font-weight: 600;
-            color: var(--text-muted);
-        }
+        .card-header-flex { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+        .card-title-lbl { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; color: var(--text-muted); }
 
         .status-dot {
-            width: 10px;
-            height: 10px;
-            background-color: #ef4444;
-            border-radius: 50%;
-            box-shadow: 0 0 10px #ef4444;
-            animation: pulse 1.5s infinite;
+            width: 8px; height: 8px; background-color: #ef4444; border-radius: 50%;
+            box-shadow: 0 0 8px #ef4444; animation: pulse 1.5s infinite;
         }
 
-        .big-stat {
-            font-size: 3.2rem;
-            font-weight: 700;
-            line-height: 1;
-            margin-bottom: 15px;
-        }
-        .text-live-neon { color: #ef4444; text-shadow: 0 0 20px rgba(239, 68, 68, 0.3); }
-        .text-traffic-neon { color: #c084fc; text-shadow: 0 0 20px rgba(192, 132, 252, 0.3); }
+        .big-stat { font-size: 2.3rem; font-weight: 700; line-height: 1; margin-bottom: 8px; }
+        .text-live-neon { color: #ef4444; text-shadow: 0 0 15px rgba(239, 68, 68, 0.3); }
+        .text-traffic-neon { color: #c084fc; text-shadow: 0 0 15px rgba(192, 132, 252, 0.3); }
 
-        .card-footer-text {
-            font-size: 0.85rem;
-            color: var(--text-muted);
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
+        .card-footer-text { font-size: 0.8rem; color: var(--text-muted); display: flex; align-items: center; gap: 4px; }
 
-        .trend-list {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            max-height: 250px;
-            overflow-y: auto;
-            padding-right: 5px;
-        }
-        .trend-list::-webkit-scrollbar { width: 4px; }
-        .trend-list::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
+        .trend-list { display: flex; flex-direction: column; gap: 8px; max-height: 200px; overflow-y: auto; padding-right: 4px; }
+        .trend-list::-webkit-scrollbar { width: 3px; }
+        .trend-list::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 4px; }
 
         .trend-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: rgba(255, 255, 255, 0.02);
-            border: 1px solid rgba(255, 255, 255, 0.04);
-            padding: 12px 16px;
-            border-radius: 14px;
+            display: flex; justify-content: space-between; align-items: center;
+            background: rgba(255, 255, 255, 0.01); border: 1px solid rgba(255, 255, 255, 0.03);
+            padding: 10px 12px; border-radius: 10px;
         }
-
-        .timestamp-item {
-            font-size: 0.85rem;
-            color: #cbd5e1;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
+        .timestamp-item { font-size: 0.8 /rem; color: #cbd5e1; display: flex; align-items: center; gap: 6px; font-size: 0.8rem; }
         .page-badge {
-            background: rgba(168, 85, 247, 0.15);
-            color: #c084fc;
-            padding: 4px 10px;
-            border-radius: 8px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            letter-spacing: 0.5px;
-            border: 1px solid rgba(168, 85, 247, 0.2);
+            background: rgba(168, 85, 247, 0.15); color: #c084fc; padding: 2px 8px;
+            border-radius: 6px; font-size: 0.7rem; font-weight: 600; border: 1px solid rgba(168, 85, 247, 0.2);
         }
 
-        .browsing-status-container {
-            text-align: center;
-            padding: 20px 10px 5px 10px;
-            font-size: 0.95rem;
-            color: var(--text-muted);
+        .browsing-status-container { display: flex; flex-direction: column; gap: 8px; max-height: 220px; overflow-y: auto; font-size: 0.85rem; padding-top: 5px; }
+        
+        .active-user-row {
+            display: flex; justify-content: space-between; align-items: center;
+            background: rgba(239, 68, 68, 0.03); border: 1px solid rgba(239, 68, 68, 0.12);
+            padding: 10px 12px; border-radius: 10px;
+        }
+        .user-meta-left { display: flex; flex-direction: column; gap: 2px; text-align: left; }
+        .user-name-lbl { color: #fff; font-weight: 600; font-size: 0.85rem; }
+        .user-time-lbl { color: var(--text-muted); font-size: 0.7rem; }
+        .user-page-status-badge {
+            background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.2);
+            padding: 3px 8px; border-radius: 6px; font-size: 0.7rem; font-weight: 600;
         }
 
         @keyframes pulse {
             0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.5); }
-            70% { transform: scale(1); box-shadow: 0 0 0 8px rgba(239, 68, 68, 0); }
+            70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(239, 68, 68, 0); }
             100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
         }
 
-        /* Core Structure layout specs */
-        .section-title { margin-bottom: 25px; font-weight: 700; font-size: 1.4rem; display: flex; align-items: center; gap: 10px; }
-        .live-users-header-wrapper { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; gap: 15px; flex-wrap: wrap; }
+        .section-title { margin-bottom: 15px; font-weight: 700; font-size: 1.1rem; display: flex; align-items: center; gap: 8px; }
+        .live-users-header-wrapper { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; gap: 10px; }
         .live-users-header-wrapper .section-title { margin-bottom: 0; }
         
-        .form-group { margin-bottom: 20px; }
-        .form-group label { display: block; margin-bottom: 8px; font-weight: 500; color: var(--text-muted); font-size: 0.85rem; }
+        .form-group { margin-bottom: 14px; }
+        .form-group label { display: block; margin-bottom: 6px; font-weight: 500; color: var(--text-muted); font-size: 0.8rem; }
 
         input {
-            width: 100%; padding: 12px 16px; background: rgba(5, 5, 10, 0.4); border: 1px solid var(--glass-border);
-            border-radius: 12px; outline: none; font-size: 0.95rem; color: #fff; transition: 0.2s;
+            width: 100%; padding: 10px 14px; background: rgba(5, 5, 10, 0.4); border: 1px solid var(--glass-border);
+            border-radius: 10px; outline: none; font-size: 0.88rem; color: #fff; transition: 0.2s;
         }
-        input:focus { border-color: var(--primary); box-shadow: 0 0 10px rgba(99, 102, 241, 0.2); }
+        input:focus { border-color: var(--primary); box-shadow: 0 0 8px rgba(99, 102, 241, 0.2); }
 
         .btn {
-            width: 100%; padding: 14px; border: none; border-radius: 12px;
-            font-size: 1rem; font-weight: 600; cursor: pointer; transition: 0.2s;
+            width: 100%; padding: 11px; border: none; border-radius: 10px;
+            font-size: 0.9rem; font-weight: 600; cursor: pointer; transition: 0.2s;
         }
         .btn-success { background: var(--success); color: white; }
         .btn-success:hover { background: #059669; }
@@ -257,87 +208,66 @@
         
         .btn-danger-action {
             background: rgba(239, 68, 68, 0.15); color: #fca5a5; border: 1px solid rgba(239, 68, 68, 0.4);
-            padding: 10px 18px; border-radius: 12px; cursor: pointer; font-size: 0.9rem; font-weight: 600;
-            display: flex; align-items: center; gap: 8px; transition: 0.2s; width: auto;
+            padding: 8px 14px; border-radius: 10px; cursor: pointer; font-size: 0.8rem; font-weight: 600;
+            display: flex; align-items: center; gap: 6px; transition: 0.2s; width: auto;
         }
-        .btn-danger-action:hover { background: var(--danger); color: #fff; border-color: var(--danger); box-shadow: 0 0 15px rgba(239, 64, 64, 0.3); }
+        .btn-danger-action:hover { background: var(--danger); color: #fff; border-color: var(--danger); }
 
-        .sem-block { background: rgba(255,255,255,0.02); padding: 18px; border-radius: 14px; margin-bottom: 15px; border: 1px solid var(--glass-border); }
-        .sub-item-row { display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.03); padding: 12px 16px; margin-top: 8px; border-radius: 10px; font-size: 0.9rem; position: relative; }
-        
-        .action-btns { display: flex; gap: 12px; align-items: center; }
+        .sem-block { background: rgba(255,255,255,0.01); padding: 14px; border-radius: 12px; margin-bottom: 10px; border: 1px solid var(--glass-border); }
+        .sub-item-row { display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.02); padding: 10px 14px; margin-top: 6px; border-radius: 8px; font-size: 0.82rem; }
 
-        /* Action Dropdown Menu */
         .actions-dropdown { position: relative; display: inline-block; }
-        .dropdown-trigger {
-            background: none; border: none; color: var(--text-muted);
-            cursor: pointer; padding: 5px 10px; font-size: 1.1rem; transition: 0.2s;
-        }
-        .dropdown-trigger:hover { color: #fff; }
+        .dropdown-trigger { background: none; border: none; color: var(--text-muted); cursor: pointer; padding: 4px 6px; font-size: 1rem; }
         
         .dropdown-menu {
-            display: none; position: absolute; right: 0; top: 30px;
+            display: none; position: absolute; right: 0; top: 25px;
             background: #1e293b; border: 1px solid var(--glass-border);
-            border-radius: 8px; min-width: 140px;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.3); z-index: 110;
+            border-radius: 6px; min-width: 120px; box-shadow: 0 5px 15px rgba(0,0,0,0.3); z-index: 110;
         }
         .dropdown-menu.show { display: block; }
-        .dropdown-item {
-            padding: 10px 14px; color: var(--text-main); font-size: 0.85rem;
-            cursor: pointer; display: flex; align-items: center; gap: 8px; transition: 0.2s;
-        }
-        .dropdown-item:hover { background: rgba(255,255,255,0.05); }
+        .dropdown-item { padding: 8px 12px; color: var(--text-main); font-size: 0.8rem; cursor: pointer; display: flex; align-items: center; gap: 6px; }
+        .dropdown-item:hover { background: rgba(255, 255, 255, 0.05); }
         .dropdown-item.del-btn { color: var(--danger); }
 
-        /* Student Logs Cards */
-        .logs-wrapper { display: flex; flex-direction: column; gap: 14px; }
+        .logs-wrapper { display: flex; flex-direction: column; gap: 10px; }
         .log-box-card { 
-            position: relative; border-left: 4px solid var(--success); 
-            background: rgba(255, 255, 255, 0.02); border-top: 1px solid var(--glass-border);
+            position: relative; border-left: 3px solid var(--success); 
+            background: rgba(255, 255, 255, 0.01); border-top: 1px solid var(--glass-border);
             border-bottom: 1px solid var(--glass-border); border-right: 1px solid var(--glass-border);
-            padding: 18px; border-radius: 0 16px 16px 0; cursor: pointer;
-            transition: transform 0.2s, background 0.2s;
+            padding: 12px; border-radius: 0 12px 12px 0; cursor: pointer; transition: 0.2s;
         }
-        .log-box-card:hover { transform: translateY(-2px); background: rgba(255, 255, 255, 0.04); }
-        .score-lbl-badge { color: var(--success); font-weight: 700; font-size: 1.1rem; }
+        .log-box-card:hover { background: rgba(255, 255, 255, 0.03); }
+        .score-lbl-badge { color: var(--success); font-weight: 700; font-size: 0.95rem; }
         
-        .card-actions-wrapper { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; }
+        .card-actions-wrapper { display: flex; justify-content: space-between; align-items: center; margin-top: 8px; }
         .delete-log-btn {
             background: rgba(239, 68, 68, 0.1); color: var(--danger); border: none;
-            padding: 8px 14px; border-radius: 8px; cursor: pointer;
-            font-size: 0.85rem; font-weight: 600; transition: 0.2s;
-            display: flex; align-items: center; gap: 6px; z-index: 5;
+            padding: 5px 10px; border-radius: 6px; cursor: pointer;
+            font-size: 0.78rem; font-weight: 600; display: flex; align-items: center; gap: 4px;
         }
         .delete-log-btn:hover { background: var(--danger); color: #fff; }
 
-        /* Modals Structures */
         .custom-modal {
             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
             background: rgba(3, 7, 18, 0.85); backdrop-filter: blur(8px);
-            z-index: 1000; display: none; align-items: center; justify-content: center; padding: 20px;
+            z-index: 1000; display: none; align-items: center; justify-content: center; padding: 16px;
         }
         .custom-modal.modal-open { display: flex; }
         .modal-body-content {
             background: #0f172a; border: 1px solid var(--glass-border);
-            max-width: 650px; width: 100%; border-radius: 20px; padding: 25px;
-            position: relative; box-shadow: 0 25px 50px rgba(0,0,0,0.6);
-            animation: modalFadeIn 0.3s ease;
+            max-width: 500px; width: 100%; border-radius: 16px; padding: 20px;
+            position: relative; box-shadow: 0 20px 40px rgba(0,0,0,0.6);
         }
-        @keyframes modalFadeIn { from {transform: translateY(15px); opacity: 0;} to {transform: translateY(0); opacity: 1;} }
         
-        .close-modal {
-            position: absolute; top: 20px; right: 20px;
-            background: none; border: none; color: var(--text-muted);
-            font-size: 1.3rem; cursor: pointer;
-        }
-
-        .data-table-specs { width: 100%; border-collapse: collapse; margin-top: 20px; text-align: left; font-size: 0.9rem; }
-        .data-table-specs th, .data-table-specs td { padding: 12px; border-bottom: 1px solid var(--glass-border); }
+        .close-modal { position: absolute; top: 15px; right: 15px; background: none; border: none; color: var(--text-muted); font-size: 1.1rem; cursor: pointer; }
+        .data-table-specs { width: 100%; border-collapse: collapse; margin-top: 15px; text-align: left; font-size: 0.82rem; }
+        .data-table-specs th, .data-table-specs td { padding: 10px; border-bottom: 1px solid var(--glass-border); }
         .data-table-specs th { color: var(--text-muted); font-weight: 600; }
+        
         .summary-gpa-footer {
-            margin-top: 20px; padding: 15px; border-radius: 12px;
+            margin-top: 15px; padding: 10px 14px; border-radius: 10px;
             background: rgba(99, 102, 241, 0.1); border: 1px solid rgba(99, 102, 241, 0.2);
-            display: flex; justify-content: space-between; font-weight: 600;
+            display: flex; justify-content: space-between; font-weight: 600; font-size: 0.85rem;
         }
     </style>
 </head>
@@ -346,13 +276,13 @@
     <nav class="navbar">
         <button class="menu-dots-btn" id="menu-toggle"><i class="fa-solid fa-bars"></i></button>
         <div class="logo-title">⚙️ Admin <span class="highlight">Control</span></div>
-        <a href="index.html" style="color: white; text-decoration: none; font-size: 0.85rem; font-weight:600; background: rgba(255,255,255,0.06); padding: 8px 14px; border-radius: 10px; border: 1px solid var(--glass-border);">← Website</a>
+        <a href="index.html" style="color: white; text-decoration: none; font-size: 0.8rem; font-weight:600; background: rgba(255,255,255,0.06); padding: 6px 12px; border-radius: 8px; border: 1px solid var(--glass-border);">← Website</a>
     </nav>
 
     <div class="sidebar-overlay" id="sidebar-overlay"></div>
     <div class="sidebar" id="sidebar-drawer">
         <button class="close-sidebar-btn" id="sidebar-close"><i class="fa-solid fa-xmark"></i></button>
-        <h3 style="margin-bottom: 25px; font-weight:700; color: white;">Navigation</h3>
+        <h3 style="margin-bottom: 20px; font-weight:700; color: white; font-size: 1.1rem;">Navigation</h3>
         
         <div class="sidebar-nav-item active" data-target="live-traffic-dashboard-section">
             <i class="fa-solid fa-tower-broadcast"></i> Live Traffic System
@@ -374,7 +304,7 @@
                     <div class="status-dot"></div>
                 </div>
                 <div class="big-stat text-live-neon" id="live-users-count">0</div>
-                <div class="card-footer-text">👥 Browsing website in real-time</div>
+                <div class="card-footer-text">👥 Active students interacting right now</div>
             </div>
 
             <div class="card-panel card-traffic">
@@ -382,25 +312,25 @@
                     <div class="card-title-lbl">Total Page Traffic</div>
                 </div>
                 <div class="big-stat text-traffic-neon" id="total-traffic-count">0</div>
-                <div class="card-footer-text">📈 Page view counters tracked</div>
+                <div class="card-footer-text">📈 Accumulated page views tracked</div>
             </div>
 
             <div class="card-panel">
-                <h3 class="section-title" style="font-size: 0.95rem; color: var(--text-muted); text-transform: uppercase; margin-bottom: 15px;"><i class="fa-solid fa-clock-rotate-left"></i> Traffic History Trend</h3>
+                <h3 class="section-title" style="font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase; margin-bottom: 10px;"><i class="fa-solid fa-clock-rotate-left"></i> Traffic History Trend</h3>
                 <div class="trend-list" id="history-trend-list"></div>
             </div>
 
             <div class="card-panel">
-                <h3 class="section-title" style="font-size: 0.95rem; color: var(--text-muted); text-transform: uppercase; margin-bottom: 15px;"><i class="fa-solid fa-circle-dot" style="color: #ef4444;"></i> Who is Browsing Now?</h3>
+                <h3 class="section-title" style="font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase; margin-bottom: 10px;"><i class="fa-solid fa-circle-dot" style="color: #ef4444;"></i> Who is Browsing Now?</h3>
                 <div class="browsing-status-container" id="browsing-now-status">
-                    Zero user online right now.
+                    <div style="color:var(--text-muted); text-align:center;">Zero user online right now.</div>
                 </div>
             </div>
         </div>
         
         <div id="subject-section" class="app-section">
             <div class="card-panel">
-                <h2 class="section-title"><i class="fa-solid fa-folder-plus" style="color: var(--primary);"></i> Manage Subjects Structure</h2>
+                <h2 class="section-title"><i class="fa-solid fa-folder-plus" style="color: var(--primary);"></i> Manage Subjects</h2>
                 <div class="form-group">
                     <label>Semester Name</label>
                     <input type="text" id="admin-sem" placeholder="e.g., 1st semester">
@@ -417,7 +347,7 @@
             </div>
             
             <div class="card-panel">
-                <h3 style="margin-bottom:20px; color: var(--text-main); font-weight: 600;">Active Configurations</h3>
+                <h3 style="margin-bottom:15px; color: var(--text-main); font-weight: 600; font-size: 0.95rem;">Active Configurations</h3>
                 <div id="admin-list-container">Loading configurations...</div>
             </div>
         </div>
@@ -425,12 +355,12 @@
         <div id="live-users-section" class="app-section">
             <div class="card-panel">
                 <div class="live-users-header-wrapper">
-                    <h2 class="section-title" style="color: var(--success);"><i class="fa-solid fa-chart-line"></i> Live User Calculations</h2>
-                    <button class="btn-danger-action" id="delete-all-logs-btn"><i class="fa-solid fa-dumpster-fire"></i> Delete All Logs</button>
+                    <h2 class="section-title" style="color: var(--success);"><i class="fa-solid fa-chart-line"></i> Live Calculations</h2>
+                    <button class="btn-danger-action" id="delete-all-logs-btn"><i class="fa-solid fa-dumpster-fire"></i> Delete All</button>
                 </div>
-                <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 20px;">Click/Tap any user card to inspect full transcript records dashboard.</p>
+                <p style="color: var(--text-muted); font-size: 0.78rem; margin-bottom: 15px;">Click/Tap user card to inspect records.</p>
                 <div id="logs-container" class="logs-wrapper">
-                    Syncing cloud packets data logs...
+                    Syncing cloud records data logs...
                 </div>
             </div>
         </div>
@@ -438,9 +368,9 @@
     </div>
 
     <div class="custom-modal" id="edit-subject-modal">
-        <div class="modal-body-content" style="max-width: 450px;">
+        <div class="modal-body-content" style="max-width: 400px;">
             <button class="close-modal" id="edit-modal-close-btn"><i class="fa-solid fa-circle-xmark"></i></button>
-            <h3 style="color: #fff; font-weight: 700; margin-bottom: 20px;"><i class="fa-solid fa-pen-to-square" style="color: var(--warning)"></i> Edit Subject</h3>
+            <h3 style="color: #fff; font-weight: 700; margin-bottom: 15px; font-size: 1rem;"><i class="fa-solid fa-pen-to-square" style="color: var(--warning)"></i> Edit Subject</h3>
             
             <input type="hidden" id="edit-old-sem">
             <input type="hidden" id="edit-sub-id">
@@ -464,16 +394,16 @@
     <div class="custom-modal" id="details-modal">
         <div class="modal-body-content">
             <button class="close-modal" id="modal-close-btn"><i class="fa-solid fa-circle-xmark"></i></button>
-            <h3 id="modal-user-title" style="color: #fff; font-weight: 700; margin-bottom: 4px;">Student Name</h3>
-            <span id="modal-timestamp" style="color: var(--text-muted); font-size: 0.75rem;">Time Details</span>
+            <h3 id="modal-user-title" style="color: #fff; font-weight: 700; margin-bottom: 2px; font-size: 1.1rem;">Student Name</h3>
+            <span id="modal-timestamp" style="color: var(--text-muted); font-size: 0.7rem;">Time Details</span>
             
             <div style="overflow-x: auto;">
                 <table class="data-table-specs">
                     <thead>
                         <tr>
                             <th>Subject</th>
-                            <th>Credit Hours</th>
-                            <th>Grade Point</th>
+                            <th>CH</th>
+                            <th>Points</th>
                             <th>Grade</th>
                         </tr>
                     </thead>
@@ -508,7 +438,6 @@
         let academicData = {};
         let activeLogsData = {};
 
-        // Sidebar Navigation Logic Engine
         const menuToggle = document.getElementById('menu-toggle');
         const sidebarDrawer = document.getElementById('sidebar-drawer');
         const sidebarOverlay = document.getElementById('sidebar-overlay');
@@ -536,21 +465,32 @@
             });
         });
 
-        // 🟢 REALTIME DATABASE ACTIVE LIVE TRACKING SUITE LISTENERS
+        // 🟢 FIXED PERFECT MULTI-USER REALTIME TRAFFIC MONITOR
         const liveTrafficRef = ref(db, 'live_traffic_now');
         onValue(liveTrafficRef, (snapshot) => {
             const data = snapshot.val();
-            let count = 0;
-            if (data) {
-                count = Object.keys(data).length;
-            }
-            document.getElementById('live-users-count').innerText = count;
-            
             const statusBox = document.getElementById('browsing-now-status');
-            if (count > 0) {
-                statusBox.innerHTML = `🔥 <span style="color:#ef4444; font-weight:600;">${count} User(s)</span> actively interacting with the calculator dashboard right now.`;
+            statusBox.innerHTML = '';
+            
+            if (data && Object.keys(data).length > 0) {
+                const activeUsers = Object.values(data);
+                document.getElementById('live-users-count').innerText = activeUsers.length;
+                
+                activeUsers.forEach(user => {
+                    const uRow = document.createElement('div');
+                    uRow.className = 'active-user-row';
+                    uRow.innerHTML = `
+                        <div class="user-meta-left">
+                            <span class="user-name-lbl">👤 ${user.name || 'Anonymous Student'}</span>
+                            <span class="user-time-lbl">Active: ${user.timestamp || 'N/A'}</span>
+                        </div>
+                        <div class="user-page-status-badge">${user.page || 'HOME PAGE'}</div>
+                    `;
+                    statusBox.appendChild(uRow);
+                });
             } else {
-                statusBox.innerText = "Zero user online right now.";
+                document.getElementById('live-users-count').innerText = '0';
+                statusBox.innerHTML = '<div style="color:var(--text-muted); text-align:center; padding:10px;">Zero user online right now.</div>';
             }
         });
 
@@ -564,7 +504,7 @@
                 const historyArray = Object.values(data);
                 document.getElementById('total-traffic-count').innerText = historyArray.length;
                 
-                historyArray.reverse().forEach(entry => {
+                historyArray.reverse().slice(0, 30).forEach(entry => {
                     const row = document.createElement('div');
                     row.className = 'trend-row';
                     row.innerHTML = `
@@ -575,11 +515,10 @@
                 });
             } else {
                 document.getElementById('total-traffic-count').innerText = '0';
-                listContainer.innerHTML = '<div style="text-align:center; padding:15px; color:#64748b;">No traffic history recorded yet.</div>';
+                listContainer.innerHTML = '<div style="text-align:center; padding:10px; color:#64748b;">No traffic history recorded yet.</div>';
             }
         });
 
-        // Load Subject Configurations Architecture
         async function loadInitialData() {
             const dbRef = ref(db);
             const snapshot = await get(child(dbRef, "uet_config/subjectsData"));
@@ -589,7 +528,6 @@
             renderAdminPanelList();
         }
 
-        // Save Logic
         document.getElementById('save-btn').addEventListener('click', async () => {
             const sem = document.getElementById('admin-sem').value.trim();
             const name = document.getElementById('admin-sub-name').value.trim();
@@ -604,12 +542,7 @@
                 academicData[sem] = Object.values(academicData[sem]);
             }
             
-            academicData[sem].push({ 
-                id: Date.now(), 
-                name: name, 
-                ch: ch 
-            });
-
+            academicData[sem].push({ id: Date.now(), name: name, ch: ch });
             await set(ref(db, "uet_config/subjectsData"), academicData);
             document.getElementById('admin-sub-name').value = '';
             document.getElementById('admin-sub-ch').value = '';
@@ -617,7 +550,6 @@
             alert("Subject successfully saved!");
         });
 
-        // 🟢 EXPOSE MODULE FUNCTIONS GLOBALLY TO WINDOW OBJECT SO INLINE ONCLICK WORKS
         window.deleteSubject = async function(sem, id) {
             if (!confirm("Kia aap waqai is subject ko delete krna chahty hain?")) return;
             if (!Array.isArray(academicData[sem])) {
@@ -643,7 +575,6 @@
             document.getElementById('edit-sem-name').value = sem;
             document.getElementById('edit-sub-name').value = name;
             document.getElementById('edit-sub-ch').value = ch;
-            
             document.getElementById('edit-subject-modal').classList.add('modal-open');
         };
 
@@ -652,7 +583,7 @@
             if(confirm("Kia aap waqai is bachy ka data Firebase sy hamesha kalia delete krna chahty hain?")) {
                 try {
                     await remove(ref(db, `student_logs/${nodeKey}`));
-                    alert("User log successfully dropped from Database nodes.");
+                    alert("User log successfully dropped.");
                 } catch(err) {
                     alert("Error processing deletion sequence: " + err.message);
                 }
@@ -699,18 +630,17 @@
                             <td style="color:#fff; font-weight:500;">${sName}</td>
                             <td>${sCh}</td>
                             <td>${sGp}</td>
-                            <td><span style="background:rgba(255,255,255,0.06); padding:4px 8px; border-radius:6px; font-weight:600; color:#fbbf24;">${sGrade}</span></td>
+                            <td><span style="background:rgba(255,255,255,0.06); padding:2px 6px; border-radius:6px; font-weight:600; color:#fbbf24;">${sGrade}</span></td>
                         </tr>
                     `;
                 });
             } else {
-                tableBody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:var(--text-muted); padding:20px;">Is entry me details fields array mapped nahi hain. (CGPA: ${targetData.gpa || targetData.cgpa || '0.00'})</td></tr>`;
+                tableBody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:var(--text-muted); padding:10px;">Details fields array mapped nahi hain. (CGPA: ${targetData.gpa || targetData.cgpa || '0.00'})</td></tr>`;
             }
 
             detailsModal.classList.add('modal-open');
         };
 
-        // Window interaction click closer
         window.addEventListener('click', () => {
             document.querySelectorAll('.dropdown-menu').forEach(el => el.classList.remove('show'));
         });
@@ -724,26 +654,19 @@
 
             if(!newSem || !newName || isNaN(newCh)) return alert("Saari fields fill krna lazmi hain!");
 
-            // Remove from old semester tracking block safely
             if (!Array.isArray(academicData[oldSem])) {
                 academicData[oldSem] = Object.values(academicData[oldSem]);
             }
             academicData[oldSem] = academicData[oldSem].filter(sub => sub && sub.id !== id);
             if(academicData[oldSem].length === 0) delete academicData[oldSem];
 
-            // Push structure to new target semester node tracking array
             if(!academicData[newSem]) {
                 academicData[newSem] = [];
             } else if (!Array.isArray(academicData[newSem])) {
                 academicData[newSem] = Object.values(academicData[newSem]);
             }
 
-            academicData[newSem].push({
-                id: id,
-                name: newName,
-                ch: newCh
-            });
-
+            academicData[newSem].push({ id: id, name: newName, ch: newCh });
             await set(ref(db, "uet_config/subjectsData"), academicData);
             document.getElementById('edit-subject-modal').classList.remove('modal-open');
             renderAdminPanelList();
@@ -758,23 +681,22 @@
             const container = document.getElementById('admin-list-container');
             container.innerHTML = '';
             if(!academicData || Object.keys(academicData).length === 0) {
-                container.innerHTML = '<p style="color:var(--text-muted); font-size:0.9rem;">No active configurations found.</p>';
+                container.innerHTML = '<p style="color:var(--text-muted); font-size:0.8rem;">No active configurations found.</p>';
                 return;
             }
             for(let sem in academicData) {
                 let div = document.createElement('div');
                 div.className = 'sem-block';
-                div.innerHTML = `<h4 style="color:#a78bfa; font-weight:600;">${sem}</h4>`;
+                div.innerHTML = `<h4 style="color:#a78bfa; font-weight:600; font-size:0.85rem;">${sem}</h4>`;
                 
                 const semesterItems = Array.isArray(academicData[sem]) ? academicData[sem] : Object.values(academicData[sem]);
-                
                 semesterItems.forEach(sub => {
                     if(sub) {
                         const safeName = sub.name.replace(/'/g, "\\'");
                         const safeSem = sem.replace(/'/g, "\\'");
                         div.innerHTML += `
                             <div class="sub-item-row">
-                                <span>${sub.name} <b style="color:var(--text-muted); margin-left:8px;">(${sub.ch} CH)</b></span>
+                                <span>${sub.name} <b style="color:var(--text-muted); margin-left:4px;">(${sub.ch} CH)</b></span>
                                 <div class="action-btns">
                                     <div class="actions-dropdown">
                                         <button class="dropdown-trigger" onclick="toggleDropdown(event, ${sub.id})">
@@ -782,7 +704,7 @@
                                         </button>
                                         <div class="dropdown-menu" id="dropdown-${sub.id}">
                                             <div class="dropdown-item" onclick="openEditSubjectModal('${safeSem}', ${sub.id}, '${safeName}', ${sub.ch})">
-                                                <i class="fa-solid fa-pen-to-square" style="color:var(--warning)"></i> Edit Subject
+                                                <i class="fa-solid fa-pen-to-square" style="color:var(--warning)"></i> Edit
                                             </div>
                                             <div class="dropdown-item del-btn" onclick="deleteSubject('${safeSem}', ${sub.id})">
                                                 <i class="fa-regular fa-trash-can"></i> Delete
@@ -797,7 +719,6 @@
             }
         }
 
-        // Live Logs Tracking Engine
         const logsRef = ref(db, 'student_logs');
         onValue(logsRef, (snapshot) => {
             const container = document.getElementById('logs-container');
@@ -805,7 +726,7 @@
             activeLogsData = {}; 
 
             if(!snapshot.exists()) {
-                container.innerHTML = '<p style="color:#71717a; font-size:0.95rem;">No active user telemetry matching records found.</p>';
+                container.innerHTML = '<p style="color:#71717a; font-size:0.85rem;">No active logs found.</p>';
                 return;
             }
             
@@ -819,15 +740,15 @@
                 card.setAttribute('onclick', `openUserDetailedTranscript('${logKey}')`);
                 
                 card.innerHTML = `
-                    <strong style="color:#fff; font-size:1.05rem;">${logVal.name || 'Anonymous Student'}</strong> 
-                    <span style="float:right; font-size:0.75rem; color:var(--text-muted);">${logVal.timestamp || ''}</span>
-                    <p style="margin-top:6px; color:#d4d4d8; font-size:0.9rem;">
+                    <strong style="color:#fff; font-size:0.9rem;">${logVal.name || 'Anonymous Student'}</strong> 
+                    <span style="float:right; font-size:0.7rem; color:var(--text-muted);">${logVal.timestamp || ''}</span>
+                    <p style="margin-top:4px; color:#d4d4d8; font-size:0.78rem;">
                         Semester: <b style="color:#fbbf24;">${logVal.semester || 'N/A'}</b>
                     </p>
                     <div class="card-actions-wrapper">
-                        <div>Calculated CGPA: <span class="score-lbl-badge">${logVal.gpa || logVal.cgpa || '0.00'}</span></div>
+                        <div style="font-size:0.78rem;">Calculated CGPA: <span class="score-lbl-badge">${logVal.gpa || logVal.cgpa || '0.00'}</span></div>
                         <button class="delete-log-btn" onclick="deleteUserLogRecord(event, '${logKey}')">
-                            <i class="fa-solid fa-trash-arrow-up"></i> Delete Permanently
+                            <i class="fa-solid fa-trash-arrow-up"></i> Delete
                         </button>
                     </div>
                 `;
@@ -835,30 +756,23 @@
             });
         });
 
-        // DELETE ALL LOGS FUNCTIONALITY
         document.getElementById('delete-all-logs-btn').addEventListener('click', async () => {
             if (Object.keys(activeLogsData).length === 0) {
                 return alert("Delete krne k liye koi data majood nahi hai!");
             }
-            
-            if (confirm("⚠️ WARNING: Kia aap waqai SAARE users ka data Firebase se hamesha k liye delete krna chahty hain? Ye action undo nahi ho sakta!")) {
+            if (confirm("⚠️ WARNING: Kia aap waqai SAARE users ka data hamesha k liye delete krna chahty hain?")) {
                 try {
                     await remove(ref(db, 'student_logs'));
-                    alert("Pura student logs data database se clean kr dia gaya hai.");
+                    alert("Pura logs data clean kr dia gaya hai.");
                 } catch(err) {
-                    alert("Error processing wipeout sequence: " + err.message);
+                    alert("Error: " + err.message);
                 }
             }
         });
 
         const detailsModal = document.getElementById('details-modal');
-
-        document.getElementById('modal-close-btn').addEventListener('click', () => {
-            detailsModal.classList.remove('modal-open');
-        });
-        detailsModal.addEventListener('click', (e) => {
-            if(e.target === detailsModal) detailsModal.classList.remove('modal-open');
-        });
+        document.getElementById('modal-close-btn').addEventListener('click', () => { detailsModal.classList.remove('modal-open'); });
+        detailsModal.addEventListener('click', (e) => { if(e.target === detailsModal) detailsModal.classList.remove('modal-open'); });
 
         loadInitialData();
     </script>
