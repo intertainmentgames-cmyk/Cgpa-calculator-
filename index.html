@@ -974,12 +974,19 @@
                 doc.setTextColor(255, 255, 255);
                 doc.text(String(latestCalculatedSession.finalCGPA), 155, yPos + 16, { align: "center" });
 
-                // 7. Ground Validation System Footer Text
+                // 7. Ground Validation System Footer Text (Clickable Link Upgraded)
                 doc.setFont("helvetica", "bold");
                 doc.setFontSize(8);
-                doc.setTextColor(160, 174, 192);
+                
+                doc.setDrawColor(226, 232, 240);
+                doc.setLineWidth(0.2);
                 doc.line(20, 274, 190, 274);
-                doc.text("Generated Via: cgpacalculator.engineer", 105, 280, { align: "center" });
+                
+                doc.setTextColor(37, 99, 235); // #2563eb Clickable Blue Link Style
+                doc.textWithLink("Generated Via: cgpacalculator.engineer", 105, 280, { 
+                    url: "https://cgpacalculator.engineer", 
+                    align: "center" 
+                });
 
                 // Trigger seamless background downloading stream natively
                 const targetDocFileName = `${latestCalculatedSession.name.replace(/\s+/g, '_')}_Academic_Report.pdf`;
