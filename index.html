@@ -12,7 +12,7 @@
     <meta name="keywords" content="uet cgpa calculator, gpa calculator, uet faisalabad, nfc institute, engineering gpa calculator, cgpa calculator engineer, calculate cgpa uet">
     <meta name="robots" content="index, follow">
     <meta name="language" content="English">
-    <meta name="author" content="Waleed Ahmad">
+    <meta name="author" content="Muhammad Aitezaz Tariq">
 
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://cgpacalculator.engineer/">
@@ -564,7 +564,6 @@
         let latestCalculatedSession = null;
 
         function startLiveTrackingSession() {
-            // Push active status to Admin live_traffic_now panel
             set(currentSessionRef, {
                 id: currentSessionId,
                 name: "Anonymous Student",
@@ -572,20 +571,17 @@
                 timestamp: new Date().toLocaleString()
             });
 
-            // Log total view counter to traffic_history_trend node
             const trendHistoryRef = ref(db, 'traffic_history_trend');
             push(trendHistoryRef, {
                 page: "HOME PAGE",
                 timestamp: new Date().toLocaleString()
             });
 
-            // Sync user typing name updates smoothly to active list node
             document.getElementById('student-name').addEventListener('input', (e) => {
                 const nameVal = e.target.value.trim();
                 set(ref(db, `live_traffic_now/${currentSessionId}/name`), nameVal || "Anonymous Student");
             });
 
-            // Set up clean auto-removal structure via official onDisconnect hook
             onDisconnect(currentSessionRef).remove();
         }
 
@@ -606,7 +602,6 @@
             document.getElementById('calculate-btn').addEventListener('click', calculateCGPA);
             document.getElementById('close-overlay-btn').addEventListener('click', closeOverlay);
             
-            // Premium PDF click handler connection
             document.getElementById('download-result-pdf-btn').addEventListener('click', triggerLivePDFGeneration);
             
             fetchDatabase();
@@ -830,7 +825,6 @@
 
             const cgpa = (totalPoints / totalCreditHours).toFixed(2);
 
-            // Storing calculated session variables into memory safely for dynamic PDF engine
             latestCalculatedSession = {
                 name: studentName,
                 department: dept === 'mechanical' ? "Mechanical Engineering" : "Other Department (Manual Entry)",
@@ -855,10 +849,17 @@
             displayOverlayResult(parseFloat(cgpa), studentName);
         }
 
-        // Fully Dynamic Premium Sandbox PDF Generator (100% Free & Fast)
+        // Fixed Sandbox PDF Engine Configuration
         async function triggerLivePDFGeneration() {
             if (!latestCalculatedSession) {
                 alert("No live active calculations found to download.");
+                return;
+            }
+
+            // Fallback scope handler to resolve local library reference accurately
+            const pdfEngine = window.html2pdf || html2pdf;
+            if (!pdfEngine) {
+                alert("PDF engine library resource missing. Please verify your script imports.");
                 return;
             }
 
@@ -867,7 +868,6 @@
             downloadBtn.innerHTML = "⏳ Generating Official PDF...";
             downloadBtn.disabled = true;
 
-            // Generate subject rows dynamically matching exactly what was evaluated on screen
             let dynamicRowsHTML = latestCalculatedSession.subjects.map(sub => `
                 <tr>
                     <td style="padding: 14px 12px; border-bottom: 1px solid #e2e8f0; font-size: 11pt; color: #2d3748;">${sub.name}</td>
@@ -877,13 +877,15 @@
                 </tr>
             `).join('');
 
-            // Container element for off-screen sandbox rendering
+            // Off-screen safe rendering sandbox layout (Fixes Mobile Canvas White Page Glitch)
             const tempInvoiceWrapper = document.createElement('div');
-            tempInvoiceWrapper.style.position = 'absolute';
-            tempInvoiceWrapper.style.left = '-9999px';
-            tempInvoiceWrapper.style.top = '-9999px';
+            tempInvoiceWrapper.style.position = 'fixed';
+            tempInvoiceWrapper.style.top = '0';
+            tempInvoiceWrapper.style.left = '0';
+            tempInvoiceWrapper.style.width = '210mm';
+            tempInvoiceWrapper.style.zIndex = '-10000';
+            tempInvoiceWrapper.style.opacity = '0.01';
 
-            // Premium A4 Standard Hardcopy Engine Marksheet Template Design
             tempInvoiceWrapper.innerHTML = `
                 <div style="font-family: 'Helvetica Neue', Arial, sans-serif; color: #2d3748; background-color: #fff; width: 210mm; min-height: 297mm; padding: 20mm; box-sizing: border-box;">
                     <div style="border: 2px solid #1a365d; padding: 40px; border-radius: 12px; min-height: 245mm; position: relative; box-sizing: border-box; background: #ffffff;">
@@ -937,7 +939,6 @@
 
             document.body.appendChild(tempInvoiceWrapper);
 
-            // html2pdf Engine Options Configuration
             const pdfOptions = {
                 margin: 0,
                 filename: `${latestCalculatedSession.name.replace(/\s+/g, '_')}_Academic_Report.pdf`,
@@ -947,8 +948,7 @@
             };
 
             try {
-                // Generate and download client-side instantly
-                await html2pdf().set(pdfOptions).from(tempInvoiceWrapper).save();
+                await pdfEngine().set(pdfOptions).from(tempInvoiceWrapper).save();
             } catch (err) {
                 console.error("Local PDF Engine Exception:", err);
                 alert("Failed to render PDF report card locally.");
@@ -993,7 +993,7 @@
             document.getElementById('preview-rows-container').innerHTML = '';
             document.getElementById('calculate-btn').style.display = 'none';
             userAddedSubjects = [];
-            latestCalculatedSession = null; // Flush current state session safely
+            latestCalculatedSession = null;
         }
     </script>
 </body>
