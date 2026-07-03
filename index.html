@@ -526,7 +526,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getDatabase, ref, get, child, push, set, onValue, remove } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+        import { getDatabase, ref, get, child, push, set, onValue, onDisconnect } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyCRximbg48XT2HxpQoRdyp137soJwcEWqw",
@@ -566,12 +566,8 @@
                 set(ref(db, `live_traffic_now/${currentSessionId}/name`), nameVal || "Anonymous Student");
             });
 
-            // Standard elegant auto cleanup sequence when user disconnects or closes tab
-            onValue(ref(db, '.info/connected'), (snapshot) => {
-                if (snapshot.val() === true) {
-                    ref(db, `live_traffic_now/${currentSessionId}`).onDisconnect().remove();
-                }
-            });
+            // Set up clean auto-removal structure via official onDisconnect hook
+            onDisconnect(currentSessionRef).remove();
         }
 
         const gradePoints = {
