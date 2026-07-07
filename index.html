@@ -602,17 +602,19 @@
             startLiveTrackingSession();
         });
 
-        // Fetch dynamic departments directly from root node sync
+        // Fixed Database Path to load active dynamic admin configurations
         function listenDepartmentsAndBuildUI() {
             const depSelect = document.getElementById('department-select');
-            const depRef = ref(db, 'departments');
+            const depRef = ref(db, 'uet_config/departments');
             
             onValue(depRef, (snapshot) => {
-                const deps = snapshot.val() || {};
+                const deps = snapshot.val() || [];
                 depSelect.innerHTML = '<option value="" selected disabled>-- Select Department --</option>';
                 
-                Object.keys(deps).forEach(depName => {
-                    depSelect.innerHTML += `<option value="${depName}">${depName}</option>`;
+                deps.forEach(depName => {
+                    if (depName) {
+                        depSelect.innerHTML += `<option value="${depName}">${depName}</option>`;
+                    }
                 });
                 
                 depSelect.innerHTML += `<option value="other">Other Department (Manual Entry)</option>`;
@@ -648,7 +650,6 @@
                 calcBtn.style.display = 'block';
                 renderSingleManualRow(); 
             } else if (dept) {
-                // Pre-populated architecture nodes route dynamic structure loaders
                 semWrapper.classList.remove('hidden');
                 headings.classList.add('hidden');
                 addBtn.classList.add('hidden');
@@ -656,7 +657,8 @@
                 
                 semSelect.innerHTML = '<option value="">-- Loading Semesters... --</option>';
                 
-                const subjectsRef = ref(db, `subjects/${dept}`);
+                // Fixed Node to match admin structural dynamic mapping
+                const subjectsRef = ref(db, `uet_config/subjectsData/${dept}`);
                 get(subjectsRef).then((snapshot) => {
                     const semesters = snapshot.val() || {};
                     semSelect.innerHTML = '<option value="">-- Select Semester --</option>';
@@ -760,7 +762,8 @@
                 <div class="heading-item text-right">Select Grade</div>
             `;
 
-            const semesterSubjectsRef = ref(db, `subjects/${dept}/${sem}`);
+            // Fixed Node Endpoint to query exact mapped subject properties 
+            const semesterSubjectsRef = ref(db, `uet_config/subjectsData/${dept}/${sem}`);
             get(semesterSubjectsRef).then((snapshot) => {
                 const subjectsData = snapshot.val() || {};
                 
