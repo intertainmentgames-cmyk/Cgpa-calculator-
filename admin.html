@@ -190,11 +190,19 @@
         .form-group { margin-bottom: 14px; }
         .form-group label { display: block; margin-bottom: 6px; font-weight: 500; color: var(--text-muted); font-size: 0.8rem; }
 
-        input {
+        input, select {
             width: 100%; padding: 10px 14px; background: rgba(5, 5, 10, 0.4); border: 1px solid var(--glass-border);
             border-radius: 10px; outline: none; font-size: 0.88rem; color: #fff; transition: 0.2s;
         }
-        input:focus { border-color: var(--primary); box-shadow: 0 0 8px rgba(99, 102, 241, 0.2); }
+        input:focus, select:focus { border-color: var(--primary); box-shadow: 0 0 8px rgba(99, 102, 241, 0.2); }
+        select option { background: #0f172a; color: #fff; }
+
+        /* Custom UI element for Department layout with inline action */
+        .dep-flex-container { display: flex; gap: 8px; align-items: center; }
+        .dep-list-wrapper { display: flex; flex-direction: column; gap: 6px; margin-top: 10px; }
+        .dep-managed-row { display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.02); padding: 8px 12px; border-radius: 8px; font-size: 0.85rem; border: 1px solid var(--glass-border); }
+        .dep-del-icon { color: var(--danger); cursor: pointer; padding: 4px; transition: 0.2s; }
+        .dep-del-icon:hover { transform: scale(1.15); }
 
         .btn {
             width: 100%; padding: 11px; border: none; border-radius: 10px;
@@ -329,7 +337,27 @@
         
         <div id="subject-section" class="app-section">
             <div class="card-panel">
-                <h2 class="section-title"><i class="fa-solid fa-folder-plus" style="color: var(--primary);"></i> Manage Subjects</h2>
+                <h2 class="section-title"><i class="fa-solid fa-building-columns" style="color: var(--warning);"></i> 1. Manage Departments</h2>
+                <div class="form-group">
+                    <label>Add New Department Name</label>
+                    <div class="dep-flex-container">
+                        <input type="text" id="admin-new-dep-name" placeholder="e.g., Mechanical Engineering">
+                        <button class="btn btn-primary" id="add-dep-btn" style="width: auto; padding: 10px 18px;"><i class="fa-solid fa-plus"></i></button>
+                    </div>
+                </div>
+                <div class="dep-list-wrapper" id="managed-deps-list">
+                    </div>
+            </div>
+
+            <div class="card-panel">
+                <h2 class="section-title"><i class="fa-solid fa-folder-plus" style="color: var(--primary);"></i> 2. Manage Subjects</h2>
+                
+                <div class="form-group">
+                    <label>Select Department</label>
+                    <select id="admin-select-dep">
+                        <option value="">-- Choose Department --</option>
+                    </select>
+                </div>
                 <div class="form-group">
                     <label>Semester Name</label>
                     <input type="text" id="admin-sem" placeholder="e.g., 1st semester">
@@ -346,8 +374,11 @@
             </div>
             
             <div class="card-panel">
-                <h3 style="margin-bottom:15px; color: var(--text-main); font-weight: 600; font-size: 0.95rem;">Active Configurations</h3>
-                <div id="admin-list-container">Loading configurations...</div>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                    <h3 style="color: var(--text-main); font-weight: 600; font-size: 0.95rem;">Active Configurations</h3>
+                    <span id="current-filtered-dep-badge" style="font-size: 0.75rem; color: var(--warning); font-weight: 600; background: rgba(251,191,36,0.1); padding: 4px 10px; border-radius: 20px; border: 1px solid rgba(251,191,36,0.2);">All Depts</span>
+                </div>
+                <div id="admin-list-container">Select a department to view configurations...</div>
             </div>
         </div>
 
@@ -434,7 +465,8 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
-        let academicData = {};
+        let departmentsList = [];
+        let academicData = {}; // Stores subjects for the CURRENT active department selection
         let activeLogsData = {};
 
         const menuToggle = document.getElementById('menu-toggle');
@@ -464,7 +496,7 @@
             });
         });
 
-        // 🟢 FIXED REALTIME TRAFFIC MONITOR (SHOWING ONLY USER : PAGE STATUS)
+        // 🟢 REALTIME TRAFFIC MONITOR
         const liveTrafficRef = ref(db, 'live_traffic_now');
         onValue(liveTrafficRef, (snapshot) => {
             const data = snapshot.val();
@@ -517,21 +549,106 @@
             }
         });
 
-        async function loadInitialData() {
-            const dbRef = ref(db);
-            const snapshot = await get(child(dbRef, "uet_config/subjectsData"));
-            if(snapshot.exists()) {
-                academicData = snapshot.val() || {};
+        // 🟢 LOAD DEPARTMENTS REALTIME
+        const departmentsRef = ref(db, 'uet_config/departments');
+        onValue(departmentsRef, (snapshot) => {
+            departmentsList = snapshot.val() || [];
+            renderDepartmentUIElements();
+        });
+
+        function renderDepartmentUIElements() {
+            const selectDropdown = document.getElementById('admin-select-dep');
+            const managedList = document.getElementById('managed-deps-list');
+            
+            const currentSelection = selectDropdown.value;
+            
+            selectDropdown.innerHTML = '<option value="">-- Choose Department --</option>';
+            managedList.innerHTML = '';
+
+            departmentsList.forEach((dep, index) => {
+                if (dep) {
+                    // Fill configuration Dropdown
+                    const opt = document.createElement('option');
+                    opt.value = dep;
+                    opt.innerText = dep;
+                    selectDropdown.appendChild(opt);
+
+                    // Fill inline deletion list control card
+                    const row = document.createElement('div');
+                    row.className = 'dep-managed-row';
+                    row.innerHTML = `
+                        <span>📁 <b>${dep}</b></span>
+                        <i class="fa-solid fa-trash-can dep-del-icon" onclick="deleteEntireDepartment(${index}, '${dep.replace(/'/g, "\\'")}')"></i>
+                    `;
+                    managedList.appendChild(row);
+                }
+            });
+
+            if(departmentsList.includes(currentSelection)) {
+                selectDropdown.value = currentSelection;
+            } else {
+                document.getElementById('admin-list-container').innerHTML = 'Select a department to view configurations...';
+                document.getElementById('current-filtered-dep-badge').innerText = "All Depts";
+                academicData = {};
             }
-            renderAdminPanelList();
         }
 
+        // ➕ ADD NEW DEPARTMENT SEQUENCE
+        document.getElementById('add-dep-btn').addEventListener('click', async () => {
+            const newDepInput = document.getElementById('admin-new-dep-name').value.trim();
+            if (!newDepInput) return alert("Pehle Department ka naam likhein!");
+
+            if(departmentsList.includes(newDepInput)) {
+                return alert("Yeh department pehle se hi added hai!");
+            }
+
+            departmentsList.push(newDepInput);
+            await set(ref(db, 'uet_config/departments'), departmentsList);
+            document.getElementById('admin-new-dep-name').value = '';
+            alert(`"${newDepInput}" Selection control list mein kamiyabi se add ho gaya hai!`);
+        });
+
+        // 🗑️ DELETE ENTIRE DEPARTMENT & CORRESPONDING SUBJECTS STRUCTURE
+        window.deleteEntireDepartment = async function(index, depName) {
+            if (!confirm(`⚠️ WARNING: Kia aap waqai "${depName}" aur iske andar ka saara semester/subject data hamesha k liye delete krna chahty hain?`)) return;
+
+            departmentsList.splice(index, 1);
+            await set(ref(db, 'uet_config/departments'), departmentsList);
+            await remove(ref(db, `uet_config/subjectsData/${depName}`));
+            
+            alert(`"${depName}" completely dropped out from cloud structures.`);
+        };
+
+        // 🔄 TRIGGER DYNAMIC RE-INDEXING ON DROPDOWN SELECTION CHANGED
+        document.getElementById('admin-select-dep').addEventListener('change', async (e) => {
+            const selectedDep = e.target.value;
+            const container = document.getElementById('admin-list-container');
+            const badge = document.getElementById('current-filtered-dep-badge');
+            
+            if(!selectedDep) {
+                container.innerHTML = 'Select a department to view configurations...';
+                badge.innerText = "All Depts";
+                academicData = {};
+                return;
+            }
+
+            badge.innerText = selectedDep;
+            container.innerHTML = 'Syncing cloud data stream mapping...';
+
+            const snapshot = await get(ref(db, `uet_config/subjectsData/${selectedDep}`));
+            academicData = snapshot.val() || {};
+            renderAdminPanelList();
+        });
+
+        // 💾 SAVE SUBJECT TRANSACTION
         document.getElementById('save-btn').addEventListener('click', async () => {
+            const selectedDep = document.getElementById('admin-select-dep').value;
             const sem = document.getElementById('admin-sem').value.trim();
             const name = document.getElementById('admin-sub-name').value.trim();
             const chInput = document.getElementById('admin-sub-ch').value;
             const ch = parseInt(chInput, 10);
 
+            if(!selectedDep) return alert("Pehle Dropdown se Department select krein!");
             if(!sem || !name || !chInput || isNaN(ch)) return alert("Saari fields fill krna lazmi hain!");
 
             if(!academicData[sem]) {
@@ -541,21 +658,27 @@
             }
             
             academicData[sem].push({ id: Date.now(), name: name, ch: ch });
-            await set(ref(db, "uet_config/subjectsData"), academicData);
+            await set(ref(db, `uet_config/subjectsData/${selectedDep}`), academicData);
+            
             document.getElementById('admin-sub-name').value = '';
             document.getElementById('admin-sub-ch').value = '';
             renderAdminPanelList();
             alert("Subject successfully saved!");
         });
 
+        // 🗑️ DELETE SINGLE SUBJECT
         window.deleteSubject = async function(sem, id) {
+            const selectedDep = document.getElementById('admin-select-dep').value;
+            if(!selectedDep) return;
+            
             if (!confirm("Kia aap waqai is subject ko delete krna chahty hain?")) return;
             if (!Array.isArray(academicData[sem])) {
                 academicData[sem] = Object.values(academicData[sem]);
             }
             academicData[sem] = academicData[sem].filter(sub => sub && sub.id !== id);
             if(academicData[sem].length === 0) delete academicData[sem];
-            await set(ref(db, "uet_config/subjectsData"), academicData);
+            
+            await set(ref(db, `uet_config/subjectsData/${selectedDep}`), academicData);
             renderAdminPanelList();
         };
 
@@ -576,74 +699,11 @@
             document.getElementById('edit-subject-modal').classList.add('modal-open');
         };
 
-        window.deleteUserLogRecord = async function(event, nodeKey) {
-            event.stopPropagation(); 
-            if(confirm("Kia aap waqai is bachy ka data Firebase sy hamesha kalia delete krna chahty hain?")) {
-                try {
-                    await remove(ref(db, `student_logs/${nodeKey}`));
-                    alert("User log successfully dropped.");
-                } catch(err) {
-                    alert("Error processing deletion sequence: " + err.message);
-                }
-            }
-        };
-
-        window.openUserDetailedTranscript = function(nodeKey) {
-            const targetData = activeLogsData[nodeKey];
-            if(!targetData) return;
-
-            document.getElementById('modal-user-title').innerText = targetData.name || 'Student Sheet';
-            document.getElementById('modal-timestamp').innerText = `Submitted on: ${targetData.timestamp || 'Unknown Time'} (Semester: ${targetData.semester || 'N/A'})`;
-            document.getElementById('modal-gpa-badge').innerText = targetData.gpa || targetData.cgpa || '0.00';
-
-            const tableBody = document.getElementById('modal-table-rows');
-            tableBody.innerHTML = '';
-
-            let subjectList = null;
-            if (targetData.subjectsBreakdown && (Array.isArray(targetData.subjectsBreakdown) || typeof targetData.subjectsBreakdown === 'object')) {
-                subjectList = targetData.subjectsBreakdown;
-            } else if (targetData.subjects && (Array.isArray(targetData.subjects) || typeof targetData.subjects === 'object')) {
-                subjectList = targetData.subjects;
-            } else if (targetData.details && (Array.isArray(targetData.details) || typeof targetData.details === 'object')) {
-                subjectList = targetData.details;
-            } else {
-                for (let key in targetData) {
-                    if (!['name', 'timestamp', 'gpa', 'cgpa', 'semester'].includes(key) && typeof targetData[key] === 'object') {
-                        subjectList = targetData[key];
-                        break;
-                    }
-                }
-            }
-
-            if (subjectList) {
-                const items = Array.isArray(subjectList) ? subjectList : Object.values(subjectList);
-                items.forEach(item => {
-                    const sName = item.name || item.subject || item.subjectName || 'N/A';
-                    const sCh = item.ch || item.creditHours || item.credit_hours || item.credits || '0';
-                    const sGp = item.gp || item.gradePoints || item.gradePoint || item.points || '0';
-                    const sGrade = item.grade || item.letterGrade || '-';
-
-                    tableBody.innerHTML += `
-                        <tr>
-                            <td style="color:#fff; font-weight:500;">${sName}</td>
-                            <td>${sCh}</td>
-                            <td>${sGp}</td>
-                            <td><span style="background:rgba(255,255,255,0.06); padding:2px 6px; border-radius:6px; font-weight:600; color:#fbbf24;">${sGrade}</span></td>
-                        </tr>
-                    `;
-                });
-            } else {
-                tableBody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:var(--text-muted); padding:10px;">Details fields array mapped nahi hain. (CGPA: ${targetData.gpa || targetData.cgpa || '0.00'})</td></tr>`;
-            }
-
-            detailsModal.classList.add('modal-open');
-        };
-
-        window.addEventListener('click', () => {
-            document.querySelectorAll('.dropdown-menu').forEach(el => el.classList.remove('show'));
-        });
-
+        // 📋 UPDATE SUBJECT SPEC DATA
         document.getElementById('update-sub-btn').addEventListener('click', async () => {
+            const selectedDep = document.getElementById('admin-select-dep').value;
+            if(!selectedDep) return;
+
             const oldSem = document.getElementById('edit-old-sem').value;
             const id = parseInt(document.getElementById('edit-sub-id').value, 10);
             const newSem = document.getElementById('edit-sem-name').value.trim();
@@ -665,7 +725,8 @@
             }
 
             academicData[newSem].push({ id: id, name: newName, ch: newCh });
-            await set(ref(db, "uet_config/subjectsData"), academicData);
+            await set(ref(db, `uet_config/subjectsData/${selectedDep}`), academicData);
+            
             document.getElementById('edit-subject-modal').classList.remove('modal-open');
             renderAdminPanelList();
             alert("Subject details successfully updated!");
@@ -675,11 +736,12 @@
             document.getElementById('edit-subject-modal').classList.remove('modal-open');
         });
 
+        // RE-RENDER ACTIVE CONFIG LISTS FOR THE SELECTED DEPT
         function renderAdminPanelList() {
             const container = document.getElementById('admin-list-container');
             container.innerHTML = '';
             if(!academicData || Object.keys(academicData).length === 0) {
-                container.innerHTML = '<p style="color:var(--text-muted); font-size:0.8rem;">No active configurations found.</p>';
+                container.innerHTML = '<p style="color:var(--text-muted); font-size:0.8rem;">No active configuration setup found inside this department node.</p>';
                 return;
             }
             for(let sem in academicData) {
@@ -717,6 +779,7 @@
             }
         }
 
+        // 🟢 REALTIME LOG MONITORING FOR INCOMING STUDENT ENTRIES
         const logsRef = ref(db, 'student_logs');
         onValue(logsRef, (snapshot) => {
             const container = document.getElementById('logs-container');
@@ -741,7 +804,7 @@
                     <strong style="color:#fff; font-size:0.9rem;">${logVal.name || 'Anonymous Student'}</strong> 
                     <span style="float:right; font-size:0.7rem; color:var(--text-muted);">${logVal.timestamp || ''}</span>
                     <p style="margin-top:4px; color:#d4d4d8; font-size:0.78rem;">
-                        Semester: <b style="color:#fbbf24;">${logVal.semester || 'N/A'}</b>
+                        Dept: <b style="color:#34d399;">${logVal.department || 'N/A'}</b> | Semester: <b style="color:#fbbf24;">${logVal.semester || 'N/A'}</b>
                     </p>
                     <div class="card-actions-wrapper">
                         <div style="font-size:0.78rem;">Calculated CGPA: <span class="score-lbl-badge">${logVal.gpa || logVal.cgpa || '0.00'}</span></div>
@@ -753,6 +816,69 @@
                 container.prepend(card);
             });
         });
+
+        window.deleteUserLogRecord = async function(event, nodeKey) {
+            event.stopPropagation(); 
+            if(confirm("Kia aap waqai is bachy ka data Firebase sy hamesha kalia delete krna chahty hain?")) {
+                try {
+                    await remove(ref(db, `student_logs/${nodeKey}`));
+                    alert("User log successfully dropped.");
+                } catch(err) {
+                    alert("Error processing deletion sequence: " + err.message);
+                }
+            }
+        };
+
+        window.openUserDetailedTranscript = function(nodeKey) {
+            const targetData = activeLogsData[nodeKey];
+            if(!targetData) return;
+
+            document.getElementById('modal-user-title').innerText = targetData.name || 'Student Sheet';
+            document.getElementById('modal-timestamp').innerText = `Submitted on: ${targetData.timestamp || 'Unknown Time'} (Dept: ${targetData.department || 'N/A'} | Sem: ${targetData.semester || 'N/A'})`;
+            document.getElementById('modal-gpa-badge').innerText = targetData.gpa || targetData.cgpa || '0.00';
+
+            const tableBody = document.getElementById('modal-table-rows');
+            tableBody.innerHTML = '';
+
+            let subjectList = null;
+            if (targetData.subjectsBreakdown && (Array.isArray(targetData.subjectsBreakdown) || typeof targetData.subjectsBreakdown === 'object')) {
+                subjectList = targetData.subjectsBreakdown;
+            } else if (targetData.subjects && (Array.isArray(targetData.subjects) || typeof targetData.subjects === 'object')) {
+                subjectList = targetData.subjects;
+            } else if (targetData.details && (Array.isArray(targetData.details) || typeof targetData.details === 'object')) {
+                subjectList = targetData.details;
+            } else {
+                for (let key in targetData) {
+                    if (!['name', 'timestamp', 'gpa', 'cgpa', 'semester', 'department'].includes(key) && typeof targetData[key] === 'object') {
+                        subjectList = targetData[key];
+                        break;
+                    }
+                }
+            }
+
+            if (subjectList) {
+                const items = Array.isArray(subjectList) ? subjectList : Object.values(subjectList);
+                items.forEach(item => {
+                    const sName = item.name || item.subject || item.subjectName || 'N/A';
+                    const sCh = item.ch || item.creditHours || item.credit_hours || item.credits || '0';
+                    const sGp = item.gp || item.gradePoints || item.gradePoint || item.points || '0';
+                    const sGrade = item.grade || item.letterGrade || '-';
+
+                    tableBody.innerHTML += `
+                        <tr>
+                            <td style="color:#fff; font-weight:500;">${sName}</td>
+                            <td>${sCh}</td>
+                            <td>${sGp}</td>
+                            <td><span style="background:rgba(255,255,255,0.06); padding:2px 6px; border-radius:6px; font-weight:600; color:#fbbf24;">${sGrade}</span></td>
+                        </tr>
+                    `;
+                });
+            } else {
+                tableBody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:var(--text-muted); padding:10px;">Details fields array mapped nahi hain. (CGPA: ${targetData.gpa || targetData.cgpa || '0.00'})</td></tr>`;
+            }
+
+            detailsModal.classList.add('modal-open');
+        };
 
         document.getElementById('delete-all-logs-btn').addEventListener('click', async () => {
             if (Object.keys(activeLogsData).length === 0) {
@@ -768,11 +894,13 @@
             }
         });
 
+        window.addEventListener('click', () => {
+            document.querySelectorAll('.dropdown-menu').forEach(el => el.classList.remove('show'));
+        });
+
         const detailsModal = document.getElementById('details-modal');
         document.getElementById('modal-close-btn').addEventListener('click', () => { detailsModal.classList.remove('modal-open'); });
         detailsModal.addEventListener('click', (e) => { if(e.target === detailsModal) detailsModal.classList.remove('modal-open'); });
-
-        loadInitialData();
     </script>
 </body>
 </html>
