@@ -770,7 +770,8 @@
                 let index = 0;
                 Object.keys(subjectsData).forEach(subKey => {
                     const sub = subjectsData[subKey];
-                    const parsedCH = parseInt(sub.creditHours) || 3;
+                    // FIX: Changed sub.creditHours to sub.ch to match Firebase Database
+                    const parsedCH = parseInt(sub.ch) || 3;
                     
                     activeStructureSubjects.push({
                         name: sub.name,
