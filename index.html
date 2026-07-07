@@ -457,20 +457,18 @@
             <div class="form-group">
                 <label for="department-select">Choose Department</label>
                 <select id="department-select">
-                    <option value="" selected disabled>-- Select Department --</option>
-                    <option value="mechanical">Mechanical Engineering</option>
-                    <option value="other">Other Department (Manual Entry)</option>
+                    <option value="" selected disabled>-- Loading Departments... --</option>
                 </select>
             </div>
 
             <div id="note-message" class="note-box">
-                <strong>Note:</strong> Mechanical students don't need to enter subjects. Other departments, please select "Other" to manually add your subjects and credit hours.
+                <strong>Note:</strong> Select your respective department to load automatic structures, or select manual entry if your department is not listed.
             </div>
             
             <div class="form-group hidden" id="semester-wrapper">
                 <label for="semester-select">Choose Semester</label>
                 <select id="semester-select">
-                    <option value="">-- Loading Semesters... --</option>
+                    <option value="">-- Select Semester --</option>
                 </select>
             </div>
 
@@ -588,50 +586,43 @@
             'C+': 2.30, 'C': 2.00, 'C-': 1.70, 'D+': 1.30, 'D': 1.00, 'F': 0.00
         };
 
-        let academicData = {};
         let userAddedSubjects = []; 
+        let activeStructureSubjects = [];
 
         document.addEventListener('DOMContentLoaded', () => {
-            document.getElementById('department-select').selectedIndex = 0;
+            listenDepartmentsAndBuildUI();
             
             document.getElementById('department-select').addEventListener('change', handleDepartmentChange);
             document.getElementById('semester-select').addEventListener('change', loadSemesterSubjects);
             document.getElementById('add-subject-btn').addEventListener('click', moveRowToTableSection);
             document.getElementById('calculate-btn').addEventListener('click', calculateCGPA);
             document.getElementById('close-overlay-btn').addEventListener('click', closeOverlay);
-            
             document.getElementById('download-result-pdf-btn').addEventListener('click', triggerLivePDFGeneration);
             
-            fetchDatabase();
             startLiveTrackingSession();
         });
 
-        async function fetchDatabase() {
-            const dbRef = ref(db);
-            try {
-                const snapshot = await get(child(dbRef, "uet_config/subjectsData"));
-                if (snapshot.exists()) {
-                    academicData = snapshot.val();
-                    populateSemesterDropdown();
-                } else {
-                    document.getElementById('semester-select').innerHTML = '<option value="">No data found in Admin Panel</option>';
-                }
-            } catch (error) {
-                console.error(error);
-            }
-        }
-
-        function populateSemesterDropdown() {
-            const select = document.getElementById('semester-select');
-            select.innerHTML = '<option value="">-- Select Semester --</option>';
-            for(let sem in academicData) {
-                select.innerHTML += `<option value="${sem}">${sem}</option>`;
-            }
+        // Fetch dynamic departments directly from root node sync
+        function listenDepartmentsAndBuildUI() {
+            const depSelect = document.getElementById('department-select');
+            const depRef = ref(db, 'departments');
+            
+            onValue(depRef, (snapshot) => {
+                const deps = snapshot.val() || {};
+                depSelect.innerHTML = '<option value="" selected disabled>-- Select Department --</option>';
+                
+                Object.keys(deps).forEach(depName => {
+                    depSelect.innerHTML += `<option value="${depName}">${depName}</option>`;
+                });
+                
+                depSelect.innerHTML += `<option value="other">Other Department (Manual Entry)</option>`;
+            });
         }
 
         function handleDepartmentChange() {
             const dept = document.getElementById('department-select').value;
             const semWrapper = document.getElementById('semester-wrapper');
+            const semSelect = document.getElementById('semester-select');
             const container = document.getElementById('subjects-container');
             const headings = document.getElementById('table-headings');
             const calcBtn = document.getElementById('calculate-btn');
@@ -641,9 +632,11 @@
             container.innerHTML = '';
             document.getElementById('preview-rows-container').innerHTML = '';
             userAddedSubjects = [];
+            activeStructureSubjects = [];
             previewWrapper.classList.add('hidden');
             
-            if (dept === 'other' || dept === 'mechanical') {
+            if (dept === 'other') {
+                semWrapper.classList.add('hidden');
                 headings.classList.remove('hidden');
                 headings.innerHTML = `
                     <div class="heading-item">Subject Name</div>
@@ -651,19 +644,34 @@
                     <div class="heading-item text-center">Grade Point</div>
                     <div class="heading-item text-right">Select Grade</div>
                 `;
+                addBtn.classList.remove('hidden');
+                calcBtn.style.display = 'block';
+                renderSingleManualRow(); 
+            } else if (dept) {
+                // Pre-populated architecture nodes route dynamic structure loaders
+                semWrapper.classList.remove('hidden');
+                headings.classList.add('hidden');
+                addBtn.classList.add('hidden');
+                calcBtn.style.display = 'none';
                 
-                if (dept === 'other') {
-                    semWrapper.classList.add('hidden');
-                    addBtn.classList.remove('hidden');
-                    calcBtn.style.display = 'block';
-                    renderSingleManualRow(); 
-                } else {
-                    semWrapper.classList.remove('hidden');
-                    headings.classList.add('hidden');
-                    addBtn.classList.add('hidden');
-                    calcBtn.style.display = 'none';
-                    document.getElementById('semester-select').value = '';
-                }
+                semSelect.innerHTML = '<option value="">-- Loading Semesters... --</option>';
+                
+                const subjectsRef = ref(db, `subjects/${dept}`);
+                get(subjectsRef).then((snapshot) => {
+                    const semesters = snapshot.val() || {};
+                    semSelect.innerHTML = '<option value="">-- Select Semester --</option>';
+                    
+                    Object.keys(semesters).forEach(semKey => {
+                        const displaySem = semKey.charAt(0).toUpperCase() + semKey.slice(1);
+                        semSelect.innerHTML += `<option value="${semKey}">${displaySem}</option>`;
+                    });
+                    
+                    if (Object.keys(semesters).length === 0) {
+                        semSelect.innerHTML = '<option value="">No custom semesters configured</option>';
+                    }
+                }).catch(err => {
+                    console.error("Error loading semesters: ", err);
+                });
             }
         }
 
@@ -729,48 +737,81 @@
         }
 
         function loadSemesterSubjects() {
+            const dept = document.getElementById('department-select').value;
             const sem = document.getElementById('semester-select').value;
             const container = document.getElementById('subjects-container');
             const calcBtn = document.getElementById('calculate-btn');
             const headings = document.getElementById('table-headings');
+            
             container.innerHTML = '';
+            activeStructureSubjects = [];
 
-            if(!sem || !academicData[sem]) {
+            if(!dept || !sem) {
                 calcBtn.style.display = 'none';
                 headings.classList.add('hidden');
                 return;
             }
 
             headings.classList.remove('hidden');
+            headings.innerHTML = `
+                <div class="heading-item">Subject Name</div>
+                <div class="heading-item text-center">CH</div>
+                <div class="heading-item text-center">Grade Point</div>
+                <div class="heading-item text-right">Select Grade</div>
+            `;
 
-            academicData[sem].forEach((sub, index) => {
-                let row = document.createElement('div');
-                row.className = 'grid-layout subject-row';
-                row.innerHTML = `
-                    <div class="sub-meta-container">
-                        <input type="checkbox" id="chk-${index}" checked data-ch="${sub.ch}">
-                        <div class="subject-info-wrapper">
-                            <div class="sub-details">${sub.name}</div>
-                        </div>
-                    </div>
-                    <div class="live-ch-col">${sub.ch}</div>
-                    <div class="live-points-col" id="pts-${index}">4.00</div>
-                    <div>
-                        <select class="sub-grade" id="grade-${index}">
-                            ${Object.keys(gradePoints).map(g => `<option value="${g}">${g}</option>`).join('')}
-                        </select>
-                    </div>
-                `;
-                container.appendChild(row);
+            const semesterSubjectsRef = ref(db, `subjects/${dept}/${sem}`);
+            get(semesterSubjectsRef).then((snapshot) => {
+                const subjectsData = snapshot.val() || {};
                 
-                const selectEl = document.getElementById(`grade-${index}`);
-                selectEl.value = "A";
-                selectEl.addEventListener('change', () => {
-                    const grade = selectEl.value;
-                    document.getElementById(`pts-${index}`).innerText = gradePoints[grade].toFixed(2);
+                let index = 0;
+                Object.keys(subjectsData).forEach(subKey => {
+                    const sub = subjectsData[subKey];
+                    const parsedCH = parseInt(sub.creditHours) || 3;
+                    
+                    activeStructureSubjects.push({
+                        name: sub.name,
+                        ch: parsedCH
+                    });
+
+                    let row = document.createElement('div');
+                    row.className = 'grid-layout subject-row';
+                    row.innerHTML = `
+                        <div class="sub-meta-container">
+                            <input type="checkbox" id="chk-${index}" checked data-ch="${parsedCH}">
+                            <div class="subject-info-wrapper">
+                                <div class="sub-details">${sub.name}</div>
+                            </div>
+                        </div>
+                        <div class="live-ch-col">${parsedCH}</div>
+                        <div class="live-points-col" id="pts-${index}">4.00</div>
+                        <div>
+                            <select class="sub-grade" id="grade-${index}">
+                                ${Object.keys(gradePoints).map(g => `<option value="${g}">${g}</option>`).join('')}
+                            </select>
+                        </div>
+                    `;
+                    container.appendChild(row);
+                    
+                    const selectEl = document.getElementById(`grade-${index}`);
+                    selectEl.value = "A";
+                    
+                    const currentIndex = index;
+                    selectEl.addEventListener('change', () => {
+                        const grade = selectEl.value;
+                        document.getElementById(`pts-${currentIndex}`).innerText = gradePoints[grade].toFixed(2);
+                    });
+
+                    index++;
                 });
+
+                if(activeStructureSubjects.length > 0) {
+                    calcBtn.style.display = 'block';
+                } else {
+                    container.innerHTML = '<p class="text-center text-xs text-slate-400 py-4">No subjects mapped in this structural node.</p>';
+                    calcBtn.style.display = 'none';
+                }
             });
-            calcBtn.style.display = 'block';
         }
 
         async function calculateCGPA() {
@@ -781,11 +822,11 @@
             
             let finalSubjectsList = [];
 
-            if (dept === 'mechanical') {
+            if (dept !== 'other') {
                 const sem = document.getElementById('semester-select').value;
-                if(!sem || !academicData[sem]) return;
+                if(!sem || activeStructureSubjects.length === 0) return;
 
-                academicData[sem].forEach((sub, index) => {
+                activeStructureSubjects.forEach((sub, index) => {
                     const chkBox = document.getElementById(`chk-${index}`);
                     if(chkBox && chkBox.checked) {
                         const grade = document.getElementById(`grade-${index}`).value;
@@ -825,8 +866,8 @@
 
             latestCalculatedSession = {
                 name: studentName,
-                department: dept === 'mechanical' ? "Mechanical Engineering" : "Other Department (Manual Entry)",
-                semesterDetails: dept === 'mechanical' ? document.getElementById('semester-select').value : "Custom Semester Breakdown",
+                department: dept === 'other' ? "Other Department (Manual Entry)" : dept,
+                semesterDetails: dept === 'other' ? "Custom Semester Breakdown" : document.getElementById('semester-select').value,
                 finalCGPA: cgpa,
                 subjects: finalSubjectsList
             };
@@ -835,7 +876,7 @@
                 const logsRef = ref(db, 'student_logs');
                 await push(logsRef, {
                     name: studentName,
-                    semester: dept === 'mechanical' ? document.getElementById('semester-select').value : "Other Dept (Manual Entry)",
+                    semester: dept === 'other' ? "Other Dept (Manual Entry)" : document.getElementById('semester-select').value,
                     gpa: cgpa,
                     timestamp: new Date().toLocaleString(),
                     subjectsBreakdown: finalSubjectsList
@@ -847,14 +888,12 @@
             displayOverlayResult(parseFloat(cgpa), studentName);
         }
 
-        // NATIVE VECTOR ENGINE UPGRADED FOR ALL DEVICES (MOBILE FAIL-PROOF)
         async function triggerLivePDFGeneration() {
             if (!latestCalculatedSession) {
                 alert("No live active calculations found to download.");
                 return;
             }
 
-            // UMD pattern injection wrapper call securely targets window instance
             const { jsPDF } = window.jspdf;
             if (!jsPDF) {
                 alert("PDF core engine is initializing. Please wait 2 seconds and click again!");
@@ -867,25 +906,21 @@
             downloadBtn.disabled = true;
 
             try {
-                // Clean configuration instance deployment
                 const doc = new jsPDF({
                     orientation: 'portrait',
                     unit: 'mm',
                     format: 'a4'
                 });
 
-                // Theme color palette definitions
-                const primaryColor = [26, 54, 93];   // #1a365d Navy
-                const textColor = [45, 55, 72];      // #2d3748 Slate Gray
-                const accentColor = [16, 185, 129];   // #10b981 Emerald Green
+                const primaryColor = [26, 54, 93];   
+                const textColor = [45, 55, 72];      
+                const accentColor = [16, 185, 129];   
                 
-                // 1. Double Border Frame
                 doc.setDrawColor(26, 54, 93);
                 doc.setLineWidth(1);
                 doc.rect(10, 10, 190, 277); 
                 doc.rect(11, 11, 188, 275); 
 
-                // 2. Title Header Processing
                 doc.setFont("helvetica", "bold");
                 doc.setFontSize(22);
                 doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
@@ -896,12 +931,10 @@
                 doc.setTextColor(113, 128, 150);
                 doc.text("Verified Grade Point Average Summary Statement", 105, 34, { align: "center" });
 
-                // Split rules double-bars accentuation
                 doc.setLineWidth(0.5);
                 doc.line(20, 40, 190, 40);
                 doc.line(20, 41, 190, 41);
 
-                // 3. Info Block Metadata Extraction
                 doc.setFont("helvetica", "bold");
                 doc.setFontSize(10);
                 doc.setTextColor(74, 85, 104);
@@ -917,7 +950,6 @@
                 doc.text(String(latestCalculatedSession.semesterDetails), 140, 52);
                 doc.text(new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }), 140, 59);
 
-                // 4. Header Bar Box Drawing
                 let yPos = 72;
                 doc.setFillColor(primaryColor[0], primaryColor[1], primaryColor[2]);
                 doc.rect(20, yPos, 170, 10, "F");
@@ -932,9 +964,7 @@
 
                 yPos += 10;
 
-                // 5. Mapping Subject Row Arrays 
                 latestCalculatedSession.subjects.forEach((sub) => {
-                    // Inline dividers
                     doc.setDrawColor(226, 232, 240);
                     doc.setLineWidth(0.2);
                     doc.line(20, yPos + 10, 190, yPos + 10);
@@ -959,7 +989,6 @@
                     yPos += 10;
                 });
 
-                // 6. Cumulative Overview Highlight Panel Box
                 yPos += 12;
                 doc.setFillColor(primaryColor[0], primaryColor[1], primaryColor[2]);
                 doc.rect(120, yPos, 70, 22, "F");
@@ -974,7 +1003,6 @@
                 doc.setTextColor(255, 255, 255);
                 doc.text(String(latestCalculatedSession.finalCGPA), 155, yPos + 16, { align: "center" });
 
-                // 7. Ground Validation System Footer Text (Clickable Link Upgraded)
                 doc.setFont("helvetica", "bold");
                 doc.setFontSize(8);
                 
@@ -982,13 +1010,12 @@
                 doc.setLineWidth(0.2);
                 doc.line(20, 274, 190, 274);
                 
-                doc.setTextColor(37, 99, 235); // #2563eb Clickable Blue Link Style
+                doc.setTextColor(37, 99, 235); 
                 doc.textWithLink("Generated Via: cgpacalculator.engineer", 105, 280, { 
                     url: "https://cgpacalculator.engineer", 
                     align: "center" 
                 });
 
-                // Trigger seamless background downloading stream natively
                 const targetDocFileName = `${latestCalculatedSession.name.replace(/\s+/g, '_')}_Academic_Report.pdf`;
                 doc.save(targetDocFileName);
 
@@ -1035,6 +1062,7 @@
             document.getElementById('preview-rows-container').innerHTML = '';
             document.getElementById('calculate-btn').style.display = 'none';
             userAddedSubjects = [];
+            activeStructureSubjects = [];
             latestCalculatedSession = null;
         }
     </script>
