@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Privacy Policy - UET CGPA Calculator</title>
+    <!-- Google Fonts same as your app/web theme -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #0b0f19;
+            --card-bg: #1e293b;
+            --accent-blue: #3b82f6;
+            --accent-green: #10b981;
+            --text-main: #ffffff;
+            --text-muted: #94a3b8;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            margin: 0;
+            padding: 0;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 20px;
+        }
+
+        .header-section {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .header-section h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(to right, #3b82f6, #10b981);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+        }
+
+        .header-section p {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+        }
+
+        .card {
+            background-color: rgba(30, 41, 59, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 20px;
+            padding: 30px;
+            backdrop-filter: blur(10px);
+            margin-bottom: 25px;
+        }
+
+        h2 {
+            font-size: 1.3rem;
+            color: var(--accent-blue);
+            margin-top: 0;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        h2::before {
+            content: "•";
+            color: var(--accent-green);
+            font-size: 1.8rem;
+            line-height: 1;
+        }
+
+        p, ul {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.95rem;
+        }
+
+        ul {
+            padding-left: 20px;
+        }
+
+        li {
+            margin-bottom: 8px;
+        }
+
+        .highlight {
+            color: var(--accent-green);
+            font-weight: 600;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+
+        .btn-back {
+            display: inline-block;
+            background-color: var(--card-bg);
+            color: #fff;
+            text-decoration: none;
+            padding: 10px 20px;
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .btn-back:hover {
+            border-color: var(--accent-blue);
+            background-color: rgba(59, 130, 246, 0.1);
+        }
+
+        @media (max-width: 600px) {
+            .header-section h1 {
+                font-size: 2rem;
+            }
+            .card {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <a href="index.html" class="btn-back">← Back to Calculator</a>
+
+        <div class="header-section">
+            <h1>Privacy Policy</h1>
+            <p>Last Updated: July 2026</p>
+        </div>
+
+        <div class="card">
+            <h2>Introduction</h2>
+            <p>Welcome to <span class="highlight">UET CGPA Calculator</span> (cgpacalculator.engineer). We respect your privacy and are committed to protecting any information processed through our utility web and mobile application. This policy details how data is handled.</p>
+        </div>
+
+        <div class="card">
+            <h2>Data Collection & Usage</h2>
+            <p>Our platform is designed as an architectural calculation utility. We do <span class="highlight">NOT</span> automatically harvest, store, or sell your private personal credentials. Any inputs (Student Name, Subject Grades, and Credit Hours) are processed live to calculate your GPA/CGPA score.</p>
+            <ul>
+                <li><strong>Local Calculation:</strong> Grade calculations happen instantly using automated algorithms.</li>
+                <li><strong>Anonymized Logs:</strong> To track application health, basic performance trends (such as calculated GPA ranges and timestamps) are kept anonymously on Firebase Realtime Database. No sensitive data is attached to these logs.</li>
+            </ul>
+        </div>
+
+        <div class="card">
+            <h2>Application Permissions</h2>
+            <p>For our mobile companion app version, specific device controls may be requested for export capabilities:</p>
+            <ul>
+                <li><strong>Storage / Gallery Access:</strong> Required strictly to download and save your generated Academic Performance Report Card as a local PDF document or high-quality image.</li>
+            </ul>
+        </div>
+
+        <div class="card">
+            <h2>Third-Party Services</h2>
+            <p>We utilize trusted backend infrastructures to maintain traffic monitoring and app stability:</p>
+            <ul>
+                <li><strong>Firebase Realtime Database:</strong> Used safely to monitor active performance metrics and service trends.</li>
+            </ul>
+        </div>
+
+        <div class="card">
+            <h2>Contact Us</h2>
+            <p>If you have any queries regarding this Privacy Policy or web features, you can contact us directly via our hosting channel layout.</p>
+        </div>
+
+        <div class="footer">
+            <p>&copy; 2026 UET CGPA Calculator | Powered by cgpacalculator.engineer</p>
+        </div>
+    </div>
+
+</body>
+</html>
