@@ -184,7 +184,34 @@
             animation: fadeIn 0.5s ease-out;
         }
 
-        .section-title { margin-bottom: 30px; color: var(--text-main); font-weight: 700; text-align: center; font-size: 1.6rem; }
+        /* --- Tabs Styling --- */
+        .tabs-container {
+            display: flex;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 16px;
+            padding: 6px;
+            margin-bottom: 25px;
+            border: 1px solid var(--glass-border);
+        }
+        .tab-btn {
+            flex: 1;
+            padding: 14px;
+            border: none;
+            border-radius: 12px;
+            background: transparent;
+            color: var(--text-muted);
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .tab-btn.active {
+            background: linear-gradient(135deg, #4f46e5 0%, #3b82f6 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+        }
+
+        .section-title { margin-bottom: 25px; color: var(--text-main); font-weight: 700; text-align: center; font-size: 1.6rem; }
         .form-group { margin-bottom: 22px; }
         .form-group label { display: block; margin-bottom: 8px; font-weight: 500; color: var(--text-muted); font-size: 0.9rem; }
 
@@ -206,12 +233,45 @@
         input:focus, select:focus { border-color: #38bdf8; box-shadow: 0 0 15px rgba(56, 189, 248, 0.25); background: rgba(0,0,0,0.2); }
         select option { background: #0f1424; color: #fff; }
 
+        /* --- Grid & Table Layouts --- */
         .grid-layout {
             display: grid;
             grid-template-columns: minmax(100px, 2.5fr) minmax(45px, 0.8fr) minmax(65px, 1fr) minmax(75px, 1.1fr);
             gap: 12px;
             align-items: center;
         }
+
+        /* --- CGPA Layout Specific --- */
+        .cgpa-grid-layout {
+            display: grid;
+            grid-template-columns: minmax(100px, 2fr) minmax(50px, 1fr) minmax(60px, 1.2fr) 40px;
+            gap: 10px;
+            align-items: center;
+        }
+        .cgpa-row {
+            background: rgba(255, 255, 255, 0.03);
+            padding: 12px;
+            border-radius: 14px;
+            margin-bottom: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: all 0.2s ease;
+        }
+        .cgpa-row:hover { background: rgba(255, 255, 255, 0.06); border-color: rgba(255, 255, 255, 0.15); }
+        .del-row-btn {
+            background: rgba(239, 68, 68, 0.15);
+            color: #ef4444;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            border-radius: 10px;
+            width: 100%;
+            height: 42px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 1.2rem;
+            transition: all 0.2s;
+        }
+        .del-row-btn:hover { background: #ef4444; color: #fff; }
 
         .table-heading {
             padding: 12px 10px;
@@ -221,7 +281,7 @@
             text-transform: uppercase;
             letter-spacing: 0.8px;
             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            margin-top: 30px;
+            margin-top: 10px;
             margin-bottom: 12px;
         }
         
@@ -401,19 +461,27 @@
         @media(max-width: 600px) {
             .logo { font-size: 1.2rem; gap: 6px; }
             .logo img { height: 36px; }
+            
             .grid-layout { grid-template-columns: minmax(90px, 2.2fr) minmax(35px, 0.8fr) minmax(55px, 1fr) minmax(65px, 1.1fr); gap: 6px; }
+            .cgpa-grid-layout { grid-template-columns: minmax(100px, 2fr) minmax(45px, 0.8fr) minmax(60px, 1fr) 35px; gap: 6px; }
+            
             .added-row { grid-template-columns: minmax(90px, 2.2fr) minmax(35px, 0.8fr) minmax(55px, 1fr) minmax(65px, 1.1fr); font-size: 0.8rem; padding: 10px 4px; }
             .table-heading { font-size: 0.72rem; padding: 10px 2px; letter-spacing: 0.3px; }
-            .subject-row { padding: 12px 6px; border-radius: 10px; }
+            
+            .subject-row, .cgpa-row { padding: 12px 6px; border-radius: 10px; }
+            
             .manual-input-name { padding: 8px; font-size: 0.85rem; }
             .manual-select-ch { height: 34px; font-size: 0.8rem; }
             .sub-details { font-size: 0.82rem; }
             .live-ch-col { font-size: 0.85rem; }
             .live-points-col { font-size: 0.95rem; }
             .sub-grade { font-size: 0.8rem; padding: 4px; height: 34px; }
+            
             .card-panel { padding: 25px 16px; }
             .overlay-content { padding: 35px 20px 30px 20px; }
             #cgpa-score { font-size: 2.6rem; }
+            
+            .tab-btn { padding: 10px; font-size: 0.9rem; }
         }
         
         @page { size: A4; margin: 0; }
@@ -447,61 +515,107 @@
 
     <div class="container">
         <div class="card-panel">
-            <h2 class="section-title">Calculate Your GPA / CGPA</h2>
+            <h2 class="section-title">Calculate Your Score</h2>
             
-            <div class="form-group">
-                <label for="student-name">Your Name</label>
-                <input type="text" id="student-name" placeholder="Enter your name">
+            <!-- Tabs Section -->
+            <div class="tabs-container">
+                <button class="tab-btn active" id="tab-gpa">GPA Calculator</button>
+                <button class="tab-btn" id="tab-cgpa">CGPA Calculator</button>
             </div>
 
-            <div class="form-group">
-                <label for="department-select">Choose Department</label>
-                <select id="department-select">
-                    <option value="" selected disabled>-- Loading Departments... --</option>
-                </select>
-            </div>
-
-            <div id="note-message" class="note-box">
-                <strong>Note:</strong> Select your respective department to load automatic structures, or select manual entry if your department is not listed.
-            </div>
-            
-            <div class="form-group hidden" id="semester-wrapper">
-                <label for="semester-select">Choose Semester</label>
-                <select id="semester-select">
-                    <option value="">-- Select Semester --</option>
-                </select>
-            </div>
-
-            <div id="table-headings" class="grid-layout table-heading hidden">
-                <div class="heading-item">Subject Name</div>
-                <div class="heading-item text-center">CH</div>
-                <div class="heading-item text-center">Grade Point</div>
-                <div class="heading-item text-right">Select Grade</div>
-            </div>
-
-            <div id="subjects-container" class="subjects-list"></div>
-
-            <button id="add-subject-btn" class="btn btn-secondary hidden">
-                ➕ Add Subject
-            </button>
-
-            <div id="preview-wrapper" class="hidden">
-                <div class="preview-section-title">Added Subjects List</div>
-                <div class="added-subjects-table">
-                    <div class="added-row added-row-header">
-                        <div>Subject</div>
-                        <div style="text-align: center;">CH</div>
-                        <div style="text-align: center;">Grade Point</div>
-                        <div style="text-align: right; padding-right: 8px;">Grade</div>
-                    </div>
-                    <div id="preview-rows-container"></div>
+            <!-- ===================== GPA SECTION ===================== -->
+            <div id="gpa-section">
+                <div class="form-group">
+                    <label for="student-name">Your Name</label>
+                    <input type="text" id="student-name" placeholder="Enter your name">
                 </div>
+
+                <div class="form-group">
+                    <label for="department-select">Choose Department</label>
+                    <select id="department-select">
+                        <option value="" selected disabled>-- Loading Departments... --</option>
+                    </select>
+                </div>
+
+                <div id="note-message" class="note-box">
+                    <strong>Note:</strong> Select your respective department to load automatic structures, or select manual entry if your department is not listed.
+                </div>
+                
+                <div class="form-group hidden" id="semester-wrapper">
+                    <label for="semester-select">Choose Semester</label>
+                    <select id="semester-select">
+                        <option value="">-- Select Semester --</option>
+                    </select>
+                </div>
+
+                <div id="table-headings" class="grid-layout table-heading hidden">
+                    <div class="heading-item">Subject Name</div>
+                    <div class="heading-item text-center">CH</div>
+                    <div class="heading-item text-center">Grade Point</div>
+                    <div class="heading-item text-right">Select Grade</div>
+                </div>
+
+                <div id="subjects-container" class="subjects-list"></div>
+
+                <button id="add-subject-btn" class="btn btn-secondary hidden">
+                    ➕ Add Subject
+                </button>
+
+                <div id="preview-wrapper" class="hidden">
+                    <div class="preview-section-title">Added Subjects List</div>
+                    <div class="added-subjects-table">
+                        <div class="added-row added-row-header">
+                            <div>Subject</div>
+                            <div style="text-align: center;">CH</div>
+                            <div style="text-align: center;">Grade Point</div>
+                            <div style="text-align: right; padding-right: 8px;">Grade</div>
+                        </div>
+                        <div id="preview-rows-container"></div>
+                    </div>
+                </div>
+
+                <button id="calculate-btn" class="btn btn-primary" style="display: none;">Calculate Semester GPA</button>
             </div>
 
-            <button id="calculate-btn" class="btn btn-primary" style="display: none;">Calculate CGPA</button>
+
+            <!-- ===================== CGPA SECTION ===================== -->
+            <div id="cgpa-section" class="hidden">
+                <div class="form-group">
+                    <label for="cgpa-student-name">Your Name</label>
+                    <input type="text" id="cgpa-student-name" placeholder="Enter your name">
+                </div>
+
+                <div class="form-group">
+                    <label for="cgpa-department-select">Choose Department</label>
+                    <select id="cgpa-department-select">
+                        <option value="" selected disabled>-- Loading Departments... --</option>
+                    </select>
+                </div>
+
+                <div class="note-box">
+                    <strong>Note:</strong> Select your department to load automatic semesters data, or select manual entry if you want to enter CH yourself.
+                </div>
+
+                <div id="cgpa-headings" class="cgpa-grid-layout table-heading hidden">
+                    <div class="heading-item">Semester Name</div>
+                    <div class="heading-item text-center">CH</div>
+                    <div class="heading-item text-center">GPA</div>
+                    <div class="heading-item text-center"></div>
+                </div>
+
+                <div id="cgpa-rows-container"></div>
+
+                <button id="add-cgpa-row-btn" class="btn btn-secondary hidden">
+                    ➕ Add Semester
+                </button>
+
+                <button id="calculate-cgpa-btn" class="btn btn-primary" style="display: none;">Calculate Overall CGPA</button>
+            </div>
+
         </div>
     </div>
 
+    <!-- Results Overlay -->
     <div id="success-overlay" class="overlay">
         <div class="overlay-content">
             <div class="overlay-inner-content">
@@ -511,7 +625,7 @@
                 <h1 class="overlay-title">Calculation Completed</h1>
                 <p id="result-message" class="overlay-msg"></p>
                 <div class="final-score-box">
-                    YOUR CGPA IS <span id="cgpa-score">0.00</span>
+                    YOUR <span id="score-type-text">SCORE</span> IS <span id="cgpa-score">0.00</span>
                 </div>
                 <button id="download-result-pdf-btn" class="btn btn-premium-pdf">📥 Download Result Card</button>
                 <button id="close-overlay-btn" class="btn btn-calculate-again">Calculate Again</button>
@@ -523,6 +637,7 @@
         Made with ❤️ for students | <a href="privacy.html" style="color: #cbd5e1; text-decoration: none; font-size: 0.85rem;">Privacy Policy</a>
     </footer>
 
+    <!-- Side Menu JS -->
     <script>
         const menuBtn = document.getElementById('menu-toggle-btn');
         const sideDrawer = document.getElementById('sidebar-drawer');
@@ -537,6 +652,7 @@
         menuOverlay.addEventListener('click', toggleMenu);
     </script>
 
+    <!-- App Logic JS -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getDatabase, ref, get, child, push, set, onValue, onDisconnect } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
@@ -556,8 +672,19 @@
 
         let currentSessionId = "user_" + Date.now() + "_" + Math.floor(Math.random() * 1000);
         let currentSessionRef = ref(db, `live_traffic_now/${currentSessionId}`);
-
         let latestCalculatedSession = null;
+        let currentActiveMode = 'GPA'; // GPA or CGPA
+
+        // GPA Variables
+        let userAddedSubjects = []; 
+        let activeStructureSubjects = [];
+        const gradePoints = {
+            'A': 4.00, 'A-': 3.70, 'B+': 3.30, 'B': 3.00, 'B-': 2.70,
+            'C+': 2.30, 'C': 2.00, 'C-': 1.70, 'D+': 1.30, 'D': 1.00, 'F': 0.00
+        };
+
+        // CGPA Variables
+        let cgpaRowCount = 0;
 
         function startLiveTrackingSession() {
             set(currentSessionRef, {
@@ -578,49 +705,78 @@
                 set(ref(db, `live_traffic_now/${currentSessionId}/name`), nameVal || "Anonymous Student");
             });
 
+            document.getElementById('cgpa-student-name').addEventListener('input', (e) => {
+                const nameVal = e.target.value.trim();
+                set(ref(db, `live_traffic_now/${currentSessionId}/name`), nameVal || "Anonymous Student");
+            });
+
             onDisconnect(currentSessionRef).remove();
         }
-
-        const gradePoints = {
-            'A': 4.00, 'A-': 3.70, 'B+': 3.30, 'B': 3.00, 'B-': 2.70,
-            'C+': 2.30, 'C': 2.00, 'C-': 1.70, 'D+': 1.30, 'D': 1.00, 'F': 0.00
-        };
-
-        let userAddedSubjects = []; 
-        let activeStructureSubjects = [];
 
         document.addEventListener('DOMContentLoaded', () => {
             listenDepartmentsAndBuildUI();
             
+            // Tab Events
+            document.getElementById('tab-gpa').addEventListener('click', () => switchTab('GPA'));
+            document.getElementById('tab-cgpa').addEventListener('click', () => switchTab('CGPA'));
+
+            // GPA Events
             document.getElementById('department-select').addEventListener('change', handleDepartmentChange);
             document.getElementById('semester-select').addEventListener('change', loadSemesterSubjects);
             document.getElementById('add-subject-btn').addEventListener('click', moveRowToTableSection);
-            document.getElementById('calculate-btn').addEventListener('click', calculateCGPA);
+            document.getElementById('calculate-btn').addEventListener('click', calculateGPA);
+            
+            // CGPA Events
+            document.getElementById('cgpa-department-select').addEventListener('change', handleCgpaDepartmentChange);
+            document.getElementById('add-cgpa-row-btn').addEventListener('click', () => addCgpaRow("", ""));
+            document.getElementById('calculate-cgpa-btn').addEventListener('click', calculateOverallCGPA);
+
+            // Global Overlay Events
             document.getElementById('close-overlay-btn').addEventListener('click', closeOverlay);
             document.getElementById('download-result-pdf-btn').addEventListener('click', triggerLivePDFGeneration);
             
             startLiveTrackingSession();
         });
 
-        // Fixed Database Path to load active dynamic admin configurations
+        // ================= TABS LOGIC =================
+        function switchTab(mode) {
+            currentActiveMode = mode;
+            const tabGpa = document.getElementById('tab-gpa');
+            const tabCgpa = document.getElementById('tab-cgpa');
+            const secGpa = document.getElementById('gpa-section');
+            const secCgpa = document.getElementById('cgpa-section');
+
+            if (mode === 'GPA') {
+                tabGpa.classList.add('active');
+                tabCgpa.classList.remove('active');
+                secGpa.classList.remove('hidden');
+                secCgpa.classList.add('hidden');
+            } else {
+                tabCgpa.classList.add('active');
+                tabGpa.classList.remove('active');
+                secCgpa.classList.remove('hidden');
+                secGpa.classList.add('hidden');
+            }
+        }
+
+        // ================= DEPARTMENT FETCH =================
         function listenDepartmentsAndBuildUI() {
             const depSelect = document.getElementById('department-select');
+            const cgpaDepSelect = document.getElementById('cgpa-department-select');
             const depRef = ref(db, 'uet_config/departments');
             
             onValue(depRef, (snapshot) => {
                 const deps = snapshot.val() || [];
-                depSelect.innerHTML = '<option value="" selected disabled>-- Select Department --</option>';
+                const optionsHTML = '<option value="" selected disabled>-- Select Department --</option>' +
+                                    deps.map(dep => dep ? `<option value="${dep}">${dep}</option>` : '').join('') +
+                                    '<option value="other">Other Department (Manual Entry)</option>';
                 
-                deps.forEach(depName => {
-                    if (depName) {
-                        depSelect.innerHTML += `<option value="${depName}">${depName}</option>`;
-                    }
-                });
-                
-                depSelect.innerHTML += `<option value="other">Other Department (Manual Entry)</option>`;
+                depSelect.innerHTML = optionsHTML;
+                cgpaDepSelect.innerHTML = optionsHTML;
             });
         }
 
+        // ================= GPA LOGIC (Old Logic intact) =================
         function handleDepartmentChange() {
             const dept = document.getElementById('department-select').value;
             const semWrapper = document.getElementById('semester-wrapper');
@@ -657,7 +813,6 @@
                 
                 semSelect.innerHTML = '<option value="">-- Loading Semesters... --</option>';
                 
-                // Fixed Node to match admin structural dynamic mapping
                 const subjectsRef = ref(db, `uet_config/subjectsData/${dept}`);
                 get(subjectsRef).then((snapshot) => {
                     const semesters = snapshot.val() || {};
@@ -755,14 +910,7 @@
             }
 
             headings.classList.remove('hidden');
-            headings.innerHTML = `
-                <div class="heading-item">Subject Name</div>
-                <div class="heading-item text-center">CH</div>
-                <div class="heading-item text-center">Grade Point</div>
-                <div class="heading-item text-right">Select Grade</div>
-            `;
-
-            // Fixed Node Endpoint to query exact mapped subject properties 
+            
             const semesterSubjectsRef = ref(db, `uet_config/subjectsData/${dept}/${sem}`);
             get(semesterSubjectsRef).then((snapshot) => {
                 const subjectsData = snapshot.val() || {};
@@ -770,7 +918,6 @@
                 let index = 0;
                 Object.keys(subjectsData).forEach(subKey => {
                     const sub = subjectsData[subKey];
-                    // FIX: Changed sub.creditHours to sub.ch to match Firebase Database
                     const parsedCH = parseInt(sub.ch) || 3;
                     
                     activeStructureSubjects.push({
@@ -818,12 +965,11 @@
             });
         }
 
-        async function calculateCGPA() {
+        async function calculateGPA() {
             const dept = document.getElementById('department-select').value;
             const studentName = document.getElementById('student-name').value.trim() || "Anonymous Student";
             let totalPoints = 0;
             let totalCreditHours = 0;
-            
             let finalSubjectsList = [];
 
             if (dept !== 'other') {
@@ -866,30 +1012,226 @@
 
             if(totalCreditHours === 0) return alert("Please select at least one subject!");
 
-            const cgpa = (totalPoints / totalCreditHours).toFixed(2);
+            const gpa = (totalPoints / totalCreditHours).toFixed(2);
 
             latestCalculatedSession = {
                 name: studentName,
                 department: dept === 'other' ? "Other Department (Manual Entry)" : dept,
                 semesterDetails: dept === 'other' ? "Custom Semester Breakdown" : document.getElementById('semester-select').value,
+                finalCGPA: gpa,
+                subjects: finalSubjectsList,
+                type: "GPA"
+            };
+
+            displayOverlayResult(parseFloat(gpa), studentName, "GPA");
+        }
+
+
+        // ================= CGPA LOGIC =================
+        function handleCgpaDepartmentChange() {
+            const dept = document.getElementById('cgpa-department-select').value;
+            const container = document.getElementById('cgpa-rows-container');
+            const calcBtn = document.getElementById('calculate-cgpa-btn');
+            const addBtn = document.getElementById('add-cgpa-row-btn');
+            const headings = document.getElementById('cgpa-headings');
+
+            container.innerHTML = '';
+            cgpaRowCount = 0;
+
+            if (!dept) return;
+
+            headings.classList.remove('hidden');
+            addBtn.classList.remove('hidden');
+            calcBtn.style.display = 'block';
+
+            if (dept === 'other') {
+                // Render 3 default rows if Other
+                addCgpaRow("Semester 1", "");
+                addCgpaRow("Semester 2", "");
+                addCgpaRow("Semester 3", "");
+            } else {
+                // Fetch dynamic semesters data from DB for CGPA
+                const cgpaDataRef = ref(db, `uet_config/cgpaData/${dept}`);
+                get(cgpaDataRef).then((snapshot) => {
+                    const semestersData = snapshot.val();
+                    
+                    if (semestersData) {
+                        // Data exists, convert to array and map
+                        const dataArray = Array.isArray(semestersData) ? semestersData : Object.values(semestersData);
+                        dataArray.forEach(sem => {
+                            if(sem && sem.name) {
+                                addCgpaRow(sem.name, sem.ch || "");
+                            }
+                        });
+                    } else {
+                        // Fallback to default 3 empty rows if Admin has not setup data for this department yet
+                        addCgpaRow("Semester 1", "");
+                        addCgpaRow("Semester 2", "");
+                        addCgpaRow("Semester 3", "");
+                    }
+                }).catch(err => {
+                    console.error("Error fetching CGPA setup from DB", err);
+                    addCgpaRow("Semester 1", "");
+                    addCgpaRow("Semester 2", "");
+                    addCgpaRow("Semester 3", "");
+                });
+            }
+        }
+
+        function addCgpaRow(defaultName = "", defaultCH = "") {
+            cgpaRowCount++;
+            const container = document.getElementById('cgpa-rows-container');
+            const rowId = `cgpa-row-${cgpaRowCount}`;
+            
+            const row = document.createElement('div');
+            row.className = 'cgpa-grid-layout cgpa-row';
+            row.id = rowId;
+            
+            // For manual addition, figure out the default name
+            if(!defaultName) {
+                const currentCount = container.children.length + 1;
+                defaultName = `Semester ${currentCount}`;
+            }
+
+            row.innerHTML = `
+                <div>
+                    <input type="text" class="manual-input-name cgpa-name-input" value="${defaultName}" placeholder="Semester Name">
+                </div>
+                <div>
+                    <input type="number" class="manual-input-name manual-select-ch cgpa-ch-input" value="${defaultCH}" placeholder="CH" min="1" max="25">
+                </div>
+                <div>
+                    <input type="number" class="manual-input-name cgpa-gpa-input" placeholder="GPA" step="0.01" min="0" max="4.00">
+                </div>
+                <div>
+                    <button class="del-row-btn" onclick="removeCgpaRow('${rowId}')">❌</button>
+                </div>
+            `;
+            container.appendChild(row);
+        }
+
+        // Must attach to window for inline onclick handler to work
+        window.removeCgpaRow = function(rowId) {
+            const row = document.getElementById(rowId);
+            if (row) row.remove();
+        };
+
+        function calculateOverallCGPA() {
+            const dept = document.getElementById('cgpa-department-select').value;
+            const studentName = document.getElementById('cgpa-student-name').value.trim() || "Anonymous Student";
+            
+            let totalCH = 0;
+            let totalPoints = 0;
+            let validSemesters = [];
+
+            const container = document.getElementById('cgpa-rows-container');
+            const rows = container.querySelectorAll('.cgpa-row');
+
+            if (rows.length === 0) return alert("Please add at least one semester!");
+
+            let error = false;
+
+            rows.forEach(row => {
+                const name = row.querySelector('.cgpa-name-input').value || "Unnamed Semester";
+                const ch = parseFloat(row.querySelector('.cgpa-ch-input').value);
+                const gpa = parseFloat(row.querySelector('.cgpa-gpa-input').value);
+
+                if (!isNaN(ch) && !isNaN(gpa) && ch > 0) {
+                    if (gpa > 4.00 || gpa < 0) {
+                        error = true;
+                        return;
+                    }
+                    totalCH += ch;
+                    totalPoints += (gpa * ch);
+                    
+                    validSemesters.push({
+                        name: name,
+                        ch: ch,
+                        gp: gpa.toFixed(2),
+                        grade: "-" // N/A for CGPA semester rows
+                    });
+                }
+            });
+
+            if (error) return alert("GPA cannot be greater than 4.00 or less than 0.");
+            if (totalCH === 0 || validSemesters.length === 0) return alert("Please enter valid Credit Hours (CH) and GPA in at least one row.");
+
+            const cgpa = (totalPoints / totalCH).toFixed(2);
+
+            latestCalculatedSession = {
+                name: studentName,
+                department: dept === 'other' ? "Other Department (Manual Entry)" : dept,
+                semesterDetails: "Cumulative Semesters Summary",
                 finalCGPA: cgpa,
-                subjects: finalSubjectsList
+                subjects: validSemesters,
+                type: "CGPA"
             };
 
             try {
                 const logsRef = ref(db, 'student_logs');
-                await push(logsRef, {
+                push(logsRef, {
                     name: studentName,
-                    semester: dept === 'other' ? "Other Dept (Manual Entry)" : document.getElementById('semester-select').value,
-                    gpa: cgpa,
-                    timestamp: new Date().toLocaleString(),
-                    subjectsBreakdown: finalSubjectsList
+                    type: "Cumulative CGPA",
+                    cgpa: cgpa,
+                    timestamp: new Date().toLocaleString()
                 });
-            } catch (e) {
-                console.error("Error saving log: ", e);
-            }
+            } catch (e) { console.error(e); }
 
-            displayOverlayResult(parseFloat(cgpa), studentName);
+            displayOverlayResult(parseFloat(cgpa), studentName, "CGPA");
+        }
+
+
+        // ================= OVERLAY & PDF =================
+        function displayOverlayResult(score, name, type) {
+            const overlay = document.getElementById('success-overlay');
+            const scoreSpan = document.getElementById('cgpa-score');
+            const msgP = document.getElementById('result-message');
+            const typeText = document.getElementById('score-type-text');
+
+            scoreSpan.innerText = score.toFixed(2);
+            typeText.innerText = type; // Will say "GPA" or "CGPA"
+            overlay.classList.add('active');
+
+            if (score >= 3.90) {
+                msgP.innerText = `👑 Very Excellent, ${name}! Brilliant academic score!`;
+            } else if (score >= 3.60) {
+                msgP.innerText = `🌟 Excellent, ${name}! Brilliant academic score!`;
+            } else if (score >= 3.00) {
+                msgP.innerText = `👍 Great work, ${name}! Very strong engineering score!`;
+            } else if (score >= 2.50) {
+                msgP.innerText = `✨ Good effort, ${name}! Keep grinding and push it higher!`;
+            } else {
+                msgP.innerText = `🎯 Keep your head up, ${name}! Work hard, next semester is yours!`;
+            }
+        }
+
+        function closeOverlay() {
+            document.getElementById('success-overlay').classList.remove('active');
+            
+            if(currentActiveMode === 'GPA') {
+                // Reset GPA
+                document.getElementById('student-name').value = '';
+                document.getElementById('department-select').selectedIndex = 0;
+                document.getElementById('semester-wrapper').classList.add('hidden');
+                document.getElementById('table-headings').classList.add('hidden');
+                document.getElementById('subjects-container').innerHTML = '';
+                document.getElementById('add-subject-btn').classList.add('hidden');
+                document.getElementById('preview-wrapper').classList.add('hidden');
+                document.getElementById('preview-rows-container').innerHTML = '';
+                document.getElementById('calculate-btn').style.display = 'none';
+                userAddedSubjects = [];
+                activeStructureSubjects = [];
+            } else {
+                // Reset CGPA
+                document.getElementById('cgpa-student-name').value = '';
+                document.getElementById('cgpa-department-select').selectedIndex = 0;
+                document.getElementById('cgpa-headings').classList.add('hidden');
+                document.getElementById('cgpa-rows-container').innerHTML = '';
+                document.getElementById('add-cgpa-row-btn').classList.add('hidden');
+                document.getElementById('calculate-cgpa-btn').style.display = 'none';
+            }
+            
+            latestCalculatedSession = null;
         }
 
         async function triggerLivePDFGeneration() {
@@ -910,11 +1252,7 @@
             downloadBtn.disabled = true;
 
             try {
-                const doc = new jsPDF({
-                    orientation: 'portrait',
-                    unit: 'mm',
-                    format: 'a4'
-                });
+                const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
 
                 const primaryColor = [26, 54, 93];   
                 const textColor = [45, 55, 72];      
@@ -933,7 +1271,10 @@
                 doc.setFont("helvetica", "normal");
                 doc.setFontSize(10);
                 doc.setTextColor(113, 128, 150);
-                doc.text("Verified Grade Point Average Summary Statement", 105, 34, { align: "center" });
+                
+                let subtitle = latestCalculatedSession.type === "CGPA" ? 
+                    "Verified Cumulative GPA Summary Statement" : "Verified Grade Point Average Summary Statement";
+                doc.text(subtitle, 105, 34, { align: "center" });
 
                 doc.setLineWidth(0.5);
                 doc.line(20, 40, 190, 40);
@@ -944,7 +1285,7 @@
                 doc.setTextColor(74, 85, 104);
                 doc.text("Student Name:", 20, 52);
                 doc.text("Department:", 20, 59);
-                doc.text("Semester:", 115, 52);
+                doc.text("Details:", 115, 52);
                 doc.text("Date Issued:", 115, 59);
 
                 doc.setFont("helvetica", "normal");
@@ -961,14 +1302,22 @@
                 doc.setFont("helvetica", "bold");
                 doc.setFontSize(9);
                 doc.setTextColor(255, 255, 255);
-                doc.text("Course / Subject Description", 23, yPos + 6.5);
+                
+                let header1 = latestCalculatedSession.type === "CGPA" ? "Semester Description" : "Course / Subject Description";
+                doc.text(header1, 23, yPos + 6.5);
                 doc.text("Credit Hours", 115, yPos + 6.5, { align: "center" });
-                doc.text("Grade Points", 145, yPos + 6.5, { align: "center" });
+                
+                let header3 = latestCalculatedSession.type === "CGPA" ? "Obtained GPA" : "Grade Points";
+                doc.text(header3, 145, yPos + 6.5, { align: "center" });
                 doc.text("Grade", 178, yPos + 6.5, { align: "center" });
 
                 yPos += 10;
 
                 latestCalculatedSession.subjects.forEach((sub) => {
+                    if(yPos > 250) {
+                        doc.addPage();
+                        yPos = 20; // reset yPos on new page
+                    }
                     doc.setDrawColor(226, 232, 240);
                     doc.setLineWidth(0.2);
                     doc.line(20, yPos + 10, 190, yPos + 10);
@@ -994,13 +1343,16 @@
                 });
 
                 yPos += 12;
+                if(yPos > 250) { doc.addPage(); yPos = 20; }
+                
                 doc.setFillColor(primaryColor[0], primaryColor[1], primaryColor[2]);
                 doc.rect(120, yPos, 70, 22, "F");
 
                 doc.setFont("helvetica", "normal");
                 doc.setFontSize(8);
                 doc.setTextColor(203, 213, 225);
-                doc.text("FINAL SEMESTER CGPA", 155, yPos + 6, { align: "center" });
+                let finalScoreText = latestCalculatedSession.type === "CGPA" ? "CUMULATIVE CGPA" : "FINAL SEMESTER GPA";
+                doc.text(finalScoreText, 155, yPos + 6, { align: "center" });
 
                 doc.setFont("helvetica", "bold");
                 doc.setFontSize(22);
@@ -1020,7 +1372,7 @@
                     align: "center" 
                 });
 
-                const targetDocFileName = `${latestCalculatedSession.name.replace(/\s+/g, '_')}_Academic_Report.pdf`;
+                const targetDocFileName = `${latestCalculatedSession.name.replace(/\s+/g, '_')}_${latestCalculatedSession.type}_Report.pdf`;
                 doc.save(targetDocFileName);
 
             } catch (err) {
@@ -1030,44 +1382,6 @@
                 downloadBtn.innerHTML = originalText;
                 downloadBtn.disabled = false;
             }
-        }
-
-        function displayOverlayResult(cgpa, name) {
-            const overlay = document.getElementById('success-overlay');
-            const scoreSpan = document.getElementById('cgpa-score');
-            const msgP = document.getElementById('result-message');
-
-            scoreSpan.innerText = cgpa.toFixed(2);
-            overlay.classList.add('active');
-
-            if (cgpa >= 3.90) {
-                msgP.innerText = `👑 Very Excellent, ${name}! Brilliant academic score!`;
-            } else if (cgpa >= 3.60) {
-                msgP.innerText = `🌟 Excellent, ${name}! Brilliant academic score!`;
-            } else if (cgpa >= 3.00) {
-                msgP.innerText = `👍 Great work, ${name}! Very strong engineering score!`;
-            } else if (cgpa >= 2.50) {
-                msgP.innerText = `✨ Good effort, ${name}! Keep grinding and push it higher!`;
-            } else {
-                msgP.innerText = `🎯 Keep your head up, ${name}! Work hard, next semester is yours!`;
-            }
-        }
-
-        function closeOverlay() {
-            document.getElementById('success-overlay').classList.remove('active');
-            
-            document.getElementById('student-name').value = '';
-            document.getElementById('department-select').selectedIndex = 0;
-            document.getElementById('semester-wrapper').classList.add('hidden');
-            document.getElementById('table-headings').classList.add('hidden');
-            document.getElementById('subjects-container').innerHTML = '';
-            document.getElementById('add-subject-btn').classList.add('hidden');
-            document.getElementById('preview-wrapper').classList.add('hidden');
-            document.getElementById('preview-rows-container').innerHTML = '';
-            document.getElementById('calculate-btn').style.display = 'none';
-            userAddedSubjects = [];
-            activeStructureSubjects = [];
-            latestCalculatedSession = null;
         }
     </script>
 </body>
