@@ -276,6 +276,47 @@
             background: rgba(99, 102, 241, 0.1); border: 1px solid rgba(99, 102, 241, 0.2);
             display: flex; justify-content: space-between; font-weight: 600; font-size: 0.85rem;
         }
+
+        /* --- Beautiful Mode Selector (Tabs Outside Box) --- */
+        .mode-selector {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            margin: 25px 0 15px 0;
+            padding: 0 10px;
+        }
+        .mode-tab {
+            background: transparent;
+            border: none;
+            color: #94a3b8;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            padding-bottom: 10px;
+            position: relative;
+            transition: all 0.3s ease;
+            letter-spacing: 0.5px;
+        }
+        .mode-tab:hover { color: #ffffff; }
+        .mode-tab.active { color: #34d399; }
+        
+        /* The glowing underline indicator */
+        .mode-tab::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 3px;
+            background: #34d399;
+            border-radius: 4px;
+            transition: width 0.3s ease;
+            box-shadow: 0 0 12px rgba(52, 211, 153, 0.6);
+        }
+        .mode-tab.active::after { width: 100%; }
+        
+        .hidden { display: none !important; }
     </style>
 </head>
 <body>
@@ -295,7 +336,7 @@
             <i class="fa-solid fa-tower-broadcast"></i> Live Traffic System
         </div>
         <div class="sidebar-nav-item" data-target="subject-section">
-            <i class="fa-solid fa-book-bookmark"></i> Manage Subjects
+            <i class="fa-solid fa-book-bookmark"></i> Manage Subjects & CGPA
         </div>
         <div class="sidebar-nav-item" data-target="live-users-section">
             <i class="fa-solid fa-users-viewfinder"></i> Live User Data
@@ -346,40 +387,81 @@
                     </div>
                 </div>
                 <div class="dep-list-wrapper" id="managed-deps-list">
-                    </div>
+                </div>
             </div>
 
-            <div class="card-panel">
-                <h2 class="section-title"><i class="fa-solid fa-folder-plus" style="color: var(--primary);"></i> 2. Manage Subjects</h2>
+            <!-- Tabs Section (Outside any box) -->
+            <div class="mode-selector">
+                <button class="mode-tab active" id="tab-manage-gpa">Manage Subjects</button>
+                <button class="mode-tab" id="tab-manage-cgpa">Manage CGPA Data</button>
+            </div>
+
+            <!-- ===================== GPA MANAGE SECTION ===================== -->
+            <div id="manage-gpa-container">
+                <div class="card-panel">
+                    <h2 class="section-title"><i class="fa-solid fa-folder-plus" style="color: var(--primary);"></i> 2. Manage Subjects (GPA)</h2>
+                    
+                    <div class="form-group">
+                        <label>Select Department</label>
+                        <select id="admin-select-dep">
+                            <option value="">-- Choose Department --</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Semester Name</label>
+                        <input type="text" id="admin-sem" placeholder="e.g., 1st Semester">
+                    </div>
+                    <div class="form-group">
+                        <label>Subject Name</label>
+                        <input type="text" id="admin-sub-name" placeholder="e.g., Engineering Mechanics-I">
+                    </div>
+                    <div class="form-group">
+                        <label>Credit Hours</label>
+                        <input type="number" id="admin-sub-ch" min="1" max="5" placeholder="3">
+                    </div>
+                    <button class="btn btn-success" id="save-btn">Save Subject Structure</button>
+                </div>
                 
-                <div class="form-group">
-                    <label>Select Department</label>
-                    <select id="admin-select-dep">
-                        <option value="">-- Choose Department --</option>
-                    </select>
+                <div class="card-panel">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                        <h3 style="color: var(--text-main); font-weight: 600; font-size: 0.95rem;">Active Subjects</h3>
+                        <span id="current-filtered-dep-badge" style="font-size: 0.75rem; color: var(--warning); font-weight: 600; background: rgba(251,191,36,0.1); padding: 4px 10px; border-radius: 20px; border: 1px solid rgba(251,191,36,0.2);">All Depts</span>
+                    </div>
+                    <div id="admin-list-container">Select a department to view configurations...</div>
                 </div>
-                <div class="form-group">
-                    <label>Semester Name</label>
-                    <input type="text" id="admin-sem" placeholder="e.g., 1st semester">
-                </div>
-                <div class="form-group">
-                    <label>Subject Name</label>
-                    <input type="text" id="admin-sub-name" placeholder="e.g., Engineering Mechanics-I">
-                </div>
-                <div class="form-group">
-                    <label>Credit Hours</label>
-                    <input type="number" id="admin-sub-ch" min="1" max="5" placeholder="3">
-                </div>
-                <button class="btn btn-success" id="save-btn">Save Subject Structure</button>
             </div>
-            
-            <div class="card-panel">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                    <h3 style="color: var(--text-main); font-weight: 600; font-size: 0.95rem;">Active Configurations</h3>
-                    <span id="current-filtered-dep-badge" style="font-size: 0.75rem; color: var(--warning); font-weight: 600; background: rgba(251,191,36,0.1); padding: 4px 10px; border-radius: 20px; border: 1px solid rgba(251,191,36,0.2);">All Depts</span>
+
+            <!-- ===================== CGPA MANAGE SECTION ===================== -->
+            <div id="manage-cgpa-container" class="hidden">
+                <div class="card-panel">
+                    <h2 class="section-title"><i class="fa-solid fa-layer-group" style="color: #34d399;"></i> 2. Manage Semesters (CGPA)</h2>
+                    
+                    <div class="form-group">
+                        <label>Select Department</label>
+                        <select id="admin-cgpa-select-dep">
+                            <option value="">-- Choose Department --</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Semester Name</label>
+                        <input type="text" id="admin-cgpa-sem" placeholder="e.g., 1st Semester">
+                    </div>
+                    <div class="form-group">
+                        <label>Total Credit Hours (CH) of this Semester</label>
+                        <input type="number" id="admin-cgpa-ch" min="1" max="25" placeholder="e.g., 17">
+                    </div>
+                    <button class="btn btn-success" id="save-cgpa-btn" style="background: linear-gradient(135deg, #047857 0%, #10b981 100%); border: none;">Save CGPA Structure</button>
                 </div>
-                <div id="admin-list-container">Select a department to view configurations...</div>
+                
+                <div class="card-panel">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                        <h3 style="color: var(--text-main); font-weight: 600; font-size: 0.95rem;">Active CGPA Semesters</h3>
+                        <span id="current-filtered-cgpa-dep-badge" style="font-size: 0.75rem; color: #34d399; font-weight: 600; background: rgba(52, 211, 153, 0.1); padding: 4px 10px; border-radius: 20px; border: 1px solid rgba(52, 211, 153, 0.2);">All Depts</span>
+                    </div>
+                    <div id="admin-cgpa-list-container">Select a department to view configurations...</div>
+                </div>
             </div>
+
         </div>
 
         <div id="live-users-section" class="app-section">
@@ -397,6 +479,7 @@
 
     </div>
 
+    <!-- GPA SUBJECT EDIT MODAL -->
     <div class="custom-modal" id="edit-subject-modal">
         <div class="modal-body-content" style="max-width: 400px;">
             <button class="close-modal" id="edit-modal-close-btn"><i class="fa-solid fa-circle-xmark"></i></button>
@@ -421,6 +504,27 @@
         </div>
     </div>
 
+    <!-- CGPA SEMESTER EDIT MODAL -->
+    <div class="custom-modal" id="edit-cgpa-modal">
+        <div class="modal-body-content" style="max-width: 400px;">
+            <button class="close-modal" id="edit-cgpa-modal-close-btn"><i class="fa-solid fa-circle-xmark"></i></button>
+            <h3 style="color: #fff; font-weight: 700; margin-bottom: 15px; font-size: 1rem;"><i class="fa-solid fa-pen-to-square" style="color: #34d399"></i> Edit CGPA Semester</h3>
+            
+            <input type="hidden" id="edit-cgpa-id">
+
+            <div class="form-group">
+                <label>Semester Name</label>
+                <input type="text" id="edit-cgpa-name">
+            </div>
+            <div class="form-group">
+                <label>Credit Hours</label>
+                <input type="number" id="edit-cgpa-ch" min="1" max="25">
+            </div>
+            <button class="btn btn-primary" id="update-cgpa-btn" style="background: #10b981; border: none;">Update Semester</button>
+        </div>
+    </div>
+
+    <!-- LIVE USER DETAILS MODAL -->
     <div class="custom-modal" id="details-modal">
         <div class="modal-body-content">
             <button class="close-modal" id="modal-close-btn"><i class="fa-solid fa-circle-xmark"></i></button>
@@ -431,7 +535,7 @@
                 <table class="data-table-specs">
                     <thead>
                         <tr>
-                            <th>Subject</th>
+                            <th>Subject / Semester</th>
                             <th>CH</th>
                             <th>Points</th>
                             <th>Grade</th>
@@ -466,9 +570,11 @@
         const db = getDatabase(app);
 
         let departmentsList = [];
-        let academicData = {}; // Stores subjects for the CURRENT active department selection
+        let academicData = {}; // For GPA
+        let academicCgpaData = []; // For CGPA
         let activeLogsData = {};
 
+        // Sidebar Navigation
         const menuToggle = document.getElementById('menu-toggle');
         const sidebarDrawer = document.getElementById('sidebar-drawer');
         const sidebarOverlay = document.getElementById('sidebar-overlay');
@@ -494,6 +600,26 @@
                 document.getElementById(targetView).classList.add('active-view');
                 toggleSidebar();
             });
+        });
+
+        // Toggle Inner Tabs (GPA / CGPA)
+        const tabManageGpa = document.getElementById('tab-manage-gpa');
+        const tabManageCgpa = document.getElementById('tab-manage-cgpa');
+        const containerGpa = document.getElementById('manage-gpa-container');
+        const containerCgpa = document.getElementById('manage-cgpa-container');
+
+        tabManageGpa.addEventListener('click', () => {
+            tabManageGpa.classList.add('active');
+            tabManageCgpa.classList.remove('active');
+            containerGpa.classList.remove('hidden');
+            containerCgpa.classList.add('hidden');
+        });
+
+        tabManageCgpa.addEventListener('click', () => {
+            tabManageCgpa.classList.add('active');
+            tabManageGpa.classList.remove('active');
+            containerCgpa.classList.remove('hidden');
+            containerGpa.classList.add('hidden');
         });
 
         // 🟢 REALTIME TRAFFIC MONITOR
@@ -557,23 +683,23 @@
         });
 
         function renderDepartmentUIElements() {
-            const selectDropdown = document.getElementById('admin-select-dep');
+            const selectDropdownGpa = document.getElementById('admin-select-dep');
+            const selectDropdownCgpa = document.getElementById('admin-cgpa-select-dep');
             const managedList = document.getElementById('managed-deps-list');
             
-            const currentSelection = selectDropdown.value;
+            const currentGpaSelection = selectDropdownGpa.value;
+            const currentCgpaSelection = selectDropdownCgpa.value;
             
-            selectDropdown.innerHTML = '<option value="">-- Choose Department --</option>';
+            const optionsHTML = '<option value="">-- Choose Department --</option>' + 
+                                departmentsList.filter(d => d).map(dep => `<option value="${dep}">${dep}</option>`).join('');
+
+            selectDropdownGpa.innerHTML = optionsHTML;
+            selectDropdownCgpa.innerHTML = optionsHTML;
+            
             managedList.innerHTML = '';
 
             departmentsList.forEach((dep, index) => {
                 if (dep) {
-                    // Fill configuration Dropdown
-                    const opt = document.createElement('option');
-                    opt.value = dep;
-                    opt.innerText = dep;
-                    selectDropdown.appendChild(opt);
-
-                    // Fill inline deletion list control card
                     const row = document.createElement('div');
                     row.className = 'dep-managed-row';
                     row.innerHTML = `
@@ -584,12 +710,18 @@
                 }
             });
 
-            if(departmentsList.includes(currentSelection)) {
-                selectDropdown.value = currentSelection;
-            } else {
+            if(departmentsList.includes(currentGpaSelection)) selectDropdownGpa.value = currentGpaSelection;
+            else {
                 document.getElementById('admin-list-container').innerHTML = 'Select a department to view configurations...';
                 document.getElementById('current-filtered-dep-badge').innerText = "All Depts";
                 academicData = {};
+            }
+
+            if(departmentsList.includes(currentCgpaSelection)) selectDropdownCgpa.value = currentCgpaSelection;
+            else {
+                document.getElementById('admin-cgpa-list-container').innerHTML = 'Select a department to view configurations...';
+                document.getElementById('current-filtered-cgpa-dep-badge').innerText = "All Depts";
+                academicCgpaData = [];
             }
         }
 
@@ -608,18 +740,20 @@
             alert(`"${newDepInput}" Selection control list mein kamiyabi se add ho gaya hai!`);
         });
 
-        // 🗑️ DELETE ENTIRE DEPARTMENT & CORRESPONDING SUBJECTS STRUCTURE
+        // 🗑️ DELETE ENTIRE DEPARTMENT
         window.deleteEntireDepartment = async function(index, depName) {
-            if (!confirm(`⚠️ WARNING: Kia aap waqai "${depName}" aur iske andar ka saara semester/subject data hamesha k liye delete krna chahty hain?`)) return;
+            if (!confirm(`⚠️ WARNING: Kia aap waqai "${depName}" aur iske andar ka saara GPA aur CGPA data hamesha k liye delete krna chahty hain?`)) return;
 
             departmentsList.splice(index, 1);
             await set(ref(db, 'uet_config/departments'), departmentsList);
             await remove(ref(db, `uet_config/subjectsData/${depName}`));
+            await remove(ref(db, `uet_config/cgpaData/${depName}`));
             
             alert(`"${depName}" completely dropped out from cloud structures.`);
         };
 
-        // 🔄 TRIGGER DYNAMIC RE-INDEXING ON DROPDOWN SELECTION CHANGED
+
+        // ======================= GPA CONFIGURATIONS LOGIC =======================
         document.getElementById('admin-select-dep').addEventListener('change', async (e) => {
             const selectedDep = e.target.value;
             const container = document.getElementById('admin-list-container');
@@ -640,7 +774,6 @@
             renderAdminPanelList();
         });
 
-        // 💾 SAVE SUBJECT TRANSACTION
         document.getElementById('save-btn').addEventListener('click', async () => {
             const selectedDep = document.getElementById('admin-select-dep').value;
             const sem = document.getElementById('admin-sem').value.trim();
@@ -666,7 +799,6 @@
             alert("Subject successfully saved!");
         });
 
-        // 🗑️ DELETE SINGLE SUBJECT
         window.deleteSubject = async function(sem, id) {
             const selectedDep = document.getElementById('admin-select-dep').value;
             if(!selectedDep) return;
@@ -682,14 +814,6 @@
             renderAdminPanelList();
         };
 
-        window.toggleDropdown = function(event, id) {
-            event.stopPropagation();
-            document.querySelectorAll('.dropdown-menu').forEach(el => {
-                if(el.id !== 'dropdown-' + id) el.classList.remove('show');
-            });
-            document.getElementById('dropdown-' + id).classList.toggle('show');
-        };
-
         window.openEditSubjectModal = function(sem, id, name, ch) {
             document.getElementById('edit-old-sem').value = sem;
             document.getElementById('edit-sub-id').value = id;
@@ -699,7 +823,6 @@
             document.getElementById('edit-subject-modal').classList.add('modal-open');
         };
 
-        // 📋 UPDATE SUBJECT SPEC DATA
         document.getElementById('update-sub-btn').addEventListener('click', async () => {
             const selectedDep = document.getElementById('admin-select-dep').value;
             if(!selectedDep) return;
@@ -736,7 +859,6 @@
             document.getElementById('edit-subject-modal').classList.remove('modal-open');
         });
 
-        // RE-RENDER ACTIVE CONFIG LISTS FOR THE SELECTED DEPT
         function renderAdminPanelList() {
             const container = document.getElementById('admin-list-container');
             container.innerHTML = '';
@@ -779,6 +901,152 @@
             }
         }
 
+        // ======================= CGPA CONFIGURATIONS LOGIC =======================
+        
+        document.getElementById('admin-cgpa-select-dep').addEventListener('change', async (e) => {
+            const selectedDep = e.target.value;
+            const container = document.getElementById('admin-cgpa-list-container');
+            const badge = document.getElementById('current-filtered-cgpa-dep-badge');
+            
+            if(!selectedDep) {
+                container.innerHTML = 'Select a department to view configurations...';
+                badge.innerText = "All Depts";
+                academicCgpaData = [];
+                return;
+            }
+
+            badge.innerText = selectedDep;
+            container.innerHTML = 'Syncing cloud data stream mapping...';
+
+            const snapshot = await get(ref(db, `uet_config/cgpaData/${selectedDep}`));
+            let rawData = snapshot.val();
+            if (rawData) {
+                academicCgpaData = Array.isArray(rawData) ? rawData : Object.values(rawData);
+                academicCgpaData = academicCgpaData.filter(x => x !== null);
+            } else {
+                academicCgpaData = [];
+            }
+            renderAdminCgpaList();
+        });
+
+        document.getElementById('save-cgpa-btn').addEventListener('click', async () => {
+            const selectedDep = document.getElementById('admin-cgpa-select-dep').value;
+            const name = document.getElementById('admin-cgpa-sem').value.trim();
+            const chInput = document.getElementById('admin-cgpa-ch').value;
+            const ch = parseInt(chInput, 10);
+
+            if(!selectedDep) return alert("Pehle Dropdown se Department select krein!");
+            if(!name || !chInput || isNaN(ch)) return alert("Saari fields fill krna lazmi hain!");
+
+            academicCgpaData.push({ id: Date.now(), name: name, ch: ch });
+            await set(ref(db, `uet_config/cgpaData/${selectedDep}`), academicCgpaData);
+            
+            document.getElementById('admin-cgpa-sem').value = '';
+            document.getElementById('admin-cgpa-ch').value = '';
+            renderAdminCgpaList();
+            alert("CGPA Semester structure successfully saved!");
+        });
+
+        window.deleteCgpaSemester = async function(id) {
+            const selectedDep = document.getElementById('admin-cgpa-select-dep').value;
+            if(!selectedDep) return;
+            
+            if (!confirm("Kia aap waqai is semester ko delete krna chahty hain?")) return;
+            
+            academicCgpaData = academicCgpaData.filter(sem => sem && sem.id !== id);
+            
+            await set(ref(db, `uet_config/cgpaData/${selectedDep}`), academicCgpaData);
+            renderAdminCgpaList();
+        };
+
+        window.openEditCgpaModal = function(id, name, ch) {
+            document.getElementById('edit-cgpa-id').value = id;
+            document.getElementById('edit-cgpa-name').value = name;
+            document.getElementById('edit-cgpa-ch').value = ch;
+            document.getElementById('edit-cgpa-modal').classList.add('modal-open');
+        };
+
+        document.getElementById('update-cgpa-btn').addEventListener('click', async () => {
+            const selectedDep = document.getElementById('admin-cgpa-select-dep').value;
+            if(!selectedDep) return;
+
+            const id = parseInt(document.getElementById('edit-cgpa-id').value, 10);
+            const newName = document.getElementById('edit-cgpa-name').value.trim();
+            const newCh = parseInt(document.getElementById('edit-cgpa-ch').value, 10);
+
+            if(!newName || isNaN(newCh)) return alert("Saari fields fill krna lazmi hain!");
+
+            academicCgpaData = academicCgpaData.map(sem => {
+                if(sem.id === id) {
+                    return { id: id, name: newName, ch: newCh };
+                }
+                return sem;
+            });
+
+            await set(ref(db, `uet_config/cgpaData/${selectedDep}`), academicCgpaData);
+            
+            document.getElementById('edit-cgpa-modal').classList.remove('modal-open');
+            renderAdminCgpaList();
+            alert("CGPA Semester details updated!");
+        });
+
+        document.getElementById('edit-cgpa-modal-close-btn').addEventListener('click', () => {
+            document.getElementById('edit-cgpa-modal').classList.remove('modal-open');
+        });
+
+        function renderAdminCgpaList() {
+            const container = document.getElementById('admin-cgpa-list-container');
+            container.innerHTML = '';
+            if(!academicCgpaData || academicCgpaData.length === 0) {
+                container.innerHTML = '<p style="color:var(--text-muted); font-size:0.8rem;">No active CGPA semesters configured for this department.</p>';
+                return;
+            }
+            
+            let div = document.createElement('div');
+            div.className = 'sem-block';
+            
+            academicCgpaData.forEach(sem => {
+                if(sem) {
+                    const safeName = sem.name.replace(/'/g, "\\'");
+                    div.innerHTML += `
+                        <div class="sub-item-row" style="background: rgba(16, 185, 129, 0.05); border: 1px solid rgba(16, 185, 129, 0.1);">
+                            <span><i class="fa-solid fa-layer-group" style="color: #34d399; margin-right: 6px;"></i> ${sem.name} <b style="color:var(--text-muted); margin-left:4px;">(${sem.ch} CH)</b></span>
+                            <div class="action-btns">
+                                <div class="actions-dropdown">
+                                    <button class="dropdown-trigger" onclick="toggleDropdown(event, 'cgpa-${sem.id}')">
+                                        <i class="fa-solid fa-ellipsis-vertical"></i>
+                                    </button>
+                                    <div class="dropdown-menu" id="dropdown-cgpa-${sem.id}">
+                                        <div class="dropdown-item" onclick="openEditCgpaModal(${sem.id}, '${safeName}', ${sem.ch})">
+                                            <i class="fa-solid fa-pen-to-square" style="color:#34d399"></i> Edit
+                                        </div>
+                                        <div class="dropdown-item del-btn" onclick="deleteCgpaSemester(${sem.id})">
+                                            <i class="fa-regular fa-trash-can"></i> Delete
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>`;
+                }
+            });
+            container.appendChild(div);
+        }
+
+        // Dropdown toggle logic global
+        window.toggleDropdown = function(event, id) {
+            event.stopPropagation();
+            document.querySelectorAll('.dropdown-menu').forEach(el => {
+                if(el.id !== 'dropdown-' + id) el.classList.remove('show');
+            });
+            const target = document.getElementById('dropdown-' + id);
+            if(target) target.classList.toggle('show');
+        };
+
+        window.addEventListener('click', () => {
+            document.querySelectorAll('.dropdown-menu').forEach(el => el.classList.remove('show'));
+        });
+
+
         // 🟢 REALTIME LOG MONITORING FOR INCOMING STUDENT ENTRIES
         const logsRef = ref(db, 'student_logs');
         onValue(logsRef, (snapshot) => {
@@ -804,10 +1072,10 @@
                     <strong style="color:#fff; font-size:0.9rem;">${logVal.name || 'Anonymous Student'}</strong> 
                     <span style="float:right; font-size:0.7rem; color:var(--text-muted);">${logVal.timestamp || ''}</span>
                     <p style="margin-top:4px; color:#d4d4d8; font-size:0.78rem;">
-                        Dept: <b style="color:#34d399;">${logVal.department || 'N/A'}</b> | Semester: <b style="color:#fbbf24;">${logVal.semester || 'N/A'}</b>
+                        Dept: <b style="color:#34d399;">${logVal.department || 'N/A'}</b> | Info: <b style="color:#fbbf24;">${logVal.semester || logVal.type || 'N/A'}</b>
                     </p>
                     <div class="card-actions-wrapper">
-                        <div style="font-size:0.78rem;">Calculated CGPA: <span class="score-lbl-badge">${logVal.gpa || logVal.cgpa || '0.00'}</span></div>
+                        <div style="font-size:0.78rem;">Calculated Score: <span class="score-lbl-badge">${logVal.gpa || logVal.cgpa || '0.00'}</span></div>
                         <button class="delete-log-btn" onclick="deleteUserLogRecord(event, '${logKey}')">
                             <i class="fa-solid fa-trash-arrow-up"></i> Delete
                         </button>
@@ -834,7 +1102,7 @@
             if(!targetData) return;
 
             document.getElementById('modal-user-title').innerText = targetData.name || 'Student Sheet';
-            document.getElementById('modal-timestamp').innerText = `Submitted on: ${targetData.timestamp || 'Unknown Time'} (Dept: ${targetData.department || 'N/A'} | Sem: ${targetData.semester || 'N/A'})`;
+            document.getElementById('modal-timestamp').innerText = `Submitted on: ${targetData.timestamp || 'Unknown Time'} (Dept: ${targetData.department || 'N/A'} | Details: ${targetData.semester || targetData.type || 'N/A'})`;
             document.getElementById('modal-gpa-badge').innerText = targetData.gpa || targetData.cgpa || '0.00';
 
             const tableBody = document.getElementById('modal-table-rows');
@@ -849,7 +1117,7 @@
                 subjectList = targetData.details;
             } else {
                 for (let key in targetData) {
-                    if (!['name', 'timestamp', 'gpa', 'cgpa', 'semester', 'department'].includes(key) && typeof targetData[key] === 'object') {
+                    if (!['name', 'timestamp', 'gpa', 'cgpa', 'semester', 'department', 'type'].includes(key) && typeof targetData[key] === 'object') {
                         subjectList = targetData[key];
                         break;
                     }
@@ -874,7 +1142,7 @@
                     `;
                 });
             } else {
-                tableBody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:var(--text-muted); padding:10px;">Details fields array mapped nahi hain. (CGPA: ${targetData.gpa || targetData.cgpa || '0.00'})</td></tr>`;
+                tableBody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:var(--text-muted); padding:10px;">Detailed arrays are not mapped for this entry. (Score: ${targetData.gpa || targetData.cgpa || '0.00'})</td></tr>`;
             }
 
             detailsModal.classList.add('modal-open');
@@ -892,10 +1160,6 @@
                     alert("Error: " + err.message);
                 }
             }
-        });
-
-        window.addEventListener('click', () => {
-            document.querySelectorAll('.dropdown-menu').forEach(el => el.classList.remove('show'));
         });
 
         const detailsModal = document.getElementById('details-modal');
