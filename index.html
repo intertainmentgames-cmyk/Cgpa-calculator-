@@ -440,7 +440,7 @@
             padding: 40px 30px; border-radius: 32px; text-align: center; max-width: 500px; width: 100%;
             box-shadow: 0 40px 80px rgba(0, 0, 0, 0.7); 
             transform: scale(0.85); transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            overflow: hidden; z-index: 10000;
+            overflow-y: auto; max-height: 88vh; z-index: 10000;
         }
         .overlay.active .overlay-content { transform: scale(1); }
         
@@ -493,8 +493,11 @@
             .sub-grade { font-size: 0.8rem; padding: 4px; height: 34px; }
             
             .card-panel { padding: 25px 16px; }
-            .overlay-content { padding: 35px 20px 30px 20px; }
+            .overlay-content { padding: 30px 20px 24px 20px; max-height: 92vh; }
             #cgpa-score { font-size: 2.6rem; }
+            .checkmark-circle { width: 70px; height: 70px; }
+            .overlay-title { margin-top: 18px; font-size: 1.4rem; }
+            .overlay-msg { margin: 12px 0 20px 0; }
         }
         
         @page { size: A4; margin: 0; }
