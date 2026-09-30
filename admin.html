@@ -118,6 +118,7 @@
 
         .app-section { display: none; }
         .app-section.active-view { display: block; }
+        .app-section.active-view { display: flex; flex-direction: column; gap: 14px; }
 
         .container { max-width: 550px; margin: 20px auto; padding: 0 16px; display: flex; flex-direction: column; gap: 14px; }
 
@@ -190,11 +191,12 @@
         .form-group { margin-bottom: 14px; }
         .form-group label { display: block; margin-bottom: 6px; font-weight: 500; color: var(--text-muted); font-size: 0.8rem; }
 
-        input, select {
+        input, select, textarea {
             width: 100%; padding: 10px 14px; background: rgba(5, 5, 10, 0.4); border: 1px solid var(--glass-border);
             border-radius: 10px; outline: none; font-size: 0.88rem; color: #fff; transition: 0.2s;
         }
-        input:focus, select:focus { border-color: var(--primary); box-shadow: 0 0 8px rgba(99, 102, 241, 0.2); }
+        textarea { resize: vertical; min-height: 90px; line-height: 1.5; }
+        input:focus, select:focus, textarea:focus { border-color: var(--primary); box-shadow: 0 0 8px rgba(99, 102, 241, 0.2); }
         select option { background: #0f172a; color: #fff; }
 
         /* Custom UI element for Department layout with inline action */
@@ -212,6 +214,8 @@
         .btn-success:hover { background: #059669; }
         .btn-primary { background: var(--primary); color: white; }
         .btn-primary:hover { background: #4f46e5; }
+        .btn-ghost { background: rgba(255,255,255,0.06); color: var(--text-main); border: 1px solid var(--glass-border); }
+        .btn-ghost:hover { background: rgba(255,255,255,0.12); }
         
         .btn-danger-action {
             background: rgba(239, 68, 68, 0.15); color: #fca5a5; border: 1px solid rgba(239, 68, 68, 0.4);
@@ -264,6 +268,7 @@
             background: #0f172a; border: 1px solid var(--glass-border);
             max-width: 500px; width: 100%; border-radius: 16px; padding: 20px;
             position: relative; box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+            max-height: 90vh; overflow-y: auto;
         }
         
         .close-modal { position: absolute; top: 15px; right: 15px; background: none; border: none; color: var(--text-muted); font-size: 1.1rem; cursor: pointer; }
@@ -317,6 +322,21 @@
         .mode-tab.active::after { width: 100%; }
         
         .hidden { display: none !important; }
+
+        /* ===== Developer Profile section ===== */
+        .dev-preview-card { display: flex; gap: 14px; align-items: center; }
+        .dev-prev-img { width: 78px; height: 78px; border-radius: 50%; object-fit: cover; border: 2px solid rgba(255,255,255,0.15); background: #0f172a; flex-shrink: 0; }
+        .dev-prev-info { min-width: 0; flex: 1; }
+        .dev-prev-name { font-weight: 700; font-size: 1rem; color: #fff; word-wrap: break-word; }
+        .dev-prev-desc { font-size: 0.8rem; color: var(--text-muted); margin-top: 4px; line-height: 1.5; white-space: pre-line; word-wrap: break-word; }
+        .dev-action-row { display: flex; gap: 8px; margin-top: 14px; }
+        .dev-action-row .btn { padding: 9px; }
+        .btn-delete-solid { background: rgba(239, 68, 68, 0.15); color: #fca5a5; border: 1px solid rgba(239, 68, 68, 0.4); }
+        .btn-delete-solid:hover { background: var(--danger); color: #fff; }
+        .dev-form-photo { display: flex; align-items: center; gap: 12px; }
+        .dev-form-photo img { width: 64px; height: 64px; border-radius: 50%; object-fit: cover; border: 2px solid rgba(255,255,255,0.15); background: #0f172a; flex-shrink: 0; }
+        .dev-form-photo input[type="file"] { padding: 8px; font-size: 0.78rem; }
+        .edit-mode-badge { display: inline-block; font-size: 0.7rem; font-weight: 600; color: var(--warning); background: rgba(251,191,36,0.1); border: 1px solid rgba(251,191,36,0.2); padding: 3px 10px; border-radius: 20px; margin-bottom: 12px; }
     </style>
 </head>
 <body>
@@ -340,6 +360,9 @@
         </div>
         <div class="sidebar-nav-item" data-target="live-users-section">
             <i class="fa-solid fa-users-viewfinder"></i> Live User Data
+        </div>
+        <div class="sidebar-nav-item" data-target="dev-profile-section">
+            <i class="fa-solid fa-id-badge"></i> Developer Profile
         </div>
     </div>
 
@@ -477,6 +500,39 @@
             </div>
         </div>
 
+        <!-- ===================== DEVELOPER PROFILE SECTION ===================== -->
+        <div id="dev-profile-section" class="app-section">
+            <div class="card-panel">
+                <h2 class="section-title"><i class="fa-solid fa-id-badge" style="color: #38bdf8;"></i> Current Developer Profile</h2>
+                <div id="dev-preview-box">
+                    <div style="color:var(--text-muted); font-size:0.85rem;">Loading...</div>
+                </div>
+            </div>
+
+            <div class="card-panel">
+                <h2 class="section-title"><i class="fa-solid fa-user-pen" style="color: var(--warning);"></i> Add / Edit Profile</h2>
+                <div id="dev-edit-badge" class="edit-mode-badge hidden">✏️ Edit mode: purani profile update ho rahi hai</div>
+
+                <div class="form-group">
+                    <label>Profile Picture</label>
+                    <div class="dev-form-photo">
+                        <img id="dev-form-img" alt="preview">
+                        <input type="file" id="dev-photo-input" accept="image/*">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Name</label>
+                    <input type="text" id="dev-name-input" placeholder="e.g., Muhammad Aitezaz Tariq" maxlength="60">
+                </div>
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea id="dev-desc-input" placeholder="Apne baare mein likhein..." maxlength="300"></textarea>
+                </div>
+                <button class="btn btn-success" id="dev-save-btn">Save Profile</button>
+                <button class="btn btn-ghost hidden" id="dev-cancel-btn" style="margin-top: 8px;">Cancel Edit</button>
+            </div>
+        </div>
+
     </div>
 
     <!-- GPA SUBJECT EDIT MODAL -->
@@ -574,6 +630,13 @@
         let academicCgpaData = []; // For CGPA
         let activeLogsData = {};
 
+        // Safe text helper (HTML injection se bachne k liye)
+        function esc(str) {
+            return String(str === undefined || str === null ? '' : str)
+                .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+        }
+
         // Sidebar Navigation
         const menuToggle = document.getElementById('menu-toggle');
         const sidebarDrawer = document.getElementById('sidebar-drawer');
@@ -622,33 +685,59 @@
             containerGpa.classList.add('hidden');
         });
 
-        // 🟢 REALTIME TRAFFIC MONITOR
+        // 🟢 REALTIME TRAFFIC MONITOR (FIXED MAPPING)
+        // index.html likhta hai: live_traffic_now/{sessionId} = {id, name, page, timestamp, lastActive}
+        // aur traffic_history_trend/{pushId} = {page, timestamp, ts}
+        let serverOffset = 0;
+        let liveSessionsRaw = {};
+
+        onValue(ref(db, '.info/serverTimeOffset'), (snap) => {
+            serverOffset = snap.val() || 0;
+            renderLiveUsers();
+        });
+
+        function renderLiveUsers() {
+            const statusBox = document.getElementById('browsing-now-status');
+            const nowServer = Date.now() + serverOffset;
+
+            // Sirf wohi users jinka heartbeat 2 minute k andar ho (purany/dead sessions ignore)
+            const activeUsers = Object.values(liveSessionsRaw || {}).filter(u => {
+                return u && typeof u === 'object' && typeof u.lastActive === 'number' && (nowServer - u.lastActive) < 120000;
+            });
+
+            document.getElementById('live-users-count').innerText = activeUsers.length;
+            statusBox.innerHTML = '';
+
+            if (activeUsers.length === 0) {
+                statusBox.innerHTML = '<div style="color:var(--text-muted); text-align:center; padding:10px;">Zero user online right now.</div>';
+                return;
+            }
+
+            activeUsers.forEach(user => {
+                const uRow = document.createElement('div');
+                uRow.className = 'active-user-row';
+                uRow.innerHTML = `
+                    <div class="user-meta-left">
+                        <span class="user-name-lbl">👤 ${esc(user.name || 'Anonymous Student')} :</span>
+                    </div>
+                    <div class="user-page-status-badge">${esc(user.page || 'HOME PAGE')}</div>
+                `;
+                statusBox.appendChild(uRow);
+            });
+        }
+
         const liveTrafficRef = ref(db, 'live_traffic_now');
         onValue(liveTrafficRef, (snapshot) => {
-            const data = snapshot.val();
-            const statusBox = document.getElementById('browsing-now-status');
-            statusBox.innerHTML = '';
-            
-            if (data && Object.keys(data).length > 0) {
-                const activeUsers = Object.values(data);
-                document.getElementById('live-users-count').innerText = activeUsers.length;
-                
-                activeUsers.forEach(user => {
-                    const uRow = document.createElement('div');
-                    uRow.className = 'active-user-row';
-                    uRow.innerHTML = `
-                        <div class="user-meta-left">
-                            <span class="user-name-lbl">👤 ${user.name || 'Anonymous Student'} :</span>
-                        </div>
-                        <div class="user-page-status-badge">${user.page || 'HOME PAGE'}</div>
-                    `;
-                    statusBox.appendChild(uRow);
-                });
-            } else {
-                document.getElementById('live-users-count').innerText = '0';
-                statusBox.innerHTML = '<div style="color:var(--text-muted); text-align:center; padding:10px;">Zero user online right now.</div>';
-            }
+            liveSessionsRaw = snapshot.val() || {};
+            renderLiveUsers();
+        }, (err) => {
+            console.error("Live traffic read error:", err);
+            document.getElementById('browsing-now-status').innerHTML =
+                '<div style="color:#fca5a5; text-align:center; padding:10px;">Live traffic read nahi ho saka (Firebase Rules check karein).</div>';
         });
+
+        // Har 15 sec baad dobara check taake offline users khud hat jayen
+        setInterval(renderLiveUsers, 15000);
 
         const historyTrendRef = ref(db, 'traffic_history_trend');
         onValue(historyTrendRef, (snapshot) => {
@@ -657,15 +746,15 @@
             listContainer.innerHTML = '';
             
             if (data) {
-                const historyArray = Object.values(data);
+                const historyArray = Object.values(data).filter(x => x && typeof x === 'object');
                 document.getElementById('total-traffic-count').innerText = historyArray.length;
                 
                 historyArray.reverse().slice(0, 30).forEach(entry => {
                     const row = document.createElement('div');
                     row.className = 'trend-row';
                     row.innerHTML = `
-                        <div class="timestamp-item">🕒 ${entry.timestamp}</div>
-                        <div class="page-badge">${entry.page || 'HOME PAGE'}</div>
+                        <div class="timestamp-item">🕒 ${esc(entry.timestamp || '')}</div>
+                        <div class="page-badge">${esc(entry.page || 'HOME PAGE')}</div>
                     `;
                     listContainer.appendChild(row);
                 });
@@ -673,6 +762,10 @@
                 document.getElementById('total-traffic-count').innerText = '0';
                 listContainer.innerHTML = '<div style="text-align:center; padding:10px; color:#64748b;">No traffic history recorded yet.</div>';
             }
+        }, (err) => {
+            console.error("Traffic history read error:", err);
+            document.getElementById('history-trend-list').innerHTML =
+                '<div style="text-align:center; padding:10px; color:#fca5a5;">Traffic history read nahi ho saki (Firebase Rules check karein).</div>';
         });
 
         // 🟢 LOAD DEPARTMENTS REALTIME
@@ -1048,6 +1141,7 @@
 
 
         // 🟢 REALTIME LOG MONITORING FOR INCOMING STUDENT ENTRIES
+        // index.html student_logs mein likhta hai: name, type, department, semester, gpa/cgpa, subjects[], timestamp
         const logsRef = ref(db, 'student_logs');
         onValue(logsRef, (snapshot) => {
             const container = document.getElementById('logs-container');
@@ -1069,13 +1163,13 @@
                 card.setAttribute('onclick', `openUserDetailedTranscript('${logKey}')`);
                 
                 card.innerHTML = `
-                    <strong style="color:#fff; font-size:0.9rem;">${logVal.name || 'Anonymous Student'}</strong> 
-                    <span style="float:right; font-size:0.7rem; color:var(--text-muted);">${logVal.timestamp || ''}</span>
+                    <strong style="color:#fff; font-size:0.9rem;">${esc(logVal.name || 'Anonymous Student')}</strong> 
+                    <span style="float:right; font-size:0.7rem; color:var(--text-muted);">${esc(logVal.timestamp || '')}</span>
                     <p style="margin-top:4px; color:#d4d4d8; font-size:0.78rem;">
-                        Dept: <b style="color:#34d399;">${logVal.department || 'N/A'}</b> | Info: <b style="color:#fbbf24;">${logVal.semester || logVal.type || 'N/A'}</b>
+                        Dept: <b style="color:#34d399;">${esc(logVal.department || 'N/A')}</b> | Info: <b style="color:#fbbf24;">${esc(logVal.semester || logVal.type || 'N/A')}</b>
                     </p>
                     <div class="card-actions-wrapper">
-                        <div style="font-size:0.78rem;">Calculated Score: <span class="score-lbl-badge">${logVal.gpa || logVal.cgpa || '0.00'}</span></div>
+                        <div style="font-size:0.78rem;">Calculated Score: <span class="score-lbl-badge">${esc(logVal.gpa || logVal.cgpa || '0.00')}</span></div>
                         <button class="delete-log-btn" onclick="deleteUserLogRecord(event, '${logKey}')">
                             <i class="fa-solid fa-trash-arrow-up"></i> Delete
                         </button>
@@ -1083,6 +1177,10 @@
                 `;
                 container.prepend(card);
             });
+        }, (err) => {
+            console.error("Logs read error:", err);
+            document.getElementById('logs-container').innerHTML =
+                '<p style="color:#fca5a5; font-size:0.85rem;">Logs read nahi ho sakay (Firebase Rules check karein).</p>';
         });
 
         window.deleteUserLogRecord = async function(event, nodeKey) {
@@ -1127,6 +1225,7 @@
             if (subjectList) {
                 const items = Array.isArray(subjectList) ? subjectList : Object.values(subjectList);
                 items.forEach(item => {
+                    if (!item) return;
                     const sName = item.name || item.subject || item.subjectName || 'N/A';
                     const sCh = item.ch || item.creditHours || item.credit_hours || item.credits || '0';
                     const sGp = item.gp || item.gradePoints || item.gradePoint || item.points || '0';
@@ -1134,15 +1233,15 @@
 
                     tableBody.innerHTML += `
                         <tr>
-                            <td style="color:#fff; font-weight:500;">${sName}</td>
-                            <td>${sCh}</td>
-                            <td>${sGp}</td>
-                            <td><span style="background:rgba(255,255,255,0.06); padding:2px 6px; border-radius:6px; font-weight:600; color:#fbbf24;">${sGrade}</span></td>
+                            <td style="color:#fff; font-weight:500;">${esc(sName)}</td>
+                            <td>${esc(sCh)}</td>
+                            <td>${esc(sGp)}</td>
+                            <td><span style="background:rgba(255,255,255,0.06); padding:2px 6px; border-radius:6px; font-weight:600; color:#fbbf24;">${esc(sGrade)}</span></td>
                         </tr>
                     `;
                 });
             } else {
-                tableBody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:var(--text-muted); padding:10px;">Detailed arrays are not mapped for this entry. (Score: ${targetData.gpa || targetData.cgpa || '0.00'})</td></tr>`;
+                tableBody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:var(--text-muted); padding:10px;">Detailed arrays are not mapped for this entry. (Score: ${esc(targetData.gpa || targetData.cgpa || '0.00')})</td></tr>`;
             }
 
             detailsModal.classList.add('modal-open');
@@ -1165,6 +1264,191 @@
         const detailsModal = document.getElementById('details-modal');
         document.getElementById('modal-close-btn').addEventListener('click', () => { detailsModal.classList.remove('modal-open'); });
         detailsModal.addEventListener('click', (e) => { if(e.target === detailsModal) detailsModal.classList.remove('modal-open'); });
+
+
+        // ======================= DEVELOPER PROFILE LOGIC =======================
+        // Firebase path: uet_config/developerProfile = { name, description, photo (base64), updatedAt }
+        const devProfileRef = ref(db, 'uet_config/developerProfile');
+        const DEFAULT_AVATAR = "data:image/svg+xml;utf8," + encodeURIComponent(
+            '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" fill="#1e293b"/><circle cx="50" cy="38" r="18" fill="#64748b"/><path d="M14 92c4-22 20-32 36-32s32 10 36 32z" fill="#64748b"/></svg>'
+        );
+
+        let devProfile = null;      // Firebase se aane wali current profile
+        let devNewPhotoData = "";   // Naya select kiya hua photo (base64)
+        let devEditing = false;
+
+        const devPhotoInput = document.getElementById('dev-photo-input');
+        const devNameInput = document.getElementById('dev-name-input');
+        const devDescInput = document.getElementById('dev-desc-input');
+        const devFormImg = document.getElementById('dev-form-img');
+        const devSaveBtn = document.getElementById('dev-save-btn');
+        const devCancelBtn = document.getElementById('dev-cancel-btn');
+        const devEditBadge = document.getElementById('dev-edit-badge');
+
+        devFormImg.src = DEFAULT_AVATAR;
+
+        // Photo ko chota (240x240 square) compress kr k base64 bana do
+        function compressImageToDataURL(file, size) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onerror = () => reject(new Error("File read failed"));
+                reader.onload = () => {
+                    const img = new Image();
+                    img.onerror = () => reject(new Error("Image load failed"));
+                    img.onload = () => {
+                        const canvas = document.createElement('canvas');
+                        canvas.width = size;
+                        canvas.height = size;
+                        const ctx = canvas.getContext('2d');
+                        const minSide = Math.min(img.width, img.height);
+                        const sx = (img.width - minSide) / 2;
+                        const sy = (img.height - minSide) / 2;
+                        ctx.drawImage(img, sx, sy, minSide, minSide, 0, 0, size, size);
+                        resolve(canvas.toDataURL('image/jpeg', 0.85));
+                    };
+                    img.src = reader.result;
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+
+        devPhotoInput.addEventListener('change', async () => {
+            const file = devPhotoInput.files[0];
+            if (!file) return;
+            try {
+                devNewPhotoData = await compressImageToDataURL(file, 240);
+                devFormImg.src = devNewPhotoData;
+            } catch (err) {
+                alert("Photo load nahi ho saki: " + err.message);
+            }
+        });
+
+        function resetDevForm() {
+            devEditing = false;
+            devNewPhotoData = "";
+            devPhotoInput.value = '';
+            devNameInput.value = '';
+            devDescInput.value = '';
+            devFormImg.src = DEFAULT_AVATAR;
+            devSaveBtn.innerText = 'Save Profile';
+            devEditBadge.classList.add('hidden');
+            devCancelBtn.classList.add('hidden');
+        }
+
+        function renderDevPreview() {
+            const box = document.getElementById('dev-preview-box');
+            box.innerHTML = '';
+
+            if (!devProfile) {
+                box.innerHTML = '<div style="color:var(--text-muted); font-size:0.85rem;">Abhi koi developer profile save nahi hai. Neeche form se add karein.</div>';
+                return;
+            }
+
+            const card = document.createElement('div');
+            card.className = 'dev-preview-card';
+
+            const img = document.createElement('img');
+            img.className = 'dev-prev-img';
+            img.src = devProfile.photo || DEFAULT_AVATAR;
+            img.alt = 'Developer';
+
+            const info = document.createElement('div');
+            info.className = 'dev-prev-info';
+
+            const nm = document.createElement('div');
+            nm.className = 'dev-prev-name';
+            nm.textContent = devProfile.name || '(No name)';
+
+            const ds = document.createElement('div');
+            ds.className = 'dev-prev-desc';
+            ds.textContent = devProfile.description || '(No description)';
+
+            info.appendChild(nm);
+            info.appendChild(ds);
+            card.appendChild(img);
+            card.appendChild(info);
+            box.appendChild(card);
+
+            const actions = document.createElement('div');
+            actions.className = 'dev-action-row';
+
+            const editBtn = document.createElement('button');
+            editBtn.className = 'btn btn-primary';
+            editBtn.innerHTML = '<i class="fa-solid fa-pen-to-square"></i> Edit';
+            editBtn.addEventListener('click', startEditDevProfile);
+
+            const delBtn = document.createElement('button');
+            delBtn.className = 'btn btn-delete-solid';
+            delBtn.innerHTML = '<i class="fa-regular fa-trash-can"></i> Delete';
+            delBtn.addEventListener('click', deleteDevProfile);
+
+            actions.appendChild(editBtn);
+            actions.appendChild(delBtn);
+            box.appendChild(actions);
+        }
+
+        function startEditDevProfile() {
+            if (!devProfile) return;
+            devEditing = true;
+            devNewPhotoData = "";
+            devPhotoInput.value = '';
+            devNameInput.value = devProfile.name || '';
+            devDescInput.value = devProfile.description || '';
+            devFormImg.src = devProfile.photo || DEFAULT_AVATAR;
+            devSaveBtn.innerText = 'Update Profile';
+            devEditBadge.classList.remove('hidden');
+            devCancelBtn.classList.remove('hidden');
+            devNameInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+
+        async function deleteDevProfile() {
+            if (!confirm("Kia aap waqai Developer Profile (photo, name, description) delete krna chahty hain?")) return;
+            try {
+                await remove(devProfileRef);
+                resetDevForm();
+                alert("Developer profile delete ho gayi.");
+            } catch (err) {
+                alert("Error: " + err.message);
+            }
+        }
+
+        devSaveBtn.addEventListener('click', async () => {
+            const name = devNameInput.value.trim();
+            const description = devDescInput.value.trim();
+            const photo = devNewPhotoData || (devProfile && devProfile.photo) || "";
+
+            if (!name && !description && !photo) {
+                return alert("Kam az kam photo, name ya description mein se kuch to daalein!");
+            }
+
+            devSaveBtn.disabled = true;
+            try {
+                await set(devProfileRef, {
+                    name: name,
+                    description: description,
+                    photo: photo,
+                    updatedAt: Date.now()
+                });
+                const wasEditing = devEditing;
+                resetDevForm();
+                alert(wasEditing ? "Developer profile update ho gayi!" : "Developer profile save ho gayi!");
+            } catch (err) {
+                alert("Error: " + err.message);
+            } finally {
+                devSaveBtn.disabled = false;
+            }
+        });
+
+        devCancelBtn.addEventListener('click', resetDevForm);
+
+        onValue(devProfileRef, (snapshot) => {
+            devProfile = snapshot.val();
+            renderDevPreview();
+        }, (err) => {
+            console.error("Developer profile read error:", err);
+            document.getElementById('dev-preview-box').innerHTML =
+                '<div style="color:#fca5a5; font-size:0.85rem;">Profile read nahi ho saki (Firebase Rules check karein).</div>';
+        });
     </script>
 </body>
 </html>
