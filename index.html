@@ -111,26 +111,31 @@
             left: 0;
         }
 
-        /* Close (X) button inside sidebar */
+        /* Close (X) button inside sidebar - UPDATED DESIGN */
         .sidebar-close-btn {
             position: absolute;
             top: 22px;
             right: 20px;
-            width: 40px;
-            height: 40px;
+            width: 32px;
+            height: 32px;
             border-radius: 50%;
-            background: rgba(255, 255, 255, 0.08);
-            border: 1px solid var(--glass-border);
-            color: #fff;
-            font-size: 1.2rem;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #94a3b8;
+            font-size: 1rem;
             line-height: 1;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: all 0.25s ease;
+            transition: all 0.3s ease;
         }
-        .sidebar-close-btn:hover { background: rgba(239, 68, 68, 0.3); border-color: rgba(239, 68, 68, 0.5); }
+        .sidebar-close-btn:hover { 
+            background: rgba(239, 68, 68, 0.15); 
+            border-color: rgba(239, 68, 68, 0.3);
+            color: #ef4444;
+            transform: scale(1.05);
+        }
 
         .sidebar-nav ul {
             list-style: none;
@@ -173,12 +178,13 @@
             color: #64748b;
             margin-bottom: 20px;
         }
+        /* UPDATED AVATAR RING */
         .dev-avatar-ring {
             position: relative;
-            width: 116px;
-            height: 116px;
+            width: 85px; /* Reduced from 116px */
+            height: 85px; /* Reduced from 116px */
             margin: 0 auto;
-            padding: 5px;
+            padding: 3px; /* Reduced padding */
             display: flex;
             border-radius: 50%;
             isolation: isolate;
@@ -196,11 +202,11 @@
         .dev-avatar-ring::after {
             content: '';
             position: absolute;
-            inset: -3px;
+            inset: -2px; /* Reduced inset */
             border-radius: 50%;
             background: conic-gradient(from 0deg, #f87171, #fbbf24, #4ade80, #38bdf8, #a78bfa, #f472b6, #f87171);
-            opacity: 0.18;
-            filter: blur(9px);
+            opacity: 0.15;
+            filter: blur(6px); /* Reduced blur */
             animation: ringSpin 7s linear infinite;
             z-index: -2;
         }
@@ -209,17 +215,18 @@
             height: 100%;
             border-radius: 50%;
             object-fit: cover;
-            border: 3px solid #0b0f19;
+            border: 2px solid #0b0f19; /* Reduced border thickness */
             background: #0f172a;
             display: block;
         }
+        /* UPDATED NAME FONT */
         .dev-name {
             font-family: 'Dancing Script', cursive;
-            font-size: 1.8rem;
+            font-size: 1.5rem; /* Reduced from 1.8rem */
             font-weight: 700;
-            margin-top: 18px;
+            margin-top: 14px; /* Slightly closer to image */
             line-height: 1.2;
-            letter-spacing: 0.5px;
+            letter-spacing: 0.2px; /* Tighter letter spacing */
             background: linear-gradient(90deg, #34d399, #38bdf8, #a78bfa, #34d399);
             background-size: 200% auto;
             -webkit-background-clip: text;
@@ -230,7 +237,7 @@
             word-wrap: break-word;
         }
         .dev-desc {
-            margin-top: 10px;
+            margin-top: 8px; /* Slightly closer to name */
             font-size: 0.85rem;
             font-weight: 500;
             color: #cbd5e1;
