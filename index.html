@@ -26,7 +26,7 @@
     <meta property="twitter:description" content="Calculate your semester GPA and cumulative CGPA instantly with official credit hours structure for UET students.">
     <meta property="twitter:image" content="https://i.ibb.co/N6rtZLj4/518e5401-2240-4b58-9f46-53e0673b81de-removalai-preview.png">
 
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Dancing+Script:wght@600;700&display=swap" rel="stylesheet">
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     
@@ -95,12 +95,14 @@
             left: -280px;
             width: 280px;
             height: 100%;
-            background: rgba(11, 15, 25, 0.85);
+            background: rgba(11, 15, 25, 0.92);
             backdrop-filter: blur(25px);
             -webkit-backdrop-filter: blur(25px);
             border-right: 1px solid var(--glass-border);
             z-index: 101;
-            padding-top: 100px;
+            padding-top: 90px;
+            padding-bottom: 30px;
+            overflow-y: auto;
             transition: left 0.4s cubic-bezier(0.77,0.2,0.05,1.0);
             box-shadow: 10px 0 30px rgba(0,0,0,0.5);
         }
@@ -108,6 +110,27 @@
         .sidebar-nav.open {
             left: 0;
         }
+
+        /* Close (X) button inside sidebar */
+        .sidebar-close-btn {
+            position: absolute;
+            top: 22px;
+            right: 20px;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid var(--glass-border);
+            color: #fff;
+            font-size: 1.2rem;
+            line-height: 1;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.25s ease;
+        }
+        .sidebar-close-btn:hover { background: rgba(239, 68, 68, 0.3); border-color: rgba(239, 68, 68, 0.5); }
 
         .sidebar-nav ul {
             list-style: none;
@@ -134,6 +157,90 @@
             border-left: 4px solid #34d399;
             padding-left: 14px;
         }
+
+        /* ===== Developer Profile (inside sidebar) ===== */
+        .dev-profile {
+            margin: 35px 25px 0 25px;
+            padding: 24px 14px 10px 14px;
+            text-align: center;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .dev-heading {
+            font-size: 0.72rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 2.5px;
+            color: #64748b;
+            margin-bottom: 20px;
+        }
+        .dev-avatar-ring {
+            position: relative;
+            width: 116px;
+            height: 116px;
+            margin: 0 auto;
+            padding: 5px;
+            display: flex;
+            border-radius: 50%;
+            isolation: isolate;
+        }
+        .dev-avatar-ring::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: 50%;
+            background: conic-gradient(from 0deg, #f87171, #fbbf24, #4ade80, #38bdf8, #a78bfa, #f472b6, #f87171);
+            opacity: 0.55;
+            animation: ringSpin 7s linear infinite;
+            z-index: -1;
+        }
+        .dev-avatar-ring::after {
+            content: '';
+            position: absolute;
+            inset: -3px;
+            border-radius: 50%;
+            background: conic-gradient(from 0deg, #f87171, #fbbf24, #4ade80, #38bdf8, #a78bfa, #f472b6, #f87171);
+            opacity: 0.18;
+            filter: blur(9px);
+            animation: ringSpin 7s linear infinite;
+            z-index: -2;
+        }
+        .dev-avatar-img {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid #0b0f19;
+            background: #0f172a;
+            display: block;
+        }
+        .dev-name {
+            font-family: 'Dancing Script', cursive;
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-top: 18px;
+            line-height: 1.2;
+            letter-spacing: 0.5px;
+            background: linear-gradient(90deg, #34d399, #38bdf8, #a78bfa, #34d399);
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            color: transparent;
+            animation: nameShine 6s linear infinite;
+            word-wrap: break-word;
+        }
+        .dev-desc {
+            margin-top: 10px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: #cbd5e1;
+            line-height: 1.65;
+            white-space: pre-line;
+            word-wrap: break-word;
+        }
+
+        @keyframes ringSpin { to { transform: rotate(360deg); } }
+        @keyframes nameShine { to { background-position: 200% center; } }
 
         .nav-overlay {
             position: fixed;
@@ -520,11 +627,23 @@
     </nav>
 
     <div class="sidebar-nav" id="sidebar-drawer">
+        <button class="sidebar-close-btn" id="sidebar-close-btn" aria-label="Close menu">✕</button>
+
         <ul>
             <li><a href="index.html" class="active">Home</a></li>
             <li><a href="faqs.html">FAQs</a></li>
             <li><a href="guide.html">Calculation Guide</a></li>
         </ul>
+
+        <!-- Developer Profile (admin panel se control hota hai) -->
+        <div class="dev-profile hidden" id="dev-profile-box">
+            <div class="dev-heading">Developer Profile</div>
+            <div class="dev-avatar-ring">
+                <img class="dev-avatar-img" id="dev-profile-img" alt="Developer">
+            </div>
+            <div class="dev-name" id="dev-profile-name"></div>
+            <div class="dev-desc" id="dev-profile-desc"></div>
+        </div>
     </div>
 
     <div class="nav-overlay" id="menu-overlay"></div>
@@ -659,20 +778,27 @@
         const menuBtn = document.getElementById('menu-toggle-btn');
         const sideDrawer = document.getElementById('sidebar-drawer');
         const menuOverlay = document.getElementById('menu-overlay');
+        const sidebarCloseBtn = document.getElementById('sidebar-close-btn');
 
         function toggleMenu() {
             sideDrawer.classList.toggle('open');
             menuOverlay.classList.toggle('visible');
         }
 
+        function closeMenu() {
+            sideDrawer.classList.remove('open');
+            menuOverlay.classList.remove('visible');
+        }
+
         menuBtn.addEventListener('click', toggleMenu);
-        menuOverlay.addEventListener('click', toggleMenu);
+        menuOverlay.addEventListener('click', closeMenu);
+        sidebarCloseBtn.addEventListener('click', closeMenu);
     </script>
 
     <!-- App Logic JS -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getDatabase, ref, get, child, push, set, onValue, onDisconnect } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+        import { getDatabase, ref, get, child, push, set, onValue, onDisconnect, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyCRximbg48XT2HxpQoRdyp137soJwcEWqw",
@@ -689,6 +815,7 @@
 
         let currentSessionId = "user_" + Date.now() + "_" + Math.floor(Math.random() * 1000);
         let currentSessionRef = ref(db, `live_traffic_now/${currentSessionId}`);
+        let currentUserName = "Anonymous Student";
         let latestCalculatedSession = null;
         let currentActiveMode = 'GPA'; // GPA or CGPA
 
@@ -703,35 +830,86 @@
         // CGPA Variables
         let cgpaRowCount = 0;
 
-        function startLiveTrackingSession() {
-            set(currentSessionRef, {
+        // ================= LIVE TRAFFIC TRACKING =================
+        function writeSession() {
+            return set(currentSessionRef, {
                 id: currentSessionId,
-                name: "Anonymous Student",
+                name: currentUserName,
                 page: "HOME PAGE",
-                timestamp: new Date().toLocaleString()
+                timestamp: new Date().toLocaleString(),
+                lastActive: serverTimestamp()
+            });
+        }
+
+        function startLiveTrackingSession() {
+            // Har dafa connection (re)connect hone par session dobara likho + onDisconnect dobara lagao
+            const connectedRef = ref(db, '.info/connected');
+            onValue(connectedRef, (snap) => {
+                if (snap.val() === true) {
+                    onDisconnect(currentSessionRef).remove()
+                        .then(() => writeSession())
+                        .catch((err) => console.error("Live session error:", err));
+                }
             });
 
+            // Heartbeat: admin ko pata rahy user abhi active hai
+            setInterval(() => {
+                set(ref(db, `live_traffic_now/${currentSessionId}/lastActive`), serverTimestamp()).catch(() => {});
+            }, 25000);
+
+            // Tab wapis khulne par foran refresh
+            document.addEventListener('visibilitychange', () => {
+                if (!document.hidden) {
+                    writeSession().catch(() => {});
+                }
+            });
+
+            // Total page views history (sirf ek dafa per page load)
             const trendHistoryRef = ref(db, 'traffic_history_trend');
             push(trendHistoryRef, {
                 page: "HOME PAGE",
-                timestamp: new Date().toLocaleString()
-            });
+                timestamp: new Date().toLocaleString(),
+                ts: Date.now()
+            }).catch((err) => console.error("Traffic history error:", err));
 
-            document.getElementById('student-name').addEventListener('input', (e) => {
-                const nameVal = e.target.value.trim();
-                set(ref(db, `live_traffic_now/${currentSessionId}/name`), nameVal || "Anonymous Student");
-            });
+            const updateName = (e) => {
+                currentUserName = e.target.value.trim() || "Anonymous Student";
+                set(ref(db, `live_traffic_now/${currentSessionId}/name`), currentUserName).catch(() => {});
+            };
 
-            document.getElementById('cgpa-student-name').addEventListener('input', (e) => {
-                const nameVal = e.target.value.trim();
-                set(ref(db, `live_traffic_now/${currentSessionId}/name`), nameVal || "Anonymous Student");
-            });
+            document.getElementById('student-name').addEventListener('input', updateName);
+            document.getElementById('cgpa-student-name').addEventListener('input', updateName);
+        }
 
-            onDisconnect(currentSessionRef).remove();
+        // ================= DEVELOPER PROFILE (sidebar) =================
+        const DEFAULT_AVATAR = "data:image/svg+xml;utf8," + encodeURIComponent(
+            '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" fill="#1e293b"/><circle cx="50" cy="38" r="18" fill="#64748b"/><path d="M14 92c4-22 20-32 36-32s32 10 36 32z" fill="#64748b"/></svg>'
+        );
+
+        function listenDeveloperProfile() {
+            const box = document.getElementById('dev-profile-box');
+            const img = document.getElementById('dev-profile-img');
+            const nameEl = document.getElementById('dev-profile-name');
+            const descEl = document.getElementById('dev-profile-desc');
+
+            onValue(ref(db, 'uet_config/developerProfile'), (snapshot) => {
+                const data = snapshot.val();
+                if (!data || (!data.name && !data.photo && !data.description)) {
+                    box.classList.add('hidden');
+                    return;
+                }
+                img.src = data.photo || DEFAULT_AVATAR;
+                nameEl.textContent = data.name || "";
+                descEl.textContent = data.description || "";
+                nameEl.style.display = data.name ? 'block' : 'none';
+                descEl.style.display = data.description ? 'block' : 'none';
+                box.classList.remove('hidden');
+            }, (err) => console.error("Developer profile error:", err));
         }
 
         document.addEventListener('DOMContentLoaded', () => {
             listenDepartmentsAndBuildUI();
+            listenDeveloperProfile();
             
             // Tab Events
             document.getElementById('tab-gpa').addEventListener('click', () => switchTab('GPA'));
@@ -1043,6 +1221,19 @@
                 type: "GPA"
             };
 
+            // Admin "Live User Data" ke liye log save karo
+            try {
+                push(ref(db, 'student_logs'), {
+                    name: studentName,
+                    type: "Semester GPA",
+                    department: latestCalculatedSession.department,
+                    semester: latestCalculatedSession.semesterDetails,
+                    gpa: gpa,
+                    subjects: finalSubjectsList,
+                    timestamp: new Date().toLocaleString()
+                });
+            } catch (e) { console.error(e); }
+
             displayOverlayResult(parseFloat(gpa), studentName, "GPA");
         }
 
@@ -1182,7 +1373,10 @@
                 push(logsRef, {
                     name: studentName,
                     type: "Cumulative CGPA",
+                    department: latestCalculatedSession.department,
+                    semester: "Cumulative Semesters Summary",
                     cgpa: cgpa,
+                    subjects: validSemesters,
                     timestamp: new Date().toLocaleString()
                 });
             } catch (e) { console.error(e); }
